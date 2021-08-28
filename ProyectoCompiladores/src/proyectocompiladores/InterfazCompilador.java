@@ -31,51 +31,154 @@ public class InterfazCompilador extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jtxt_entrada = new javax.swing.JTextField();
-        jbt_analizar = new javax.swing.JButton();
+        jd_compilador = new javax.swing.JDialog();
+        jLabel2 = new javax.swing.JLabel();
+        jTabbedPane2 = new javax.swing.JTabbedPane();
+        jp_analizadorlexico = new javax.swing.JPanel();
+        jPanel8 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jtxtarea_salida = new javax.swing.JTextArea();
+        jp_analizadorsintactico = new javax.swing.JPanel();
+        jp_codigogenerado = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
+        jbt_analizar = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jtxtarea_entrada = new javax.swing.JTextArea();
+
+        jLabel2.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
+        jLabel2.setText("Compilador ADA 95");
+
+        jtxtarea_salida.setColumns(20);
+        jtxtarea_salida.setRows(5);
+        jScrollPane1.setViewportView(jtxtarea_salida);
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 652, Short.MAX_VALUE)
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout jp_analizadorlexicoLayout = new javax.swing.GroupLayout(jp_analizadorlexico);
+        jp_analizadorlexico.setLayout(jp_analizadorlexicoLayout);
+        jp_analizadorlexicoLayout.setHorizontalGroup(
+            jp_analizadorlexicoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jp_analizadorlexicoLayout.setVerticalGroup(
+            jp_analizadorlexicoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        jTabbedPane2.addTab("Análisis Léxico", jp_analizadorlexico);
+
+        javax.swing.GroupLayout jp_analizadorsintacticoLayout = new javax.swing.GroupLayout(jp_analizadorsintactico);
+        jp_analizadorsintactico.setLayout(jp_analizadorsintacticoLayout);
+        jp_analizadorsintacticoLayout.setHorizontalGroup(
+            jp_analizadorsintacticoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 652, Short.MAX_VALUE)
+        );
+        jp_analizadorsintacticoLayout.setVerticalGroup(
+            jp_analizadorsintacticoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 377, Short.MAX_VALUE)
+        );
+
+        jTabbedPane2.addTab("Análisis Sintáctico", jp_analizadorsintactico);
+
+        javax.swing.GroupLayout jp_codigogeneradoLayout = new javax.swing.GroupLayout(jp_codigogenerado);
+        jp_codigogenerado.setLayout(jp_codigogeneradoLayout);
+        jp_codigogeneradoLayout.setHorizontalGroup(
+            jp_codigogeneradoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 652, Short.MAX_VALUE)
+        );
+        jp_codigogeneradoLayout.setVerticalGroup(
+            jp_codigogeneradoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 377, Short.MAX_VALUE)
+        );
+
+        jTabbedPane2.addTab("Generación de Código", jp_codigogenerado);
+
+        javax.swing.GroupLayout jd_compiladorLayout = new javax.swing.GroupLayout(jd_compilador.getContentPane());
+        jd_compilador.getContentPane().setLayout(jd_compiladorLayout);
+        jd_compiladorLayout.setHorizontalGroup(
+            jd_compiladorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jd_compiladorLayout.createSequentialGroup()
+                .addGap(34, 34, 34)
+                .addGroup(jd_compiladorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 657, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addContainerGap(33, Short.MAX_VALUE))
+        );
+        jd_compiladorLayout.setVerticalGroup(
+            jd_compiladorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jd_compiladorLayout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addComponent(jLabel2)
+                .addGap(33, 33, 33)
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 404, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(33, Short.MAX_VALUE))
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jbt_analizar.setText("Analizar");
+        jbt_analizar.setText("Run");
         jbt_analizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbt_analizarActionPerformed(evt);
             }
         });
 
-        jtxtarea_salida.setColumns(20);
-        jtxtarea_salida.setRows(5);
-        jScrollPane1.setViewportView(jtxtarea_salida);
+        jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
+        jLabel1.setText("ADA 95");
+
+        jButton1.setText("Comentar");
+
+        jButton2.setText("Mostrar Árbol");
+
+        jtxtarea_entrada.setColumns(20);
+        jtxtarea_entrada.setRows(5);
+        jScrollPane2.setViewportView(jtxtarea_entrada);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(39, 39, 39)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane2)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(106, 106, 106)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jtxt_entrada, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(157, 157, 157)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton2)
+                        .addGap(362, 362, 362)
                         .addComponent(jbt_analizar)))
-                .addContainerGap(114, Short.MAX_VALUE))
+                .addContainerGap(35, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(36, 36, 36)
-                .addComponent(jtxt_entrada, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jbt_analizar)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(11, 11, 11)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton1)
+                            .addComponent(jButton2))))
                 .addGap(18, 18, 18)
-                .addComponent(jbt_analizar)
-                .addGap(27, 27, 27)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 427, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(34, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -93,6 +196,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbt_analizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbt_analizarActionPerformed
+        jd_compilador.pack();
+        jd_compilador.setVisible(true);
+        jd_compilador.setLocationRelativeTo(null);
         try {
             jtxtarea_salida.setText(Analizar());
         } catch (IOException ex) {
@@ -146,7 +252,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         System.out.println("entra");
         Reader reader;
         String text = "dsfsf";
-        reader = new BufferedReader(new StringReader(jtxt_entrada.getText()));
+        reader = new BufferedReader(new StringReader(jtxtarea_entrada.getText()));
         Lexer lexer = new Lexer(reader);
         while (true) {
             Token token = lexer.yylex();
@@ -164,10 +270,21 @@ public class InterfazCompilador extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JButton jbt_analizar;
-    private javax.swing.JTextField jtxt_entrada;
+    private javax.swing.JDialog jd_compilador;
+    private javax.swing.JPanel jp_analizadorlexico;
+    private javax.swing.JPanel jp_analizadorsintactico;
+    private javax.swing.JPanel jp_codigogenerado;
+    private javax.swing.JTextArea jtxtarea_entrada;
     private javax.swing.JTextArea jtxtarea_salida;
     // End of variables declaration//GEN-END:variables
 }
