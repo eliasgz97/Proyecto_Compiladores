@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -249,22 +250,28 @@ public class InterfazCompilador extends javax.swing.JFrame {
     }
 
     public String Analizar() throws IOException {
-        System.out.println("entra");
         Reader reader;
-        String text = "dsfsf";
+        String text = "";
         reader = new BufferedReader(new StringReader(jtxtarea_entrada.getText()));
         Lexer lexer = new Lexer(reader);
+        boolean bandera = true;
         while (true) {
             Token token = lexer.yylex();
             if (token == null) {
                 return text;
             }
             switch (token) {
-                case letra:
-                    text += "<" + token + "> \n";
+                case ESPACIO:
+                    if (bandera == true) {
+                        text += "<" + token + ">\n";
+                        bandera = false;
+                    }
                     break;
+                case ERROR:
+                    JOptionPane.showMessageDialog(this, "Error léxico, intente de nuevo");
                 default:
                     text += "<" + token + "> \n";
+                    bandera = true;
             }
         }
     }
