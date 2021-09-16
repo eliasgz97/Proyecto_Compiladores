@@ -1,0 +1,71 @@
+package proyectocompiladores;
+
+import java_cup.runtime.*;
+import java.util.*;
+import java.io.*;
+
+
+
+
+
+parser code 
+{:  
+    public ArrayList<String> errores = new ArrayList();
+    public void unrecovered_syntax_error(Symbol s) {
+        errores.add("Error de sintaxis en el codigo. Revise el codigo. No recuperable.");
+        System.err.println("Error de sintaxis en el codigo. Revise el codigo.");
+        System.out.println(s.toString());
+    }
+:};
+
+/*Terminales*/
+terminal PROCEDURE,ID,SEMICOLON, IS, DECLARACION, TIPOVARIABLE, BEGIN, STRING, END;
+
+/*No Terminales*/
+non terminal Inicio, Variables, BEG, E;
+
+start with Inicio;
+
+Inicio ::= PROCEDURE:proc ID:id IS:i Variables:var
+{:
+System.out.println(id.toString()+"1");
+:}
+;
+
+Variables ::= ID:id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi Variables:v
+{:
+System.out.println(tipo.toString());
+:}
+|
+BEG:b
+{:
+:}
+|
+Inicio:in
+{:
+//System.out.println(in.toString());
+:}
+;
+
+BEG ::= BEGIN:bgn STRING:S E:e
+{:
+System.out.println(S.toString());
+:}
+;
+
+E ::= END:e ID:id SEMICOLON:sem BEG:b
+{:
+System.out.println(e.toString());
+:}
+|
+END:e ID:id SEMICOLON:semi
+{:
+System.out.println(en.toString());
+:}
+;
+
+
+
+
+
+
