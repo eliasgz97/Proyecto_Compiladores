@@ -85,11 +85,23 @@ LOOP = ("loop")
     {IS}            {return new Symbol(sym.IS, yycolumn, yyline, yytext());}
     {BEGIN}         {return new Symbol(sym.BEGIN, yycolumn, yyline, yytext());}
     {END}           {return new Symbol(sym.END, yycolumn, yyline, yytext());}
+    {TRUE}          {return new Symbol(sym.TRUE, yycolumn, yyline, yytext());}
+    {FALSE}         {return new Symbol(sym.FALSE, yycolumn, yyline, yytext());}
+    {PUT}           {return new Symbol(sym.PUT, yycolumn, yyline, yytext());}
+    {THEN}          {return new Symbol(sym.THEN, yycolumn, yyline, yytext());}
+    {IF}            {return new Symbol(sym.IF, yycolumn, yyline, yytext());}
+    {ELSE}          {return new Symbol(sym.ELSE, yycolumn, yyline, yytext());}
+    {ELSIF}         {return new Symbol(sym.ELSIF, yycolumn, yyline, yytext());}
+    {CONDICIONALES} {return new Symbol(sym.CONDICIONALES, yycolumn, yyline, yytext());}
     {DECLARACION}   {return new Symbol(sym.DECLARACION, yycolumn, yyline, yytext());}
     {TIPOVARIABLE}  {return new Symbol(sym.TIPOVARIABLE, yycolumn, yyline, yytext());}
-    {SEMICOLON}     {return new Symbol(sym.SEMICOLON, yycolumn, yyline, yytext());}   
+    {SEMICOLON}     {return new Symbol(sym.SEMICOLON, yycolumn, yyline, yytext());}  
+    {PARIZQ}        {return new Symbol(sym.PARIZQ, yycolumn, yyline, yytext());}
+    {PARDER}        {return new Symbol(sym.PARDER, yycolumn, yyline, yytext());}
     {ID}            {return new Symbol(sym.ID, yycolumn, yyline, yytext());}
+    {NUMERO}        {return new Symbol(sym.NUMERO, yycolumn, yyline, yytext());}
     {STRING}        {return new Symbol(sym.STRING, yycolumn, yyline, yytext());}
+    {OPREL}         {return new Symbol(sym.OPREL, yycolumn, yyline, yytext());}
     {ESPACIO}       {}
     .               {}
 }

@@ -19,16 +19,17 @@ parser code
 :};
 
 /*Terminales*/
-terminal PROCEDURE,ID,SEMICOLON, IS, DECLARACION, TIPOVARIABLE, BEGIN, STRING, END;
+terminal PROCEDURE,ID,SEMICOLON, IS, DECLARACION, TIPOVARIABLE, BEGIN, STRING, END, IF, NUMERO, OPREL, TRUE, FALSE, THEN, ELSIF;
+terminal CONDICIONALES, ELSE, PUT, PARIZQ, PARDER;
 
 /*No Terminales*/
-non terminal Inicio, Variables, BEG, E;
+non terminal Inicio, Variables, BEG, E, operando1, operando2, bloque_if, condicion_if, elseif_else, put_function;
 
 start with Inicio;
 
 Inicio ::= PROCEDURE:proc ID:id IS:i Variables:var
 {:
-System.out.println(id.toString()+"1");
+System.out.println(id.toString());
 :}
 ;
 
@@ -47,9 +48,11 @@ Inicio:in
 :}
 ;
 
-BEG ::= BEGIN:bgn STRING:S E:e
+//bloque_if:bif put_function:p_function//
+
+BEG ::= BEGIN:bgn bloque_if:bif put_function:pf E:e
 {:
-System.out.println(S.toString());
+System.out.println(bgn.toString());
 :}
 ;
 
@@ -60,10 +63,91 @@ System.out.println(e.toString());
 |
 END:e ID:id SEMICOLON:semi
 {:
-System.out.println(en.toString());
+System.out.println(e.toString());
 :}
 ;
 
+operando1 ::= NUMERO:num
+{:
+System.out.println(num.toString());
+:}
+|
+ID:id
+{:
+System.out.println(id.toString());
+:}
+;
+
+operando2 ::= TRUE:t
+{:
+System.out.println(t.toString());
+:}
+|
+FALSE:f
+{:
+System.out.println(f.toString());
+:}
+|
+NUMERO:num
+{:
+System.out.println(num.toString());
+:}
+|
+ID:id
+{:
+System.out.println(id.toString());
+:}
+;
+
+condicion_if ::= operando1:op1 OPREL:oprel operando2:op2 CONDICIONALES:condicional condicion_if:condIf
+{:
+System.out.println(oprel.toString() + condicional.toString());
+:}
+|
+operando1:op1 OPREL:oprel operando2:op2
+{:
+System.out.println(oprel.toString());
+:}
+;
+
+elseif_else ::= ELSIF:elif condicion_if:cond_elif elseif_else:elif_else
+{:
+System.out.println(elif.toString());
+:}
+|
+ELSE:else1 END:end_if IF:if2 SEMICOLON:semi
+{:
+System.out.println(else1.toString() + end_if.toString() + if2.toString());
+:}
+;
+
+bloque_if ::= IF:i condicion_if THEN:then elseif_else:el_if
+{:
+System.out.println(i.toString() + then.toString());
+:}
+|
+IF:i condicion_if THEN:then END:end_if IF:if1 SEMICOLON:semi
+{:
+System.out.println(i.toString() + then.toString() + end_if.toString() + if1.toString());
+:}
+;
+
+put_function ::= PUT:p PARIZQ:par_izquierdo STRING:cadena PARDER:par_derecho SEMICOLON:semi
+{:
+System.out.println(p.toString() + par_izquierdo.toString() + cadena.toString() +  par_derecho.toString());
+:}
+|
+PUT:p PARIZQ:par_izquierdo ID:id PARDER:par_derecho SEMICOLON:semi
+{:
+System.out.println(p.toString() + par_izquierdo.toString() + id.toString() + par_derecho.toString());
+:}
+|
+PUT:p PARIZQ:par_izquierdo NUMERO:num PARDER:par_derecho SEMICOLON:semi
+{:
+System.out.println(p.toString() + par_izquierdo.toString() + num.toString() + par_derecho.toString());
+:}
+;
+ 
 
 
 

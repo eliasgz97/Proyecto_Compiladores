@@ -381,7 +381,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
         try {
             sintaxis = new Sintax(lexico);
             sintaxis.parse();
-            System.out.println("entra");
             if (sintaxis != null) {
                 resultado += "funciona esta chanchada";
             }
