@@ -40,7 +40,7 @@ COMENTARIO = "--"({LETRA}|{NUMERO}|" "|{SIGNOSESPECIALES}|{OPREL}|{PARDER}|{PARI
 
 //strings
 STRING = \"[^\n\"]*\"(({ESPACIO}|{ESPACIO})*"&_"{ESPACIO}(({ESPACIO}|{ESPACIO})+|\t)*\"[^\n\"]*\")*
-TIPOVARIABLE = ("integer"|"float"|"boolean"|"String")
+TIPOVARIABLE = ("integer"|"float"|"boolean")
 CONDICIONALES = ("and"|"or")
 
 // Decisiones
@@ -88,21 +88,35 @@ LOOP = ("loop")
     {TRUE}          {return new Symbol(sym.TRUE, yycolumn, yyline, yytext());}
     {FALSE}         {return new Symbol(sym.FALSE, yycolumn, yyline, yytext());}
     {PUT}           {return new Symbol(sym.PUT, yycolumn, yyline, yytext());}
+    {TIPOVARIABLE}  {return new Symbol(sym.TIPOVARIABLE, yycolumn, yyline, yytext());}
     {THEN}          {return new Symbol(sym.THEN, yycolumn, yyline, yytext());}
     {IF}            {return new Symbol(sym.IF, yycolumn, yyline, yytext());}
+    {GET}           {return new Symbol(sym.GET, yycolumn, yyline, yytext());}
+    {FOR}           {return new Symbol(sym.FOR, yycolumn, yyline, yytext());}
+    {IN}            {return new Symbol(sym.IN, yycolumn, yyline, yytext());}
+    {RETURN}        {return new Symbol(sym.RETURN, yycolumn, yyline, yytext());}
+    {FUNCTION}      {return new Symbol(sym.FUNCTION, yycolumn, yyline, yytext());}
+    {DOSPUNTOS}     {return new Symbol(sym.DOSPUNTOS, yycolumn, yyline, yytext());}
+    {LOOP}          {return new Symbol(sym.LOOP, yycolumn, yyline, yytext());}
+    {WHILE}         {return new Symbol(sym.WHILE, yycolumn, yyline, yytext());}
+    {EXIT}          {return new Symbol(sym.EXIT, yycolumn, yyline, yytext());}
+    {WHEN}          {return new Symbol(sym.WHEN, yycolumn, yyline, yytext());}
     {ELSE}          {return new Symbol(sym.ELSE, yycolumn, yyline, yytext());}
+    {OPSUMA}        {return new Symbol(sym.OPSUMA, yycolumn, yyline, yytext());}
+    {OPMULTIPLICACION} {return new Symbol(sym.OPMULTIPLICACION, yycolumn, yyline, yytext());}
     {ELSIF}         {return new Symbol(sym.ELSIF, yycolumn, yyline, yytext());}
+    {ASIGNACION}    {return new Symbol(sym.ASIGNACION, yycolumn, yyline, yytext());}
     {CONDICIONALES} {return new Symbol(sym.CONDICIONALES, yycolumn, yyline, yytext());}
     {DECLARACION}   {return new Symbol(sym.DECLARACION, yycolumn, yyline, yytext());}
-    {TIPOVARIABLE}  {return new Symbol(sym.TIPOVARIABLE, yycolumn, yyline, yytext());}
     {SEMICOLON}     {return new Symbol(sym.SEMICOLON, yycolumn, yyline, yytext());}  
+    {OPREL}         {return new Symbol(sym.OPREL, yycolumn, yyline, yytext());}
     {PARIZQ}        {return new Symbol(sym.PARIZQ, yycolumn, yyline, yytext());}
     {PARDER}        {return new Symbol(sym.PARDER, yycolumn, yyline, yytext());}
+    {NUMERO}        {return new Symbol(sym.NUMERO, yycolumn, yyline, yytext());}    
     {ID}            {return new Symbol(sym.ID, yycolumn, yyline, yytext());}
-    {NUMERO}        {return new Symbol(sym.NUMERO, yycolumn, yyline, yytext());}
     {STRING}        {return new Symbol(sym.STRING, yycolumn, yyline, yytext());}
-    {OPREL}         {return new Symbol(sym.OPREL, yycolumn, yyline, yytext());}
+    {COMA}          {return new Symbol(sym.COMA, yycolumn, yyline, yytext());}
     {ESPACIO}       {}
-    .               {}
+    .               {System.out.println("Error");}
 }
 

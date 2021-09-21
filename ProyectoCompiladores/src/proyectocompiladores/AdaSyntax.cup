@@ -20,51 +20,229 @@ parser code
 
 /*Terminales*/
 terminal PROCEDURE,ID,SEMICOLON, IS, DECLARACION, TIPOVARIABLE, BEGIN, STRING, END, IF, NUMERO, OPREL, TRUE, FALSE, THEN, ELSIF;
-terminal CONDICIONALES, ELSE, PUT, PARIZQ, PARDER;
+terminal CONDICIONALES, ELSE, PUT, PARIZQ, PARDER, GET, FOR, IN, DOSPUNTOS, LOOP, WHILE, EXIT, WHEN, ASIGNACION, COMA;
+terminal OPSUMA, OPMULTIPLICACION, RETURN, FUNCTION;
 
 /*No Terminales*/
-non terminal Inicio, Variables, BEG, E, operando1, operando2, bloque_if, condicion_if, elseif_else, put_function;
+non terminal Inicio, Variables, BEG, operando1, operando2, bloque_if, condicion_if, elseif_else, put_function, get_function;
+non terminal for_loop, while_loop, loop_func, exit_when, asignar_valor, repeticion_id, end_id, cuerpo, fin_cuerpo;
+non terminal asignar_valor_variables, funcion, num_o_id, S, T, F, E, Q, cuerpo_funcion, fin_cuerpo_funcion, parametros_funcion;
+
+// Precedencia de Operadores - de menor a mayor
+precedence left OPSUMA;
+precedence left OPMULTIPLICACION;
 
 start with Inicio;
 
-Inicio ::= PROCEDURE:proc ID:id IS:i Variables:var
+Inicio ::= PROCEDURE:proc ID:id IS:i Variables:var 
 {:
-System.out.println(id.toString());
+System.out.println(id.toString()+"1: Procedure");
 :}
 ;
 
-Variables ::= ID:id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi Variables:v
+num_o_id ::= ID:id
+|
+NUMERO:num
+;
+
+end_id ::= ID:id
+{:
+System.out.println(id.toString());
+:}
+|
+{:
+System.out.println("Vaciooo");
+:}
+;
+
+S ::= E
+;
+
+E ::= E OPSUMA T
+|
+T
+;
+
+T ::= T OPMULTIPLICACION F
+|
+F
+;
+
+F ::= NUMERO:num
+|
+ID:id
+|
+PARIZQ E PARDER
+;
+
+repeticion_id ::= ID:id COMA:coma repeticion_id:rep_id
+{:
+System.out.println(id.toString() + coma.toString() + "2. declaracion_id");
+:}
+|
+ID:id
+{:
+:}
+;
+
+asignar_valor_variables ::= ASIGNACION:asignacion S:s
+{:
+System.out.println(asignacion.toString());
+:}
+|
+ASIGNACION:asignacion TRUE:t
+{:
+System.out.println(asignacion.toString() + t.toString());
+:}
+|
+ASIGNACION:asignacion FALSE:f
+{:
+System.out.println(asignacion.toString() + f.toString());
+:}
+;
+
+funcion ::= FUNCTION:f ID:id PARIZQ:parizq parametros_funcion:param_funct PARDER:parder RETURN:rt TIPOVARIABLE:tipo_var
+IS:i parametros_funcion:pmfuncion BEG:b RETURN:rt S:s1
+;
+
+parametros_funcion ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi parametros_funcion
+|
+repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:inicializar SEMICOLON:semi parametros_funcion
+|
+{:
+:}
+;
+
+Variables ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi Variables:v
 {:
 System.out.println(tipo.toString());
 :}
 |
-BEG:b
+repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:inicializar SEMICOLON:semi Variables:v
+{:
+System.out.println("inicializa");
+:}
+|
+BEG:b 
 {:
 :}
 |
-Inicio:in
+Inicio:in BEG:b
 {:
 //System.out.println(in.toString());
 :}
 ;
 
-//bloque_if:bif put_function:p_function//
+asignar_valor ::= ID:id ASIGNACION:asignacion TRUE:t SEMICOLON:semi
+{:
+System.out.println(id.toString() + asignacion.toString() + t.toString());
+:}
+|
+ID:id ASIGNACION:asignacion FALSE:f SEMICOLON:semi
+{:
+System.out.println(id.toString() + asignacion.toString() + f.toString());
+:}
+|
+ID:id ASIGNACION:asignacion S:s1 SEMICOLON:semi
+;
 
-BEG ::= BEGIN:bgn bloque_if:bif put_function:pf E:e
+BEG ::= BEGIN:bgn cuerpo:c END:end end_id:endId SEMICOLON:semi
 {:
 System.out.println(bgn.toString());
 :}
 ;
 
-E ::= END:e ID:id SEMICOLON:sem BEG:b
+cuerpo ::= for_loop:forLoop cuerpo:c
 {:
-System.out.println(e.toString());
+System.out.println("Entra al cuerpo");
 :}
 |
-END:e ID:id SEMICOLON:semi
+while_loop:whileLoop cuerpo:c
 {:
-System.out.println(e.toString());
+System.out.println("Entra al cuerpo");
 :}
+|
+loop_func:loopFunc cuerpo:c
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+bloque_if:bloqueIf cuerpo:c
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+put_function:putFunc cuerpo:c
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+get_function:getFunc cuerpo:c
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+BEG:begin cuerpo:c
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+asignar_valor:asignar cuerpo:c
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+fin_cuerpo:fcuerpo
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+RETURN S:s cuerpo:c
+;
+
+
+
+fin_cuerpo ::= for_loop:forLoop
+{:
+System.out.println("Entra a fin cuerpo");
+:}
+|
+while_loop:whileLoop
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+loop_func:loopFunc
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+put_function:putFunc
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+get_function:getFunc
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+bloque_if:bloqueIf
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+asignar_valor:asignar
+{:
+System.out.println("Entra al cuerpo");
+:}
+|
+BEG:b
+{:
+System.out.println("Entra al último begin");
+:}
+|
+RETURN S:s
 ;
 
 operando1 ::= NUMERO:num
@@ -76,6 +254,8 @@ ID:id
 {:
 System.out.println(id.toString());
 :}
+|
+RETURN S:s
 ;
 
 operando2 ::= TRUE:t
@@ -108,25 +288,39 @@ operando1:op1 OPREL:oprel operando2:op2
 {:
 System.out.println(oprel.toString());
 :}
-;
-
-elseif_else ::= ELSIF:elif condicion_if:cond_elif elseif_else:elif_else
+|
+ID:id
 {:
-System.out.println(elif.toString());
+:} 
+|
+TRUE:t
+{:
 :}
 |
-ELSE:else1 END:end_if IF:if2 SEMICOLON:semi
+FALSE:f
+{:
+:}
+;
+
+elseif_else ::= ELSIF:elif condicion_if:cond_elif THEN:then cuerpo:c elseif_else:elif_else
+{:
+System.out.println(elif.toString() + then.toString());
+:}
+|
+ELSE:else1 cuerpo:c END:end_if IF:if2 SEMICOLON:semi
 {:
 System.out.println(else1.toString() + end_if.toString() + if2.toString());
 :}
 ;
 
-bloque_if ::= IF:i condicion_if THEN:then elseif_else:el_if
+
+
+bloque_if ::= IF:i condicion_if THEN:then cuerpo:c elseif_else:el_if
 {:
 System.out.println(i.toString() + then.toString());
 :}
 |
-IF:i condicion_if THEN:then END:end_if IF:if1 SEMICOLON:semi
+IF:i condicion_if THEN:then cuerpo:c END:end_if IF:if1 SEMICOLON:semi
 {:
 System.out.println(i.toString() + then.toString() + end_if.toString() + if1.toString());
 :}
@@ -147,6 +341,42 @@ PUT:p PARIZQ:par_izquierdo NUMERO:num PARDER:par_derecho SEMICOLON:semi
 System.out.println(p.toString() + par_izquierdo.toString() + num.toString() + par_derecho.toString());
 :}
 ;
+
+get_function ::= GET:g PARIZQ:par_izquierdo ID:id PARDER:par_derecho SEMICOLON:semi
+{:
+System.out.println(g.toString() + par_izquierdo.toString() + id.toString() +  par_derecho.toString());
+:}
+;
+
+for_loop ::= FOR:f ID:id IN:i operando1 DOSPUNTOS:puntos operando1 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+{:
+System.out.println(f.toString() + id.toString() + puntos.toString() + lp1.toString() + e.toString() + lp2.toString());
+:}
+;
+
+while_loop ::= WHILE:wh condicion_if:cond_while LOOP:lp cuerpo:c END:e LOOP:lp1 SEMICOLON:semi
+{:
+System.out.println(wh.toString() + lp.toString() + e.toString() + lp1.toString() + semi.toString());
+:}
+;
+
+loop_func ::= LOOP:lp cuerpo:c END:e exit_when
+{:
+System.out.println(lp.toString() + e.toString());
+:}
+|
+LOOP:lp cuerpo:c END:e
+{:
+System.out.println(lp.toString() + e.toString());
+:}
+;
+
+exit_when ::= EXIT:ex WHEN:wh condicion_if:condicion_loop SEMICOLON:semi
+{:
+:}
+;
+
+
  
 
 
