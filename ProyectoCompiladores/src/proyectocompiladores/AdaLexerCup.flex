@@ -13,7 +13,7 @@ import java_cup.runtime.Symbol;
 
 //caracteres
 LETRA = [a-zA-Z]
-NUMERO = [0-9]
+NUMERO = [0-9]+
 //nuevos caracteres
 ESPACIO = \t|\n|\s
 SIGNOSESPECIALES = ","|";"|"."|":"|"'"|"!"|"?"|"¡"|"¿"|"_"|"{"|"}"|"["|"]"|"@"|"#"|"$"|"%"|"^"|"&"|"*"

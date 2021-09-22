@@ -1,0 +1,17 @@
+digraph G {node[shape=box, style=filled, color=blanchedalmond]; edge[color=chocolate3];rankdir=UD 
+
+"12_Inicio -> "->"11_Procedure Program -> "
+"11_Procedure Program -> "->"5_Variables -> "
+"5_Variables -> "->"0_id -> x"
+"5_Variables -> "->"6_tipo -> integer"
+"5_Variables -> "->"1_num -> 10"
+"5_Variables -> "->"3_Variables -> "
+"3_Variables -> "->"2_id -> y"
+"3_Variables -> "->"4_tipo -> integer"
+"11_Procedure Program -> "->"7_Beg -> "
+"7_Beg -> "->"8_begin -> "
+"7_Beg -> "->"9_cuerpo -> "
+"7_Beg -> "->"10_endProgram -> "
+
+
+}

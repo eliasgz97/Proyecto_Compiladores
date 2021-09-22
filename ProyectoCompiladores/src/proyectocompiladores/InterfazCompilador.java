@@ -1,7 +1,9 @@
 package proyectocompiladores;
 
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -152,6 +154,11 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jButton1.setText("Comentar");
 
         jButton2.setText("Mostrar Árbol");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jtxtarea_entrada.setColumns(20);
         jtxtarea_entrada.setRows(5);
@@ -227,6 +234,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         try {
             jtxtarea_salida.setText(Analizar());
             jtxtarea_salida_sintactico.setText(result);
+            
         } catch (IOException ex) {
             Logger.getLogger(InterfazCompilador.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -246,6 +254,18 @@ public class InterfazCompilador extends javax.swing.JFrame {
             Logger.getLogger(InterfazCompilador.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        try {
+            graficar(sintactico.padre);
+            File f1 = new File("image.png");
+            Desktop dt = Desktop.getDesktop();
+            dt.open(f1);
+        } catch (Exception e) {
+            System.out.println(e.getStackTrace());
+        }
+        
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -373,20 +393,58 @@ public class InterfazCompilador extends javax.swing.JFrame {
     private javax.swing.JTextArea jtxtarea_salida;
     private javax.swing.JTextArea jtxtarea_salida_sintactico;
     // End of variables declaration//GEN-END:variables
+AdaLexerCup lexico;
+Sintax sintactico;
 
     private String AnalizarSintaxis() {
-        AdaLexerCup lexico = new AdaLexerCup(new BufferedReader(new StringReader(jtxtarea_entrada.getText())));
+        lexico = new AdaLexerCup(new BufferedReader(new StringReader(jtxtarea_entrada.getText())));
         String resultado = "";
-        Sintax sintaxis;
         try {
-            sintaxis = new Sintax(lexico);
-            sintaxis.parse();
-            if (sintaxis != null) {
-                resultado += "funciona esta chanchada";
+            sintactico = new Sintax(lexico);
+            sintactico.parse();
+            if (sintactico != null) {
+                resultado += "si sirve";
             }
         } catch (Exception e) {
         }
         return resultado;
 
+    }
+
+    public void graficar(Nodo raiz) {
+        System.out.println("entra graficar");
+        FileWriter archivo = null;
+        PrintWriter pw = null;
+        String cadena = graficarNodo(raiz);
+        try {
+            archivo = new FileWriter("arbol.dot");
+            pw = new PrintWriter(archivo);
+            pw.println("digraph G {node[shape=box, style=filled, color=blanchedalmond]; edge[color=chocolate3];rankdir=UD \n");
+            pw.println(cadena);
+            pw.println("\n}");
+            archivo.close();
+        } catch (Exception e) {
+            System.out.println(e + " 1");
+        }
+
+        try {
+            String cmd = "dot arbol.dot -Tpng -o image.png";
+            Runtime.getRuntime().exec(cmd);
+            System.out.println(Runtime.getRuntime().exec(cmd));
+            System.out.println("SE GENEROOOOO LA IMAGGEN");
+        } catch (IOException ioe) {
+            System.out.println(ioe + " 2");
+        }
+
+    }
+
+    public String graficarNodo(Nodo nodo) {
+        String cadena = "";
+        System.out.println("NNNNNODOOOO NOMBRE::::::::: " + nodo.getNombre());
+        for (Nodo hijos : nodo.getHijos()) {
+            cadena += "\"" + nodo.getNumNodo() + "_" + nodo.getNombre() + " -> " + nodo.getValor() + "\"->\"" + hijos.getNumNodo() + "_" + hijos.getNombre() + " -> " + hijos.getValor() + "\"\n";
+            cadena += graficarNodo(hijos);
+        }
+        return cadena;
     }
 }

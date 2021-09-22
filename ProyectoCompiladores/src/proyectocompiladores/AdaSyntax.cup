@@ -16,6 +16,8 @@ parser code
         System.err.println("Error de sintaxis en el codigo. Revise el codigo.");
         System.out.println(s.toString());
     }
+    public Nodo padre;
+    public int contador;
 :};
 
 /*Terminales*/
@@ -34,9 +36,24 @@ precedence left OPMULTIPLICACION;
 
 start with Inicio;
 
-Inicio ::= PROCEDURE:proc ID:id IS:i Variables:var 
+Inicio ::= PROCEDURE:proc ID:id IS:i Variables:var BEG:b 
 {:
 System.out.println(id.toString()+"1: Procedure");
+Nodo tmp = new Nodo("Inicio");
+Nodo procedure = new Nodo("Procedure " + id.toString());
+procedure.setNumNodo(parser.contador++);
+procedure.addHijo((Nodo) var);
+procedure.addHijo((Nodo) b);
+System.out.println(procedure.getHijos().get(0).getNombre() + "entra");
+tmp.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) procedure);
+parser.padre = (Nodo) tmp;
+RESULT = tmp;
+:}
+|
+error:r ID:id IS:i Variables:var BEG:b
+{:
+System.out.println("Falta palabra procedure");
 :}
 ;
 
@@ -47,62 +64,129 @@ NUMERO:num
 
 end_id ::= ID:id
 {:
-System.out.println(id.toString());
+RESULT = id;
 :}
 |
 {:
-System.out.println("Vaciooo");
+RESULT = "";
 :}
 ;
 
-S ::= E
+S ::= E:e
+{:
+RESULT = e;
+:}
 ;
 
-E ::= E OPSUMA T
+E ::= E:a OPSUMA:op T:b
+{:
+Nodo tmp = new Nodo(op.toString(),opleft+1,opright+1);
+Nodo n1 = ((Nodo)a);
+Nodo n2 =((Nodo)b);
+n1.setNumNodo(parser.contador++);
+n2.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo)n1);
+tmp.addHijo((Nodo)n2);
+tmp.setNumNodo(parser.contador++);
+RESULT = tmp;
+:}
 |
-T
+T:b
+{:
+RESULT = b;
+:}
 ;
 
-T ::= T OPMULTIPLICACION F
+T ::= T:a OPMULTIPLICACION:op F:b
+{:
+Nodo tmp = new Nodo(op.toString(),opleft+1,opright+1);
+Nodo n1 = ((Nodo)a);
+Nodo n2 =((Nodo)b);
+n1.setNumNodo(parser.contador++);
+n2.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo)n1);
+tmp.addHijo((Nodo)n2);
+tmp.setNumNodo(parser.contador++);
+RESULT = tmp;
+:}
 |
-F
+F:f
+{:
+RESULT = f;
+:}
 ;
 
 F ::= NUMERO:num
+{:
+Nodo tmp = new Nodo("num");
+tmp.setValor(num.toString());
+tmp.setNumNodo(parser.contador++);
+RESULT = tmp;
+:}
 |
 ID:id
+{:
+Nodo tmp = new Nodo("id");
+tmp.setValor(id.toString());
+tmp.setNumNodo(parser.contador++);
+RESULT = tmp;
+:}
 |
-PARIZQ E PARDER
+PARIZQ E:e PARDER
+{:
+RESULT = e;
+:}
 ;
 
 repeticion_id ::= ID:id COMA:coma repeticion_id:rep_id
 {:
 System.out.println(id.toString() + coma.toString() + "2. declaracion_id");
+Nodo tmp = new Nodo(",");
+tmp.setNumNodo(parser.contador++);
+Nodo hijo = new Nodo("id");
+hijo.setValor(id.toString());
+hijo.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo)hijo);
+tmp.addHijo((Nodo)rep_id);
+RESULT = tmp;
 :}
 |
 ID:id
 {:
+Nodo hijo = new Nodo("id");
+hijo.setNumNodo(parser.contador++);
+hijo.setValor(id.toString());
+RESULT = hijo;
 :}
 ;
 
 asignar_valor_variables ::= ASIGNACION:asignacion S:s
 {:
+RESULT = s;
 System.out.println(asignacion.toString());
 :}
 |
 ASIGNACION:asignacion TRUE:t
 {:
+Nodo tmp = new Nodo("boolean");
+tmp.setValor(t.toString());
+tmp.setNumNodo(parser.contador++);
+RESULT = tmp;
 System.out.println(asignacion.toString() + t.toString());
 :}
 |
 ASIGNACION:asignacion FALSE:f
 {:
+Nodo tmp = new Nodo("boolean");
+tmp.setValor(f.toString());
+tmp.setNumNodo(parser.contador++);
+RESULT = tmp;
 System.out.println(asignacion.toString() + f.toString());
 :}
 ;
 
 funcion ::= FUNCTION:f ID:id PARIZQ:parizq parametros_funcion:param_funct PARDER:parder RETURN:rt TIPOVARIABLE:tipo_var
-IS:i parametros_funcion:pmfuncion BEG:b RETURN:rt S:s1
+IS:i parametros_funcion:pmfuncion BEG:b RETURN:rt1 S:s1
 ;
 
 parametros_funcion ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi parametros_funcion
@@ -113,23 +197,72 @@ repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:i
 :}
 ;
 
-Variables ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi Variables:v
+Variables ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tp SEMICOLON:semi Variables:v
 {:
-System.out.println(tipo.toString());
+Nodo tmp = new Nodo("Variables");
+tmp.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) rep_id);
+Nodo tipo = new Nodo("tipo");
+tipo.setValor(tp.toString());
+tipo.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) tipo);
+tmp.addHijo((Nodo) v);
+RESULT = tmp;
 :}
 |
-repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:inicializar SEMICOLON:semi Variables:v
+repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tp asignar_valor_variables:inicializar SEMICOLON:semi Variables:v
 {:
+Nodo tmp = new Nodo("Variables");
+tmp.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) rep_id);
+Nodo tipo = new Nodo("tipo");
+tipo.setValor(tp.toString());
+tipo.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) tipo);
+tmp.addHijo((Nodo)inicializar);
+tmp.addHijo((Nodo) v);
+RESULT = tmp;
 System.out.println("inicializa");
 :}
+/*
 |
 BEG:b 
 {:
+Nodo tmp = new Nodo("BEGIN");
+tmp.setNumNodo(parser.contador++);
+RESULT = tmp;
 :}
 |
 Inicio:in BEG:b
 {:
 //System.out.println(in.toString());
+:}
+*/
+|
+repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tp SEMICOLON:semi
+{:
+Nodo tmp = new Nodo("Variables");
+tmp.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) rep_id);
+Nodo tipo = new Nodo("tipo");
+tipo.setValor(tp.toString());
+tipo.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) tipo);
+RESULT = tmp;
+:}
+|
+repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tp asignar_valor_variables:inicializar SEMICOLON:semi
+{:
+Nodo tmp = new Nodo("Variables");
+tmp.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) rep_id);
+Nodo tipo = new Nodo("tipo");
+tipo.setValor(tp.toString());
+tipo.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) tipo);
+tmp.addHijo((Nodo)inicializar);
+RESULT = tmp;
+System.out.println("inicializa");
 :}
 ;
 
@@ -148,7 +281,19 @@ ID:id ASIGNACION:asignacion S:s1 SEMICOLON:semi
 
 BEG ::= BEGIN:bgn cuerpo:c END:end end_id:endId SEMICOLON:semi
 {:
-System.out.println(bgn.toString());
+Nodo tmp = new Nodo("Beg");
+tmp.setNumNodo(parser.contador++);
+Nodo hijo = new Nodo("begin");
+hijo.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) hijo);
+Nodo hijo2 = new Nodo("cuerpo");
+hijo2.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) hijo2);
+Nodo hijo3 = new Nodo("end" + endId.toString());
+hijo3.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) hijo3);
+System.out.println(tmp.getHijos().get(1).getNombre());
+RESULT = tmp;
 :}
 ;
 
