@@ -11,7 +11,7 @@ digraph G {node[shape=box, style=filled, color=blanchedalmond]; edge[color=choco
 "11_Procedure Program -> "->"7_Beg -> "
 "7_Beg -> "->"8_begin -> "
 "7_Beg -> "->"9_cuerpo -> "
-"7_Beg -> "->"10_endProgram -> "
+"7_Beg -> "->"10_end -> "
 
 
 }

@@ -13,7 +13,7 @@ import java_cup.runtime.Symbol;
 
 //caracteres
 LETRA = [a-zA-Z]
-NUMERO = [0-9]+
+NUMERO = [0-9]
 //nuevos caracteres
 ESPACIO = \t|\n|\s
 SIGNOSESPECIALES = ","|";"|"."|":"|"'"|"!"|"?"|"¡"|"¿"|"_"|"{"|"}"|"["|"]"|"@"|"#"|"$"|"%"|"^"|"&"|"*"
@@ -29,7 +29,7 @@ COMA = ","
 DOSPUNTOS = ".."
 
 //identificadores
-ID = {LETRA}(_|({LETRA}|{NUMERO}))*
+ID = {LETRA}(_|{LETRA}|{NUMERO})*
 
 //numeros
 NUMINT = {NUMERO}+
@@ -112,7 +112,9 @@ LOOP = ("loop")
     {OPREL}         {return new Symbol(sym.OPREL, yycolumn, yyline, yytext());}
     {PARIZQ}        {return new Symbol(sym.PARIZQ, yycolumn, yyline, yytext());}
     {PARDER}        {return new Symbol(sym.PARDER, yycolumn, yyline, yytext());}
-    {NUMERO}        {return new Symbol(sym.NUMERO, yycolumn, yyline, yytext());}    
+    {NUMFLOAT}      {return new Symbol(sym.NUMFLOAT, yycolumn, yyline, yytext());}
+    {NUMINT}        {return new Symbol(sym.NUMINT, yycolumn, yyline, yytext());}
+    {NUMERO}        {return new Symbol(sym.NUMERO, yycolumn, yyline, yytext());}
     {ID}            {return new Symbol(sym.ID, yycolumn, yyline, yytext());}
     {STRING}        {return new Symbol(sym.STRING, yycolumn, yyline, yytext());}
     {COMA}          {return new Symbol(sym.COMA, yycolumn, yyline, yytext());}

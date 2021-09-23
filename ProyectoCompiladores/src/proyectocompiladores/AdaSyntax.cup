@@ -23,12 +23,13 @@ parser code
 /*Terminales*/
 terminal PROCEDURE,ID,SEMICOLON, IS, DECLARACION, TIPOVARIABLE, BEGIN, STRING, END, IF, NUMERO, OPREL, TRUE, FALSE, THEN, ELSIF;
 terminal CONDICIONALES, ELSE, PUT, PARIZQ, PARDER, GET, FOR, IN, DOSPUNTOS, LOOP, WHILE, EXIT, WHEN, ASIGNACION, COMA;
-terminal OPSUMA, OPMULTIPLICACION, RETURN, FUNCTION;
+terminal OPSUMA, OPMULTIPLICACION, RETURN, FUNCTION, NUMINT, NUMFLOAT;
 
 /*No Terminales*/
 non terminal Inicio, Variables, BEG, operando1, operando2, bloque_if, condicion_if, elseif_else, put_function, get_function;
 non terminal for_loop, while_loop, loop_func, exit_when, asignar_valor, repeticion_id, end_id, cuerpo, fin_cuerpo;
-non terminal asignar_valor_variables, funcion, num_o_id, S, T, F, E, Q, cuerpo_funcion, fin_cuerpo_funcion, parametros_funcion;
+non terminal asignar_valor_variables, funcion, num_o_id, S, T, F, E, parametros_funcion;
+non terminal parametros_obligatorios, valores_numericos;
 
 // Precedencia de Operadores - de menor a mayor
 precedence left OPSUMA;
@@ -36,15 +37,15 @@ precedence left OPMULTIPLICACION;
 
 start with Inicio;
 
-Inicio ::= PROCEDURE:proc ID:id IS:i Variables:var BEG:b 
+Inicio ::= PROCEDURE:proc ID:id IS:i Variables:var BEG:b
 {:
 System.out.println(id.toString()+"1: Procedure");
 Nodo tmp = new Nodo("Inicio");
 Nodo procedure = new Nodo("Procedure " + id.toString());
 procedure.setNumNodo(parser.contador++);
-procedure.addHijo((Nodo) var);
+Nodo prueba = (Nodo) var;
+procedure.addHijo((Nodo) prueba);
 procedure.addHijo((Nodo) b);
-System.out.println(procedure.getHijos().get(0).getNombre() + "entra");
 tmp.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) procedure);
 parser.padre = (Nodo) tmp;
@@ -55,6 +56,8 @@ error:r ID:id IS:i Variables:var BEG:b
 {:
 System.out.println("Falta palabra procedure");
 :}
+|
+PROCEDURE:proc ID:id IS:i BEG:b 
 ;
 
 num_o_id ::= ID:id
@@ -138,6 +141,13 @@ RESULT = e;
 :}
 ;
 
+valores_numericos ::= NUMINT:nInt
+|
+NUMFLOAT:nfloat
+|
+NUMERO:num
+;
+
 repeticion_id ::= ID:id COMA:coma repeticion_id:rep_id
 {:
 System.out.println(id.toString() + coma.toString() + "2. declaracion_id");
@@ -185,16 +195,23 @@ System.out.println(asignacion.toString() + f.toString());
 :}
 ;
 
-funcion ::= FUNCTION:f ID:id PARIZQ:parizq parametros_funcion:param_funct PARDER:parder RETURN:rt TIPOVARIABLE:tipo_var
-IS:i parametros_funcion:pmfuncion BEG:b RETURN:rt1 S:s1
+funcion ::= FUNCTION:f ID:id PARIZQ:parizq parametros_obligatorios:pm PARDER:parder RETURN:rt TIPOVARIABLE:tipo_var
+IS:i
+;
+
+parametros_obligatorios ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo parametros_obligatorios:pm_o
+|
+repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:inicializar parametros_obligatorios:pm_o
+|
+repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo
+|
+repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:inicializar 
 ;
 
 parametros_funcion ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi parametros_funcion
 |
 repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:inicializar SEMICOLON:semi parametros_funcion
 |
-{:
-:}
 ;
 
 Variables ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tp SEMICOLON:semi Variables:v
@@ -224,20 +241,16 @@ tmp.addHijo((Nodo) v);
 RESULT = tmp;
 System.out.println("inicializa");
 :}
-/*
 |
-BEG:b 
+funcion:func parametros_funcion:pmF BEGIN:b cuerpo:c RETURN:rt ID:id SEMICOLON:semiRT  END:end SEMICOLON:semi Variables:v
 {:
-Nodo tmp = new Nodo("BEGIN");
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
+//RESULT = ""
 :}
 |
-Inicio:in BEG:b
+PROCEDURE:proc ID:id IS:is Variables:v1 BEG:b Variables:v2
 {:
-//System.out.println(in.toString());
+//RESULT = "";
 :}
-*/
 |
 repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tp SEMICOLON:semi
 {:
@@ -264,6 +277,12 @@ tmp.addHijo((Nodo)inicializar);
 RESULT = tmp;
 System.out.println("inicializa");
 :}
+|
+funcion:func parametros_funcion:pmF BEGIN:b cuerpo:c RETURN:rt ID:id SEMICOLON:semiRT  END:end SEMICOLON:semi
+|
+PROCEDURE:proc ID:id IS:is Variables:v1 BEG:b
+|
+PROCEDURE:proc ID:id IS:is BEG:b
 ;
 
 asignar_valor ::= ID:id ASIGNACION:asignacion TRUE:t SEMICOLON:semi
@@ -341,8 +360,6 @@ fin_cuerpo:fcuerpo
 {:
 System.out.println("Entra al cuerpo");
 :}
-|
-RETURN S:s cuerpo:c
 ;
 
 
@@ -386,8 +403,6 @@ BEG:b
 {:
 System.out.println("Entra al último begin");
 :}
-|
-RETURN S:s
 ;
 
 operando1 ::= NUMERO:num
@@ -520,11 +535,3 @@ exit_when ::= EXIT:ex WHEN:wh condicion_if:condicion_loop SEMICOLON:semi
 {:
 :}
 ;
-
-
- 
-
-
-
-
-

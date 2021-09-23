@@ -93,6 +93,7 @@ public class Nodo {
         falsa = "";
         setNombre(nombre);
         hijos = new ArrayList<>();
+        hijos.size();
         setValor("");
         setNumNodo(0);
     }
