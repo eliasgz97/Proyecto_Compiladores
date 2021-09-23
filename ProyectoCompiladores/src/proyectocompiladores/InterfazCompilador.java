@@ -412,7 +412,6 @@ Sintax sintactico;
     }
 
     public void graficar(Nodo raiz) {
-        System.out.println("entra graficar");
         FileWriter archivo = null;
         PrintWriter pw = null;
         String cadena = graficarNodo(raiz);

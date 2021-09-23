@@ -106,15 +106,14 @@ LOOP = ("loop")
     {OPMULTIPLICACION} {return new Symbol(sym.OPMULTIPLICACION, yycolumn, yyline, yytext());}
     {ELSIF}         {return new Symbol(sym.ELSIF, yycolumn, yyline, yytext());}
     {ASIGNACION}    {return new Symbol(sym.ASIGNACION, yycolumn, yyline, yytext());}
+    {NUMINT}        {return new Symbol(sym.NUMINT, yycolumn, yyline, yytext());}
+    {NUMFLOAT}      {return new Symbol(sym.NUMFLOAT, yycolumn, yyline, yytext());}
     {CONDICIONALES} {return new Symbol(sym.CONDICIONALES, yycolumn, yyline, yytext());}
     {DECLARACION}   {return new Symbol(sym.DECLARACION, yycolumn, yyline, yytext());}
     {SEMICOLON}     {return new Symbol(sym.SEMICOLON, yycolumn, yyline, yytext());}  
     {OPREL}         {return new Symbol(sym.OPREL, yycolumn, yyline, yytext());}
     {PARIZQ}        {return new Symbol(sym.PARIZQ, yycolumn, yyline, yytext());}
     {PARDER}        {return new Symbol(sym.PARDER, yycolumn, yyline, yytext());}
-    {NUMFLOAT}      {return new Symbol(sym.NUMFLOAT, yycolumn, yyline, yytext());}
-    {NUMINT}        {return new Symbol(sym.NUMINT, yycolumn, yyline, yytext());}
-    {NUMERO}        {return new Symbol(sym.NUMERO, yycolumn, yyline, yytext());}
     {ID}            {return new Symbol(sym.ID, yycolumn, yyline, yytext());}
     {STRING}        {return new Symbol(sym.STRING, yycolumn, yyline, yytext());}
     {COMA}          {return new Symbol(sym.COMA, yycolumn, yyline, yytext());}

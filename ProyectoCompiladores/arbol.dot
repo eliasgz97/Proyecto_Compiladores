@@ -1,17 +1,19 @@
 digraph G {node[shape=box, style=filled, color=blanchedalmond]; edge[color=chocolate3];rankdir=UD 
 
-"12_Inicio -> "->"11_Procedure Program -> "
-"11_Procedure Program -> "->"5_Variables -> "
-"5_Variables -> "->"0_id -> x"
-"5_Variables -> "->"6_tipo -> integer"
-"5_Variables -> "->"1_num -> 10"
-"5_Variables -> "->"3_Variables -> "
-"3_Variables -> "->"2_id -> y"
-"3_Variables -> "->"4_tipo -> integer"
-"11_Procedure Program -> "->"7_Beg -> "
-"7_Beg -> "->"8_begin -> "
-"7_Beg -> "->"9_cuerpo -> "
-"7_Beg -> "->"10_end -> "
+"15_Inicio -> "->"14_Procedure Program -> "
+"14_Procedure Program -> "->"6_CuerpoProcedure -> "
+"6_CuerpoProcedure -> "->"0_id -> x"
+"6_CuerpoProcedure -> "->"7_tipo -> integer"
+"6_CuerpoProcedure -> "->"1_num_int -> 10"
+"6_CuerpoProcedure -> "->"4_CuerpoProcedure -> "
+"4_CuerpoProcedure -> "->"2_id -> y"
+"4_CuerpoProcedure -> "->"5_tipo -> integer"
+"4_CuerpoProcedure -> "->"3_num_int -> 55"
+"14_Procedure Program -> "->"12_Beg -> "
+"12_Beg -> "->"13_begin -> "
+"12_Beg -> "->"10_put_function -> 5"
+"10_put_function -> 5"->"9_put -> "
+"10_put_function -> 5"->"0_num -> "
 
 
 }
