@@ -115,7 +115,6 @@ LOOP = ("loop")
     {PUT}                 {return PUT;}
     {IN}                  {return IN;}
     {IS}                  {return IS;}
-    {NULL}                {return NULL;}
     {OUT}                 {return OUT;}
     {ID}                  {return ID;}
     .                     {return ERROR;}

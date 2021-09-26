@@ -234,7 +234,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         try {
             jtxtarea_salida.setText(Analizar());
             jtxtarea_salida_sintactico.setText(result);
-            
+
         } catch (IOException ex) {
             Logger.getLogger(InterfazCompilador.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -264,7 +264,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         } catch (Exception e) {
             System.out.println(e.getStackTrace());
         }
-        
+
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
@@ -351,6 +351,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         reader = new BufferedReader(new StringReader(jtxtarea_entrada.getText()));
         Lexer lexer = new Lexer(reader);
         boolean bandera = true;
+        boolean error = false;
         while (true) {
             Token token = lexer.yylex();
             if (token == null) {
@@ -362,6 +363,12 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         text += "<" + token + ">\n";
                         bandera = false;
                     }
+                    break;
+                case ID:
+                    text += "<" + token + ", " + lexer.yytext() + ">\n";
+                    break;
+                case TIPOVARIABLE:
+                    text += "<" + token + ", " + lexer.yytext() + ">\n";
                     break;
                 case ERROR:
                     JOptionPane.showMessageDialog(this, "Error léxico, intente de nuevo");
@@ -394,7 +401,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     private javax.swing.JTextArea jtxtarea_salida_sintactico;
     // End of variables declaration//GEN-END:variables
 AdaLexerCup lexico;
-Sintax sintactico;
+    Sintax sintactico;
 
     private String AnalizarSintaxis() {
         lexico = new AdaLexerCup(new BufferedReader(new StringReader(jtxtarea_entrada.getText())));
@@ -446,5 +453,5 @@ Sintax sintactico;
         }
         return cadena;
     }
-    
+
 }

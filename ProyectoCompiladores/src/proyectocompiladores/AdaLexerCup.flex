@@ -20,6 +20,8 @@ SIGNOSESPECIALES = ","|";"|"."|":"|"'"|"!"|"?"|"¡"|"¿"|"_"|"{"|"}"|"["|"]"|"@"
 ASIGNACION = ":="
 DECLARACION = ":"
 OPREL = "="|"/="|"<"|"<="|">"|">="
+AND = "and"
+OR = "or"
 OPMULTIPLICACION = "*" | "/"
 OPSUMA = "+" | "-"
 PARIZQ = "("
@@ -41,7 +43,6 @@ COMENTARIO = "--"({LETRA}|{NUMERO}|" "|{SIGNOSESPECIALES}|{OPREL}|{PARDER}|{PARI
 //strings
 STRING = \"[^\n\"]*\"(({ESPACIO}|{ESPACIO})*"&_"{ESPACIO}(({ESPACIO}|{ESPACIO})+|\t)*\"[^\n\"]*\")*
 TIPOVARIABLE = ("integer"|"float"|"boolean")
-CONDICIONALES = ("and"|"or")
 
 // Decisiones
 BEGIN = "begin"
@@ -92,6 +93,8 @@ LOOP = ("loop")
     {THEN}          {return new Symbol(sym.THEN, yycolumn, yyline, yytext());}
     {IF}            {return new Symbol(sym.IF, yycolumn, yyline, yytext());}
     {GET}           {return new Symbol(sym.GET, yycolumn, yyline, yytext());}
+    {AND}           {return new Symbol(sym.AND, yycolumn, yyline, yytext());}
+    {OR}            {return new Symbol(sym.OR, yycolumn, yyline, yytext());}
     {FOR}           {return new Symbol(sym.FOR, yycolumn, yyline, yytext());}
     {IN}            {return new Symbol(sym.IN, yycolumn, yyline, yytext());}
     {RETURN}        {return new Symbol(sym.RETURN, yycolumn, yyline, yytext());}
@@ -108,7 +111,6 @@ LOOP = ("loop")
     {ASIGNACION}    {return new Symbol(sym.ASIGNACION, yycolumn, yyline, yytext());}
     {NUMINT}        {return new Symbol(sym.NUMINT, yycolumn, yyline, yytext());}
     {NUMFLOAT}      {return new Symbol(sym.NUMFLOAT, yycolumn, yyline, yytext());}
-    {CONDICIONALES} {return new Symbol(sym.CONDICIONALES, yycolumn, yyline, yytext());}
     {DECLARACION}   {return new Symbol(sym.DECLARACION, yycolumn, yyline, yytext());}
     {SEMICOLON}     {return new Symbol(sym.SEMICOLON, yycolumn, yyline, yytext());}  
     {OPREL}         {return new Symbol(sym.OPREL, yycolumn, yyline, yytext());}
