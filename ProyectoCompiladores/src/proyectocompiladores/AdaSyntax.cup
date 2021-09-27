@@ -1348,6 +1348,13 @@ hijoIf.addHijo((Nodo) el_if);
 RESULT = hijoIf;
 :}
 |
+error:r condicion_if:cond_if THEN:then cuerpo:c elseif_else:el_if
+{:
+    parser.errores.add("Palabra reservada faltante" + " | linea " + (rright+1) + " columna " +(rleft) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
 IF:i condicion_if:cond_if THEN:then cuerpo:c END:end_if IF:if1 SEMICOLON:semi
 {:
 System.out.println("entra if elsif");
@@ -1365,6 +1372,97 @@ Nodo nodoPut = new Nodo ("put");
 nodoPut.setNumNodo(parser.contador++);
 nodoPut.setValor(cadena.toString().substring(1, cadena.toString().length() - 1));
 RESULT = nodoPut;
+:}
+|
+error:r PARIZQ:par_izquierdo STRING:cadena PARDER:par_derecho SEMICOLON:semi
+{:
+    parser.errores.add("Palabra put esperada" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+PUT error:r STRING PARDER:par_derecho SEMICOLON:semi
+{:
+    parser.errores.add("Parentesis izquierdo [(] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+PUT PARIZQ STRING error:r SEMICOLON:semi
+{:
+    parser.errores.add("Parentesis derecho [)] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+error:r PARIZQ:par_izquierdo valores_numericos_booleanos PARDER:par_derecho SEMICOLON:semi
+{:
+    parser.errores.add("Palabra put esperada" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+PUT error:r valores_numericos_booleanos PARDER:par_derecho SEMICOLON:semi
+{:
+    parser.errores.add("Parentesis izquierdo [(] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ PUT PARIZQ valores_numericos_booleanos error:r SEMICOLON:semi
+{:
+    parser.errores.add("Parentesis derecho [)] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+error:r PARIZQ:par_izquierdo llamado_funcion:llamadoF PARDER:par_derecho SEMICOLON:semi
+{:
+    parser.errores.add("Palabra put esperada" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+PUT error:r llamado_funcion:llamadoF PARDER:par_derecho SEMICOLON:semi
+{:
+    parser.errores.add("Parentesis izquierdo [(] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+PUT PARIZQ llamado_funcion:llamadoF error:r SEMICOLON:semi
+{:
+    parser.errores.add("Parentesis derecho [)] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+PUT PARIZQ  error:r PARDER SEMICOLON:semi
+{:
+    parser.errores.add("Valor esperado para el put" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+PUT PARIZQ  STRING:cadena PARDER error:r
+{:
+    parser.errores.add("Fin de linea [;] esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+PUT PARIZQ valores_numericos_booleanos:valNumBool PARDER error:r
+{:
+    parser.errores.add("Fin de linea [;] esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+PUT PARIZQ llamado_funcion:llamadoF PARDER error:r
+{:
+    parser.errores.add("Fin de linea [;] esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
 :}
 |
 PUT:p PARIZQ:par_izquierdo valores_numericos_booleanos:valNumBool PARDER:par_derecho SEMICOLON:semi
@@ -1396,6 +1494,27 @@ hijoId.setValor(id.toString());
 tmp.addHijo((Nodo) hijoId);
 tmp.addHijo((Nodo) rep_param);
 RESULT = tmp;
+:}
+|
+PARIZQ:par_izq repeticion_parametros:rep_param PARDER:par_der error:r 
+{:
+    parser.errores.add("Id de llamado de funcion faltante " + " | linea " + (rright+1) + " columna " +(rleft-2) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ID repeticion_parametros:rep_param PARDER:par_der error:r
+{:
+    parser.errores.add("Parentesis izquierdo [(] esperado " + " | linea " + (rright+1) + " columna " +(rleft-2) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ ID PARIZQ repeticion_parametros:rep_param error:r 
+{:
+    parser.errores.add("Parentesis derecho [)] esperado " + " | linea " + (rright+1) + " columna " +(rleft-2) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
 :}
 ;
 
@@ -1464,6 +1583,27 @@ nodoGet.setNumNodo(parser.contador++);
 nodoGet.setValor(id.toString());
 RESULT = nodoGet;
 :}
+| 
+PARIZQ:par_izquierdo error:r ID:id PARDER:par_derecho SEMICOLON:semi
+{: 
+    parser.errores.add("Palabra reservada faltante " + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+| 
+GET error:r  ID:id PARDER:par_derecho SEMICOLON:semi
+{: 
+    parser.errores.add("Parentesis izquierdo[(] faltante " + " | linea " + (rright+1) + " columna " +(rleft) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+| 
+GET PARIZQ ID:id error:r SEMICOLON:semi
+{: 
+    parser.errores.add("Parentesis derecho[)] faltante " + " | linea " + (rright+1) + " columna " +(rleft) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
 ;
 
 for_loop ::= FOR:f ID:id IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
@@ -1479,6 +1619,42 @@ nodoFor.addHijo((Nodo) op1_2);
 nodoFor.addHijo((Nodo) c);
 RESULT = nodoFor;
 :}
+| 
+error:r ID:id IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+{: 
+    parser.errores.add("Palabra for faltante " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+| 
+FOR error:r IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+{: 
+    parser.errores.add("Id faltante para for" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+| 
+FOR ID error:r  operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+{: 
+    parser.errores.add("Palabra in faltante para for" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+| 
+FOR ID IN  operando1:op1 error:r operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+{: 
+    parser.errores.add("Simbolo [:] faltante entre operandos" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+| 
+FOR ID IN  operando1:op1 DOSPUNTOS operando1:op1_2 error:r cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+{: 
+    parser.errores.add("Palabra Loop faltante" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+
 ;
 
 while_loop ::= WHILE:wh condicion_if:cond_while LOOP:lp cuerpo:c END:e LOOP:lp1 SEMICOLON:semi
