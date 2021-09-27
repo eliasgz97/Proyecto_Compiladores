@@ -13,8 +13,6 @@ parser code
     public ArrayList<String> errores = new ArrayList();
     public void unrecovered_syntax_error(Symbol s) {
         errores.add("Error de sintaxis en el codigo. Revise el codigo. No recuperable.");
-        System.err.println("Error de sintaxis en el codigo. Revise el codigo.");
-        System.out.println(s.toString());
     }
     public Nodo padre;
     public int contador;
@@ -986,14 +984,14 @@ RESULT = tmp;
 |
 error:r valores_numericos_booleanos:valNumBool SEMICOLON:semiRT cuerpo:c
 {:
-    parser.errores.add("Return no encontrado" + (rright+1) + " columna " +(rleft+1) +" |");  
+    parser.errores.add("Return no encontrado" + " | linea"+(rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 |
 RETURN valores_numericos_booleanos:valNumBool error:r cuerpo:c
 {:
-    parser.errores.add("Fin de linea [;] esperado" + (rright+1) + " columna " +(rleft+1) +" |");  
+    parser.errores.add("Fin de linea [;] esperado " +" | linea"+ (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
@@ -1054,7 +1052,7 @@ RESULT = tmp;
 |
 llamado_funcion:llamadoF error:r cuerpo:c
 {:
-    parser.errores.add("Fin de linea [;] esperado" + (rright+1) + " columna " +(rleft+1) +" |");  
+    parser.errores.add("Fin de linea [;] esperado " +" | linea"+ (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
@@ -1071,6 +1069,12 @@ RESULT = tmp;
 fin_cuerpo:fcuerpo
 {:
 RESULT = fcuerpo;
+:}
+|error:r
+{:
+parser.errores.add("Cuerpo no puede ser vacio " +" | linea "+ (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
 :}
 ;
 
@@ -1622,6 +1626,7 @@ RESULT = nodoFor;
 | 
 error:r ID:id IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
+    System.out.println("Entra for sin cabaeza");
     parser.errores.add("Palabra for faltante " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
@@ -1629,6 +1634,7 @@ error:r ID:id IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerp
 | 
 FOR error:r IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
+    System.out.println("Entra for sin id");
     parser.errores.add("Id faltante para for" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
@@ -1636,14 +1642,15 @@ FOR error:r IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:
 | 
 FOR ID error:r  operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
+    System.out.println("Palabra in faltante para for");
     parser.errores.add("Palabra in faltante para for" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 | 
-FOR ID IN  operando1:op1 error:r operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+error:r FOR ID IN  operando1:op1  operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
-    parser.errores.add("Simbolo [:] faltante entre operandos" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    parser.errores.add("Simbolo [..] faltante entre operandos" + " | linea " + (rright+1) + " columna " +(rleft+4) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
@@ -1654,7 +1661,20 @@ FOR ID IN  operando1:op1 DOSPUNTOS operando1:op1_2 error:r cuerpo:c END:e LOOP:l
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
-
+| 
+FOR ID IN  operando1:op1 DOSPUNTOS operando1:op1_2 LOOP cuerpo:c END LOOP error:r
+{: 
+    parser.errores.add("Fin de linea [;] esperado " + " |linea "+(rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+| 
+FOR ID IN  operando1:op1 DOSPUNTOS operando1:op1_2 LOOP cuerpo:c END error:r SEMICOLON
+{: 
+    parser.errores.add("End Loop faltante " + " |linea "+(rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
 ;
 
 while_loop ::= WHILE:wh condicion_if:cond_while LOOP:lp cuerpo:c END:e LOOP:lp1 SEMICOLON:semi
@@ -1666,6 +1686,13 @@ nodoWhile.addHijo((Nodo) cond_while);
 nodoWhile.addHijo((Nodo) c);
 RESULT = nodoWhile;
 :}
+|
+error:r condicion_if:cond_while LOOP:lp cuerpo:c END:e LOOP:lp1 SEMICOLON:semi
+{:
+     parser.errores.add("Palabra while faltante " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
 ;
 
 loop_func ::= LOOP:lp cuerpo:c END:e LOOP:lp_final SEMICOLON:semi
@@ -1675,6 +1702,11 @@ Nodo nodoLoop = new Nodo ("loop");
 nodoLoop.setNumNodo(parser.contador++);
 nodoLoop.addHijo((Nodo) c);
 RESULT = nodoLoop;
+:} 
+| LOOP:lp cuerpo:c END:e LOOP:lp_final error:r
+{: parser.errores.add("Fin de linea [;] esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
 :}
 ;
 
@@ -1684,5 +1716,17 @@ Nodo exitwhen = new Nodo ("exit-when");
 exitwhen.setNumNodo(parser.contador++);
 exitwhen.addHijo((Nodo) condicion_loop);
 RESULT = exitwhen;
+:}
+|
+error:r WHEN:wh condicion_if:condicion_loop SEMICOLON:semi
+{:
+    parser.errores.add("Identificador de accion esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|EXIT error:r condicion_if:condicion_loop SEMICOLON:semi
+{:  parser.errores.add("Identificador when esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
 :}
 ;
