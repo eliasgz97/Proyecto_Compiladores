@@ -409,8 +409,13 @@ AdaLexerCup lexico;
         try {
             sintactico = new Sintax(lexico);
             sintactico.parse();
-            if (sintactico != null) {
-                resultado += "si sirve";
+            if (sintactico.errores.isEmpty()) {
+                resultado += "Compilado exitosamente";
+            }
+            if(!sintactico.errores.isEmpty()){
+                for (int i = 0; i < sintactico.errores.size(); i++) {
+                    resultado+= sintactico.errores.get(i);
+                }
             }
         } catch (Exception e) {
         }

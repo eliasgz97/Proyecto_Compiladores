@@ -53,9 +53,16 @@ parser.padre = (Nodo) tmp;
 RESULT = tmp;
 :}
 |
+error:r ID:id IS:i BEG:b
+{:
+parser.errores.add("Identificador sin procedure" + " | linea " + (rright+1) + " columna " +(rleft) +" |");
+RESULT="";
+:}
+|
 error:r ID:id IS:i Variables:var BEG:b
 {:
-System.out.println("Falta palabra procedure");
+parser.errores.add("Identificador sin procedure" + " | linea " + (rright+1) + " columna " +(rleft) +" |");
+RESULT="";
 :}
 |
 PROCEDURE:proc ID:id IS:i BEG:b 
@@ -72,6 +79,42 @@ procedure.addHijo((Nodo) hijoId);
 procedure.addHijo((Nodo) b);
 parser.padre = (Nodo) tmp;
 RESULT = tmp;
+:}
+|
+ PROCEDURE:proc error:r IS:i Variables:var BEG:b
+{:
+parser.errores.add("Procedure sin identificador" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");
+RESULT="";
+:}
+|
+ PROCEDURE:proc ID error:r Variables:var BEG:b
+{:
+parser.errores.add("Palabra reservada [is] esperada" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");
+RESULT="";
+:}
+|
+ PROCEDURE:proc error:r IS:i  BEG:b
+{:
+parser.errores.add("Procedure sin identificador" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");
+RESULT="";
+:}
+|
+ error:r PROCEDURE:proc ID IS  Variables:var  
+{:
+parser.errores.add("Procedure sin begin" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");
+RESULT="";
+:}
+|
+ error:r PROCEDURE:proc ID IS:i  
+{:
+parser.errores.add("Procedure sin begin" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");
+RESULT="";
+:}
+|
+ PROCEDURE:proc ID error:r BEG:b
+{:
+parser.errores.add("Palabra reservada [is] esperada" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");
+RESULT="";
 :}
 ;
 
@@ -220,6 +263,12 @@ hijo.setNumNodo(parser.contador++);
 hijo.setValor(id.toString());
 RESULT = hijo;
 :}
+| ID:id error:r repeticion_id:rep_id 
+{:
+    parser.errores.add("Coma esperada antes de id" + " | linea " + (rright+1) + " columna " +(rleft) +" |");
+    Nodo errorcito=new Nodo("error");
+    RESULT=errorcito;
+:}
 ;
 
 asignar_valor_variables ::= ASIGNACION:asignacion S:s
@@ -245,8 +294,14 @@ tmp.setNumNodo(parser.contador++);
 RESULT = tmp;
 System.out.println(asignacion.toString() + f.toString());
 :}
+| ASIGNACION error:r
+{:
+    parser.errores.add("Valor esperado para asignacion" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
 ;
-
+/*-----------------------FUNCIONES------------------------------------- */
 funcion ::= FUNCTION:f ID:id PARIZQ:parizq parametros_obligatorios:pm PARDER:parder RETURN:rt TIPOVARIABLE:tipo_var
 IS:i
 {:
@@ -259,9 +314,57 @@ tmp.addHijo((Nodo) hijoFuncion);
 tmp.addHijo((Nodo) pm);
 RESULT = tmp;
 :}
+| error:r ID:id PARIZQ:parizq parametros_obligatorios:pm PARDER:parder RETURN:rt TIPOVARIABLE:tipo_var
+IS:i
+{:
+    parser.errores.add("Palabra reservada function esperada" + " | linea " + (rright+1) + " columna " +(rleft) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:} 
+| FUNCTION:f error:r  PARIZQ:parizq parametros_obligatorios:pm PARDER:parder RETURN:rt TIPOVARIABLE:tipo_var
+IS:i
+{:
+    parser.errores.add("Id esperado para function" + " | linea " + (rright+1) + " columna " +(rleft) +" |");
+    Nodo errorcito= new Nodo("error");
+    RESULT =errorcito;
+:} 
+| FUNCTION:f ID:id error:r  parametros_obligatorios:pm PARDER:parder RETURN:rt TIPOVARIABLE:tipo_var
+IS:i
+{:
+    parser.errores.add("Parentesis [(] esperado" + " | linea " + (rright+1) + " columna " +(rleft) +" |");
+    Nodo errorcito= new Nodo("error");
+    RESULT =errorcito;
+:} 
+| FUNCTION:f ID:id PARIZQ:parizq  parametros_obligatorios:pm  RETURN:rt TIPOVARIABLE:tipo_var
+IS:i error:r
+{:
+    parser.errores.add("Parentesis [)] esperado" + " | linea " + (rright+1) + " columna " +(rleft-2) +" |");
+        Nodo errorcito= new Nodo("error");
+    RESULT = errorcito;
+:}
+| FUNCTION:f ID:id PARIZQ:parizq  parametros_obligatorios:pm PARDER:parder TIPOVARIABLE:tipo_var
+IS:i error:r
+{:
+    parser.errores.add("return esperado para funcion" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");
+        Nodo errorcito= new Nodo("error");
+    RESULT = errorcito;
+:}
+| FUNCTION:f ID:id PARIZQ:parizq  parametros_obligatorios:pm PARDER:parder RETURN 
+IS:i error:r
+{:
+    parser.errores.add("Tipo de variable de retorno esperado para funcion" + " | linea " + (rright+1) + " columna " +(rleft) +" |");
+        Nodo errorcito= new Nodo("error");
+    RESULT = errorcito;
+:}
+| FUNCTION:f ID:id PARIZQ:parizq  parametros_obligatorios:pm PARDER:parder RETURN TIPOVARIABLE:tipo_var error:r
+{:
+    parser.errores.add("Palabra is esperada para funcion" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");
+        Nodo errorcito= new Nodo("error");
+    RESULT = errorcito;
+:}
 ;
 
-parametros_obligatorios ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo parametros_obligatorios:pm_o
+parametros_obligatorios ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:sc parametros_obligatorios:pm_o
 {:
 Nodo tmp = new Nodo("parametros_funcion");
 tmp.setNumNodo(parser.contador++);
@@ -274,7 +377,28 @@ tmp.addHijo((Nodo) pm_o);
 RESULT = tmp;
 :}
 |
-repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:inicializar parametros_obligatorios:pm_o
+repeticion_id:rep_id  DECLARACION   error:r 
+{:
+    parser.errores.add("Tipo de variable esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  TIPOVARIABLE:tipo error:r 
+{:
+    parser.errores.add("simbolo declaracion esperado" + " | linea "+(rright+1)+" columna "+(rleft-1)+" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION  TIPOVARIABLE:tipo parametros_obligatorios error:r
+{:
+    parser.errores.add("Fin de linea [;] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:inicializar SEMICOLON:s parametros_obligatorios:pm_o
 {:
 Nodo tmp = new Nodo("parametros_funcion");
 tmp.setNumNodo(parser.contador++);
@@ -285,18 +409,6 @@ hijoTipovar.setValor(tipo.toString());
 tmp.addHijo((Nodo) hijoTipovar);
 tmp.addHijo((Nodo) inicializar);
 tmp.addHijo((Nodo) pm_o);
-RESULT = tmp;
-:}
-|
-repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo
-{:
-Nodo tmp = new Nodo("parametros_funcion");
-tmp.setNumNodo(parser.contador++);
-tmp.addHijo((Nodo) rep_id);
-Nodo hijoTipovar = new Nodo("tipo_variable");
-hijoTipovar.setNumNodo(parser.contador++);
-hijoTipovar.setValor(tipo.toString());
-tmp.addHijo((Nodo) hijoTipovar);
 RESULT = tmp;
 :}
 |
@@ -312,8 +424,20 @@ tmp.addHijo((Nodo) hijoTipovar);
 tmp.addHijo((Nodo) inicializar);
 RESULT = tmp;
 :}
+|
+repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo
+{:
+Nodo tmp = new Nodo("parametros_funcion");
+tmp.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) rep_id);
+Nodo hijoTipovar = new Nodo("tipo_variable");
+hijoTipovar.setNumNodo(parser.contador++);
+hijoTipovar.setValor(tipo.toString());
+tmp.addHijo((Nodo) hijoTipovar);
+RESULT = tmp;
+:}
 ;
-
+/*-------------------------------PARAMETROS FUNCION--------------------------------------------*/
 parametros_funcion ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi parametros_funcion:paramF
 {:
 Nodo tmp = new Nodo("declaracion_variables");
@@ -365,8 +489,90 @@ hijoTipovar.setValor(tipo.toString());
 tmp.addHijo((Nodo) hijoTipovar);
 RESULT = tmp;
 :}
+/*--------------------DECLARACION ERRORES DECLARAR VARIABLES SIN INICIALIZAR EN FUNCION-----------------*/
+|
+repeticion_id:rep_id  TIPOVARIABLE:tipo error:r SEMICOLON:semi parametros_funcion:paramF {:
+    parser.errores.add("Simbolo declaracion esperado" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION error:r SEMICOLON:semi parametros_funcion:paramF
+{:
+    parser.errores.add("Tipo de variables esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION TIPOVARIABLE  error:r parametros_funcion:paramF 
+{:
+    parser.errores.add("Fin de linea [;] esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  TIPOVARIABLE:tipo error:r SEMICOLON:semi  {:
+    parser.errores.add("Simbolo declaracion esperado" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION error:r SEMICOLON:semi 
+{:
+    parser.errores.add("Tipo de variables esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION TIPOVARIABLE  error:r
+{:
+    parser.errores.add("Fin de linea [;] esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+// -------------------------DECLARACION ERRORES DECLARAR VARIABLES INICIALIZADOS EN FUNCION-------------------------------------
+repeticion_id:rep_id  TIPOVARIABLE:tipo error:r asignar_valor_variables:inicializar SEMICOLON:semi parametros_funcion:paramF {:
+    parser.errores.add("Simbolo declaracion esperado" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION error:r asignar_valor_variables:inicializar SEMICOLON:semi parametros_funcion:paramF
+{:
+    parser.errores.add("Tipo de variables esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION TIPOVARIABLE  asignar_valor_variables:inicializar  parametros_funcion:paramF error:r
+{:
+    parser.errores.add("Fin de linea [;] esperado " + " | linea " + (rright) + " columna " +(rleft) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  TIPOVARIABLE:tipo asignar_valor_variables:inicializar error:r SEMICOLON:semi  {:
+    parser.errores.add("Simbolo declaracion esperado" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION  error:r asignar_valor_variables:inicializar SEMICOLON:semi 
+{:
+    parser.errores.add("Tipo de variables esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION TIPOVARIABLE  error:r asignar_valor_variables:inicializar 
+{:
+    parser.errores.add("Fin de linea [;] esperado " + " | linea " + (rright+1) + " columna " +(rleft+2) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
 ;
-
+/*VARIABLES PRODUCCIONES PARA FUNCTIONS PROCEDURES*/
 Variables ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tp SEMICOLON:semi Variables:v
 {:
 Nodo tmp = new Nodo("variables");
@@ -379,7 +585,29 @@ tmp.addHijo((Nodo) tipo);
 tmp.addHijo((Nodo) v);
 RESULT = tmp;
 :}
+/*--------------ERRORES VARIABLES NO INICIALIZADAS------------------*/
 |
+repeticion_id:rep_id   TIPOVARIABLE:tp error:r SEMICOLON:semi Variables:v
+{:
+    parser.errores.add("Simbolo declaracion esperado" + " | linea " + (rright+1) + " columna " +(rleft) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION error:r SEMICOLON:semi Variables:v
+{:
+    parser.errores.add("Tipo de variable esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION  TIPOVARIABLE error:r Variables:v
+{:
+    parser.errores.add("Fin de linea [;] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+| 
 repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tp asignar_valor_variables:inicializar SEMICOLON:semi Variables:v
 {:
 Nodo tmp = new Nodo("variables");
@@ -394,6 +622,29 @@ tmp.addHijo((Nodo) v);
 RESULT = tmp;
 :}
 |
+/*-----------ERRORES VARIABLES INICIALIZADAS---------------------*/
+repeticion_id:rep_id   TIPOVARIABLE:tp error:r asignar_valor_variables:inicializar SEMICOLON:semi Variables:v
+{:
+    parser.errores.add("Simbolo declaracion esperado" + " | linea " + (rright+1) + " columna " +(rleft) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION error:r asignar_valor_variables:inicializar SEMICOLON:semi Variables:v
+{:
+    parser.errores.add("Tipo de variable esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+repeticion_id:rep_id  DECLARACION  TIPOVARIABLE error:r asignar_valor_variables:inicializar Variables:v
+{:
+    parser.errores.add("Fin de linea [;] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+/*--------------INICIO PRODUCCION FUNCION GENERAL-----------------*/
+|
 funcion:func parametros_funcion:pmF BEG:b Variables:v
 {:
 Nodo tmp = new Nodo("declaracion_global");
@@ -406,7 +657,7 @@ tmp.addHijo((Nodo) v);
 RESULT = tmp;
 :}
 |
-PROCEDURE:proc ID:id IS:is Variables:v1 BEG:b Variables:v2
+ PROCEDURE:proc ID:id IS:is Variables:v1 BEG:b Variables:v2
 {:
 Nodo tmp = new Nodo("declaracion_global");
 tmp.setNumNodo(parser.contador++);
@@ -420,6 +671,71 @@ parser.padre = (Nodo) tmp;
 RESULT = tmp;
 :}
 |
+/*------------------DEFINICION ERRORES PROCEDURE-----------------------*/
+  ID:id error:r IS:is Variables:v1 BEG:b Variables:v2
+{:
+    parser.errores.add("Identificador sin procedure" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ PROCEDURE ID:id error: r Variables:v1 BEG:b Variables:v2
+{:
+    parser.errores.add("Palabra reservaba [is] esperada" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ PROCEDURE error: r IS Variables:v1 BEG:b Variables:v2
+{:
+    parser.errores.add("Identificador esperadao para procedure" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+  ID:id error:r IS:is Variables:v1 BEG:b 
+{:
+    parser.errores.add("Identificador sin procedure" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ PROCEDURE ID:id error: r Variables:v1 BEG:b 
+{:
+    parser.errores.add("Palabra reservaba [is] esperada" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ PROCEDURE error: r  IS Variables:v1 BEG:b 
+{:
+    parser.errores.add("Identificador esperado para procedure" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ ID:id error:r  IS:is BEG:b 
+{:
+    parser.errores.add("Identificador sin procedure" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ PROCEDURE ID:id error: r BEG:b 
+{:
+    parser.errores.add("Palabra reservaba [is] esperada" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ PROCEDURE error: r  IS  BEG:b 
+{:
+    parser.errores.add("Identificador esperado para procedure" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+/*-------------------ERRORES DECLARACION VARIABLES GLOBALES--------------------------*/
 repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tp SEMICOLON:semi
 {:
 Nodo tmp = new Nodo("variables");
@@ -430,6 +746,27 @@ tipo.setNumNodo(parser.contador++);
 tipo.setValor(tp.toString());
 tmp.addHijo((Nodo) tipo);
 RESULT = tmp;
+:}
+|
+ repeticion_id:rep_id  TIPOVARIABLE:tp error:r SEMICOLON:semi
+{:
+    parser.errores.add("Simbolo declaracion esperado " + " | linea " + (rright+1) + " columna " +(rleft) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ repeticion_id:rep_id DECLARACION error:r SEMICOLON:semi
+{:
+    parser.errores.add("Tipo de variable esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ repeticion_id:rep_id DECLARACION TIPOVARIABLE:tp error:r 
+{:
+    parser.errores.add("Fin de linea [;] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
 :}
 |
 repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tp asignar_valor_variables:inicializar SEMICOLON:semi
@@ -498,6 +835,70 @@ tmp.addHijo((Nodo) hijoTrue);
 RESULT = tmp;
 :}
 |
+/* ---------------------ERRORES ASIGNACION VARIABLE--------------------------*/
+  error:r ASIGNACION:asignacion  TRUE:t SEMICOLON:semi
+{: 
+    parser.errores.add("Asignacion sin id " + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ ID error:r TRUE:t SEMICOLON:semi
+{: 
+    parser.errores.add("Simbolo asignacion esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ ID ASIGNACION TRUE:t error:r
+{:
+    parser.errores.add("Fin de linea [;] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+| 
+ ID ASIGNACION  error:r SEMICOLON
+{:
+    parser.errores.add("Valor esperado para asignacion" +" | linea "+ (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ ID error:r SEMICOLON
+{:
+    parser.errores.add("Uso de variable no apropiado" +" | linea "+ (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ ID error:r 
+{:
+    parser.errores.add("Uso de variable no apropiado" +" | linea "+ (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+  error:r ASIGNACION:asignacion FALSE:f SEMICOLON:semi
+{: 
+    parser.errores.add("Asignacion sin id " + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ ID error:r FALSE:f SEMICOLON:semi
+{: 
+    parser.errores.add("Simbolo asignacion esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+ ID ASIGNACION FALSE:f error:r
+{:
+    parser.errores.add("Fin de linea [;] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+| 
 ID:id ASIGNACION:asignacion FALSE:f SEMICOLON:semi
 {:
 System.out.println(id.toString() + asignacion.toString() + f.toString());
@@ -540,6 +941,7 @@ hijoEnd.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) hijoEnd);
 RESULT = tmp;
 :}
+/*-----------------ERRORES BEGIN--------------*/
 ;
 
 cuerpo ::= for_loop:forLoop cuerpo:c
@@ -580,6 +982,20 @@ tmp.addHijo((Nodo) hijoReturn);
 tmp.addHijo((Nodo) valNumBool);
 tmp.addHijo((Nodo) c);
 RESULT = tmp;
+:}
+|
+error:r valores_numericos_booleanos:valNumBool SEMICOLON:semiRT cuerpo:c
+{:
+    parser.errores.add("Return no encontrado" + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+RETURN valores_numericos_booleanos:valNumBool error:r cuerpo:c
+{:
+    parser.errores.add("Fin de linea [;] esperado" + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
 :}
 |
 bloque_if:bloqueIf cuerpo:c
@@ -634,6 +1050,13 @@ tmp.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) llamadoF);
 tmp.addHijo((Nodo) c);
 RESULT = tmp;
+:}
+|
+llamado_funcion:llamadoF error:r cuerpo:c
+{:
+    parser.errores.add("Fin de linea [;] esperado" + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
 :}
 |
 exit_when:exitWhen cuerpo:c
@@ -716,6 +1139,13 @@ cuerpo.setNumNodo(parser.contador++);
 RESULT = cuerpo;
 :}
 |
+llamado_funcion:llamadoF error:r
+{:
+    parser.errores.add("Fin de linea [;] esperado" + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
 exit_when:exitWhen
 {:
 Nodo cuerpo = (Nodo) exitWhen;
@@ -732,6 +1162,20 @@ hijoReturn.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) hijoReturn);
 tmp.addHijo((Nodo) valNumBool);
 RESULT = tmp;
+:}
+|   
+error:r valores_numericos_booleanos:valNumBool SEMICOLON:semiRT
+{:
+    parser.errores.add("Return no encontrado" + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|   
+RETURN valores_numericos_booleanos:valNumBool error:r
+{:
+    parser.errores.add("Fin de linea [;] esperado" + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
 :}
 ;
 
@@ -793,6 +1237,12 @@ Nodo tmp = new Nodo("or");
 tmp.setNumNodo(parser.contador++);
 RESULT=tmp;
 :}
+| error:r
+{:
+    parser.errores.add(" Operador logico esperado " +"| linea "+ (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
 ;
 
 condicion_if ::= operando1:op1 OPREL:oprel operando1:op2 op_logicos:condicional condicion_if:condIf
@@ -809,21 +1259,27 @@ opLogico.addHijo((Nodo) condIf);
 RESULT = opLogico;
 :}
 |
-PARIZQ:par_izq condicion_if:condIf PARDER:par_der
-{:
-Nodo if_parentesis = (Nodo) condIf;
-if_parentesis.setNumNodo(parser.contador++);
-RESULT = if_parentesis;
-:}
-|
 operando1:op1 OPREL:oprel operando1:op2
 {:
-System.out.println("entra holis");
 Nodo hijoOprel = new Nodo (oprel.toString());
 hijoOprel.setNumNodo(parser.contador++);
 hijoOprel.addHijo((Nodo) op1);
 hijoOprel.addHijo((Nodo) op2);
 RESULT = hijoOprel;
+:}
+|
+operando1:op1 error:r operando1:op2
+{:
+   parser.errores.add(" Falta operador relacional "+" | linea" + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;  
+:}
+|
+operando1:op1 error:r operando1:op2 op_logicos:condicional condicion_if:condIf
+{:
+   parser.errores.add(" Falta operador relacional "+" | linea" + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;  
 :}
 |
 ID:id
@@ -848,6 +1304,13 @@ Nodo tmp = new Nodo ("boolean");
 tmp.setNumNodo(parser.contador++);
 tmp.setValor(f.toString());
 RESULT = tmp;
+:}
+|
+error:r
+{:
+   parser.errores.add(" Error de operadores de condicion "+" | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
 :}
 ;
 
