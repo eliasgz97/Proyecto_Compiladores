@@ -69,6 +69,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        jLabel12 = new javax.swing.JLabel();
 
         jd_compilador.setBackground(new java.awt.Color(0, 0, 51));
 
@@ -274,19 +276,28 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel9.setText("Elías Girón");
 
+        jButton2.setText("Tabla de Símbolos");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel12.setText("Mario Henríquez");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(22, 22, 22)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 844, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 844, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(92, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel1)
                         .addGap(76, 76, 76)
                         .addComponent(jButton1)
@@ -295,12 +306,19 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         .addGap(46, 46, 46)
                         .addComponent(jButton3)
                         .addGap(103, 103, 103)
-                        .addComponent(jbt_analizar)
+                        .addComponent(jbt_analizar)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel4)
-                            .addComponent(jLabel9))
-                        .addGap(33, 33, 33))))
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel12))
+                        .addContainerGap())))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(124, 124, 124)
@@ -330,24 +348,29 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel3)
+                        .addComponent(jLabel1)
+                        .addComponent(jButton1)
+                        .addComponent(jb_arbol)
+                        .addComponent(jButton3)
+                        .addComponent(jbt_analizar))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel1)
-                            .addComponent(jButton1)
-                            .addComponent(jb_arbol)
-                            .addComponent(jButton3)
-                            .addComponent(jbt_analizar)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel9)))
-                .addGap(42, 42, 42)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 497, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(75, Short.MAX_VALUE))
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel12)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 497, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(56, 56, 56)
+                        .addComponent(jButton2)))
+                .addContainerGap(76, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(31, 31, 31)
@@ -385,9 +408,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 54, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -437,6 +458,11 @@ public class InterfazCompilador extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         jtxtarea_entrada.setText("");
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        System.out.println("-----------------comprobacion de tipos----------------");
+        recorrer(sintactico.padre);
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -552,10 +578,12 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
@@ -596,11 +624,11 @@ AdaLexerCup lexico;
                 resultado += "Compilado exitosamente";
                 jtxtarea_salida_sintactico.setForeground(Color.GREEN);
             }
-            if(!sintactico.errores.isEmpty()){
+            if (!sintactico.errores.isEmpty()) {
                 for (int i = 0; i < sintactico.errores.size(); i++) {
-                    resultado+= sintactico.errores.get(i)+"\n ";
+                    resultado += sintactico.errores.get(i) + "\n ";
                 }
-                
+
                 jtxtarea_salida_sintactico.setForeground(Color.red);
                 jb_arbol.setEnabled(false);
             }
@@ -646,4 +674,49 @@ AdaLexerCup lexico;
         return cadena;
     }
 
+    public void recorrer(Nodo padre) {
+        for (Nodo hoja : padre.getHijos()) {
+            if (hoja.getNombre().equals("variables")) {
+                String id, tipo, valor;
+                tipo = hoja.getHijos().get(1).getValor();
+                //agregar a tabla de símbolos
+                System.out.println(tipo);
+                if (hoja.getHijos().size() > 2) {
+                    valor = hoja.getHijos().get(2).getValor();
+                    //agregar a tabla de símbolos
+                    System.out.println(valor);
+                } else {
+                    valor = "null";
+                    //agregar a tabla de símbolos
+                    System.out.println(valor);
+                }
+                if (hoja.getHijos().get(0).getNombre().equals("id")) {
+                    id = hoja.getHijos().get(0).getValor();
+                    //agregar a tabla de símbolos
+                    System.out.println(id);
+                } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
+                    recorrerRepeticion(hoja.getHijos().get(0), valor, tipo);
+                }
+            }
+            recorrer(hoja);
+        }
+    }
+
+    public void recorrerRepeticion(Nodo padre, String valor, String tipo) {
+        if (padre.getHijos().get(1).getNombre().equals(",")) {
+            String rep_id;
+            rep_id = padre.getHijos().get(0).getValor();
+            System.out.println(rep_id);
+            //agregar a tabla de símbolos
+            recorrerRepeticion(padre.getHijos().get(1), valor, tipo);
+        } else if (padre.getHijos().get(1).getNombre().equals("id")) {
+            String rep_id;
+            rep_id = padre.getHijos().get(0).getValor();
+            System.out.println(rep_id);
+            //agregar a tabla de símbolos
+            rep_id = padre.getHijos().get(1).getValor();
+            System.out.println(rep_id);
+            //agregar a tabla de símbolos
+        }
+    }
 }
