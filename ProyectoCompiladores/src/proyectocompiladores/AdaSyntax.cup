@@ -438,6 +438,7 @@ RESULT = tmp;
 /*-------------------------------PARAMETROS FUNCION--------------------------------------------*/
 parametros_funcion ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi parametros_funcion:paramF
 {:
+System.out.println("entra");
 Nodo tmp = new Nodo("declaracion_variables");
 tmp.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) rep_id);
@@ -451,7 +452,7 @@ RESULT = tmp;
 |
 repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:inicializar SEMICOLON:semi parametros_funcion:paramF
 {:
-Nodo tmp = new Nodo("parametros_funcion");
+Nodo tmp = new Nodo("declaracion_variables");
 tmp.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) rep_id);
 Nodo hijoTipovar = new Nodo("tipo_variable");
@@ -465,7 +466,7 @@ RESULT = tmp;
 |
 repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo asignar_valor_variables:inicializar SEMICOLON:semi
 {:
-Nodo tmp = new Nodo("parametros_funcion");
+Nodo tmp = new Nodo("declaracion_variables");
 tmp.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) rep_id);
 Nodo hijoTipovar = new Nodo("tipo_variable");
@@ -782,13 +783,11 @@ RESULT = tmp;
 |
 funcion:func parametros_funcion:pmF BEG:b
 {:
-Nodo tmp = new Nodo("declaracion_global");
-tmp.setNumNodo(parser.contador++);
 Nodo funcion = (Nodo) func;
 funcion.setNumNodo(parser.contador++);
 funcion.addHijo((Nodo) pmF);
 funcion.addHijo((Nodo) b);
-RESULT = tmp;
+RESULT = funcion;
 :}
 |
 PROCEDURE:proc ID:id IS:is Variables:v1 BEG:b
@@ -819,7 +818,6 @@ RESULT = tmp;
 
 asignar_valor ::= ID:id ASIGNACION:asignacion TRUE:t SEMICOLON:semi
 {:
-System.out.println(id.toString() + asignacion.toString() + t.toString());
 Nodo tmp = new Nodo ("asignar_valor");
 tmp.setNumNodo(parser.contador++);
 Nodo hijoId = new Nodo("id");
