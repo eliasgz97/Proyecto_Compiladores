@@ -705,7 +705,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
             }
             if (hoja.getNombre().equals("declaracion_funcion")) {
-                recorrerDominio(hoja, "", hoja.getHijos().get(0).getValor(), ambito + "." + hoja.getHijos().get(0).getValor());
+                recorrerDominio(hoja, "", hoja.getHijos().get(0).getValor(), ambito + "." + hoja.getHijos().get(0).getValor(),
+                        hoja.getHijos().get(2).getValor());
             }
             recorrer(hoja, ambito);
         }
@@ -732,7 +733,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         return contador;
     }
 
-    public void recorrerDominio(Nodo padre, String tipo, String id, String ambito) {
+    public void recorrerDominio(Nodo padre, String tipo, String id, String ambito, String rango) {
         for (Nodo hoja : padre.getHijos()) {
             if (hoja.getNombre().equals("parametros_funcion")) {
                 tipo += hoja.getHijos().get(1).getValor() + "x";
@@ -746,10 +747,24 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), hoja.getHijos().get(1).getValor(),
                             "null", false, false, id);
                 }
-                recorrerDominio(hoja, tipo, id, ambito);
+                recorrerDominio(hoja, tipo, id, ambito, rango);
+            }
+            if (hoja.getNombre().equals("declaracion_variables")) {
+                String idDeclaracion, tipoDeclaracion, valorDeclaracion;
+                idDeclaracion = hoja.getHijos().get(0).getValor();
+                tipoDeclaracion = hoja.getHijos().get(1).getValor();
+                /*if (hoja.getHijos().get(2).getNombre().equals("")) {
+                    valorDeclaracion = hoja.getHijos().get(2).getValor();
+                } else {
+                   
+                }*/
+                valorDeclaracion = "0";
+                SymbolTable.insertar2(idDeclaracion, tipoDeclaracion,
+                        valorDeclaracion, false, false, ambito);
+                recorrerDominio(hoja, tipo, id, ambito, rango);
             }
         }
-        SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1), "", false, true, ambito);
+        SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + rango, "", false, true, ambito);
         System.out.println(tipo);
     }
 }

@@ -311,6 +311,10 @@ hijoFuncion.setNumNodo(parser.contador++);
 hijoFuncion.setValor(id.toString());
 tmp.addHijo((Nodo) hijoFuncion);
 tmp.addHijo((Nodo) pm);
+Nodo tipoFuncion = new Nodo("return");
+tipoFuncion.setNumNodo(parser.contador++);
+tipoFuncion.setValor(tipo_var.toString());
+tmp.addHijo((Nodo) tipoFuncion);
 RESULT = tmp;
 :}
 | error:r ID:id PARIZQ:parizq parametros_obligatorios:pm PARDER:parder RETURN:rt TIPOVARIABLE:tipo_var
