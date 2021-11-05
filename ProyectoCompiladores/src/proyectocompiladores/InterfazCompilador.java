@@ -1,5 +1,6 @@
 package proyectocompiladores;
 
+import comprobacionTipos.Simbolo;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.io.BufferedReader;
@@ -461,7 +462,16 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         System.out.println("-----------------comprobacion de tipos----------------");
-        recorrer(sintactico.padre);
+        recorrer(sintactico.padre, sintactico.padre.getHijos().get(0).getValor());
+        System.out.println("\nTABLA DE SIMBOLOS:");
+        System.out.println("============================================================:");
+        for (Simbolo s : SymbolTable.getTablaSimbolos()) {
+            System.out.println(String.format(
+                    "      " + "| Nombre: %s | valor: %s | tipoVariable: %s | tipoConstante: %s | Function: %s | Ambito: %s |",
+                    s.nombre, s.valor, s.tipoVariable, s.tipoConstante, s.isFunction, s.ambito));
+        }
+        System.out.println("Saliendo de imprimir en TablaSimbolos");
+        System.out.println("============================================================:\n");
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
@@ -610,8 +620,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
     private javax.swing.JTextArea jtxtarea_salida;
     private javax.swing.JTextArea jtxtarea_salida_sintactico;
     // End of variables declaration//GEN-END:variables
-AdaLexerCup lexico;
+    AdaLexerCup lexico;
     Sintax sintactico;
+    TablaSimbolos SymbolTable;
 
     private String AnalizarSintaxis() {
         lexico = new AdaLexerCup(new BufferedReader(new StringReader(jtxtarea_entrada.getText())));
@@ -674,49 +685,71 @@ AdaLexerCup lexico;
         return cadena;
     }
 
-    public void recorrer(Nodo padre) {
+    public void recorrer(Nodo padre, String ambito) {
+        //codigo para agregar variables de procedure
         for (Nodo hoja : padre.getHijos()) {
             if (hoja.getNombre().equals("variables")) {
-                String id, tipo, valor;
-                tipo = hoja.getHijos().get(1).getValor();
-                //agregar a tabla de símbolos
-                System.out.println(tipo);
+                String id = "", tipo = "", valor;
                 if (hoja.getHijos().size() > 2) {
                     valor = hoja.getHijos().get(2).getValor();
-                    //agregar a tabla de símbolos
-                    System.out.println(valor);
                 } else {
                     valor = "null";
-                    //agregar a tabla de símbolos
-                    System.out.println(valor);
                 }
                 if (hoja.getHijos().get(0).getNombre().equals("id")) {
                     id = hoja.getHijos().get(0).getValor();
-                    //agregar a tabla de símbolos
-                    System.out.println(id);
+                    tipo = hoja.getHijos().get(1).getValor();
                 } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                    recorrerRepeticion(hoja.getHijos().get(0), valor, tipo);
+                    recorrerRepeticion(hoja.getHijos().get(0), valor, tipo, 0, ambito);
                 }
+                //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
+                SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
             }
-            recorrer(hoja);
+            if (hoja.getNombre().equals("declaracion_funcion")) {
+                recorrerDominio(hoja, "", hoja.getHijos().get(0).getValor(), ambito + "." + hoja.getHijos().get(0).getValor());
+            }
+            recorrer(hoja, ambito);
         }
     }
 
-    public void recorrerRepeticion(Nodo padre, String valor, String tipo) {
+    public int recorrerRepeticion(Nodo padre, String valor, String tipo, int contador, String ambito) {
         if (padre.getHijos().get(1).getNombre().equals(",")) {
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            System.out.println(rep_id);
-            //agregar a tabla de símbolos
-            recorrerRepeticion(padre.getHijos().get(1), valor, tipo);
+            contador++;
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
+            return recorrerRepeticion(padre.getHijos().get(1), valor, tipo, contador, ambito);
         } else if (padre.getHijos().get(1).getNombre().equals("id")) {
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            System.out.println(rep_id);
+            contador++;
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
             //agregar a tabla de símbolos
             rep_id = padre.getHijos().get(1).getValor();
-            System.out.println(rep_id);
+            contador++;
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
             //agregar a tabla de símbolos
         }
+        return contador;
+    }
+
+    public void recorrerDominio(Nodo padre, String tipo, String id, String ambito) {
+        for (Nodo hoja : padre.getHijos()) {
+            if (hoja.getNombre().equals("parametros_funcion")) {
+                tipo += hoja.getHijos().get(1).getValor() + "x";
+                if (hoja.getHijos().get(0).getNombre().equals(",")) {
+                    int contador = recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), 0, id); // tiene que recibir ambito como string
+                    for (int i = 1; i < contador; i++) {
+                        tipo += hoja.getHijos().get(1).getValor() + "x";
+                    }
+                } else if (hoja.getHijos().get(0).getNombre().equals("id")) {
+                    //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
+                    SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), hoja.getHijos().get(1).getValor(),
+                            "null", false, false, id);
+                }
+                recorrerDominio(hoja, tipo, id, ambito);
+            }
+        }
+        SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1), "", false, true, ambito);
+        System.out.println(tipo);
     }
 }

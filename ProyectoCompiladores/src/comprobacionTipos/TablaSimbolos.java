@@ -3,55 +3,64 @@ package comprobacionTipos;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import comprobacionTipos.Simbolo;
 
-class Simbolo {
-    String nombre;
-    String tipoVariable;
-    Object valor;
-    Boolean tipoConstante;
-    Boolean isFunction;
-    String ambito;
-
-    public Simbolo(String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito) {
-        this.nombre = nombre;
-        this.tipoVariable = tipoVariable;
-        this.valor = valor;
-        this.tipoConstante = tipoConstante;
-        this.isFunction = isFunction;
-        this.ambito = ambito;
-    }
-
-    public Simbolo() {
-
-    }
-
-    public String getNombre() {
-        return this.nombre;
-    }
-
-    public String getTipoVariable() {
-        return this.tipoVariable;
-    }
-
-    public Object getValor() {
-        return this.valor;
-    }
-
-    public Boolean getTipoConstante() {
-        return this.tipoConstante;
-    }
-
-    public Boolean getIsFunction() {
-        return this.isFunction;
-    }
-
-}
+//class Simbolo {
+//    String nombre;
+//    String tipoVariable;
+//    Object valor;
+//    Boolean tipoConstante;
+//    Boolean isFunction;
+//    String ambito;
+//
+//    public Simbolo(String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito) {
+//        this.nombre = nombre;
+//        this.tipoVariable = tipoVariable;
+//        this.valor = valor;
+//        this.tipoConstante = tipoConstante;
+//        this.isFunction = isFunction;
+//        this.ambito = ambito;
+//    }
+//
+//    public Simbolo() {
+//
+//    }
+//
+//    public String getNombre() {
+//        return this.nombre;
+//    }
+//
+//    public String getTipoVariable() {
+//        return this.tipoVariable;
+//    }
+//
+//    public Object getValor() {
+//        return this.valor;
+//    }
+//
+//    public Boolean getTipoConstante() {
+//        return this.tipoConstante;
+//    }
+//
+//    public Boolean getIsFunction() {
+//        return this.isFunction;
+//    }
+//
+//}
 
 public class TablaSimbolos {
     static ArrayList<Simbolo> tablaSimbolos = new ArrayList<Simbolo>();
     // static Map<String, Simbolo> tablaSimbolos = new HashMap();
     // static Stack<String> lista;
     // static ArrayList<Nodo> repeticiones;
+
+    static public ArrayList<Simbolo> getTablaSimbolos() {
+        return tablaSimbolos;
+    }
+
+    static public void setTablaSimbolos(ArrayList<Simbolo> tablaSimbolos) {
+        TablaSimbolos.tablaSimbolos = tablaSimbolos;
+    }
 
     public static Logger log = Logger.getLogger(TablaSimbolos.class.getName());
 
@@ -93,7 +102,7 @@ public class TablaSimbolos {
         Simbolo simbolo = null;
         boolean existe = false;
         for (Simbolo s : tablaSimbolos) {
-            if (s.nombre.equals(nombre)) {
+            if (s.nombre.equals(nombre) && ambito.equals(s.ambito)) {
                 existe = true;
                 break;
             }

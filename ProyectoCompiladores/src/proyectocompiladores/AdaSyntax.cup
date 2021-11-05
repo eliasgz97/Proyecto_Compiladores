@@ -41,8 +41,9 @@ Inicio ::= PROCEDURE:proc ID:id IS:i Variables:var BEG:b
 {:
 Nodo tmp = new Nodo("Inicio");
 tmp.setNumNodo(parser.contador++);
-Nodo procedure = new Nodo("Procedure " + id.toString());
+Nodo procedure = new Nodo("Procedure");
 procedure.setNumNodo(parser.contador++);
+procedure.setValor(id.toString());
 tmp.addHijo((Nodo) procedure);
 Nodo prueba = (Nodo) var;
 procedure.addHijo((Nodo) prueba);
