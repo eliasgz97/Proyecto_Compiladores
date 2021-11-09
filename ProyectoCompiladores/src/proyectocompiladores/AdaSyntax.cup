@@ -68,8 +68,9 @@ PROCEDURE:proc ID:id IS:i BEG:b
 {:
 Nodo tmp = new Nodo("Inicio");
 tmp.setNumNodo(parser.contador++);
-Nodo procedure = new Nodo("Procedure " + id.toString());
+Nodo procedure = new Nodo("Procedure");
 procedure.setNumNodo(parser.contador++);
+procedure.setValor(id.toString());
 tmp.addHijo((Nodo) procedure);
 Nodo hijoId = new Nodo("id");
 hijoId.setNumNodo(parser.contador++);
@@ -665,8 +666,9 @@ RESULT = tmp;
 {:
 Nodo tmp = new Nodo("declaracion_global");
 tmp.setNumNodo(parser.contador++);
-Nodo procedure = new Nodo("Procedure " + id.toString());
+Nodo procedure = new Nodo("Procedure");
 procedure.setNumNodo(parser.contador++);
+procedure.setValor(id.toString());
 tmp.addHijo((Nodo) procedure);
 procedure.addHijo((Nodo) v1);
 procedure.addHijo((Nodo) b);
@@ -799,8 +801,9 @@ PROCEDURE:proc ID:id IS:is Variables:v1 BEG:b
 {:
 Nodo tmp = new Nodo("declaracion_global");
 tmp.setNumNodo(parser.contador++);
-Nodo procedure = new Nodo("Procedure " + id.toString());
+Nodo procedure = new Nodo("Procedure");
 procedure.setNumNodo(parser.contador++);
+procedure.setValor(id.toString());
 tmp.addHijo((Nodo) procedure);
 procedure.addHijo((Nodo) v1);
 procedure.addHijo((Nodo) b);
@@ -812,8 +815,9 @@ PROCEDURE:proc ID:id IS:is BEG:b
 {:
 Nodo tmp = new Nodo("declaracion_global");
 tmp.setNumNodo(parser.contador++);
-Nodo procedure = new Nodo("Procedure " + id.toString());
+Nodo procedure = new Nodo("Procedure");
 procedure.setNumNodo(parser.contador++);
+procedure.setValor(id.toString());
 tmp.addHijo((Nodo) procedure);
 procedure.addHijo((Nodo) b);
 parser.padre = (Nodo) tmp;

@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import comprobacionTipos.TablaSimbolos;
+import java.util.ArrayList;
 
 /**
  *
@@ -462,7 +463,10 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         System.out.println("-----------------comprobacion de tipos----------------");
-        recorrer(sintactico.padre, sintactico.padre.getHijos().get(0).getValor());
+        try {
+            recorrer(sintactico.padre.getHijos().get(0), sintactico.padre.getHijos().get(0).getValor());
+        } catch (Exception e) {
+        }
         System.out.println("\nTABLA DE SIMBOLOS:");
         System.out.println("============================================================:");
         for (Simbolo s : SymbolTable.getTablaSimbolos()) {
@@ -472,6 +476,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         }
         System.out.println("Saliendo de imprimir en TablaSimbolos");
         System.out.println("============================================================:\n");
+        SymbolTable.getTablaSimbolos().removeAll(SymbolTable.getTablaSimbolos());
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
@@ -688,28 +693,74 @@ public class InterfazCompilador extends javax.swing.JFrame {
     public void recorrer(Nodo padre, String ambito) {
         //codigo para agregar variables de procedure
         for (Nodo hoja : padre.getHijos()) {
-            if (hoja.getNombre().equals("variables")) {
-                String id = "", tipo = "", valor;
-                if (hoja.getHijos().size() > 2) {
-                    valor = hoja.getHijos().get(2).getValor();
+            if (!hoja.isVisitado()) {
+                if (hoja.getNombre().equals("variables")) {
+                    String id = "", tipo = "", valor = "";
+                    //hay que cambiar este código
+                    if (hoja.getHijos().get(0).getNombre().equals("id")) {
+                        id = hoja.getHijos().get(0).getValor();
+                        tipo = hoja.getHijos().get(1).getValor();
+                        SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
+                    } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
+                        recorrerRepeticion(hoja.getHijos().get(0), "null", hoja.getHijos().get(1).getValor(), 0, ambito);
+                    }
+                    //&& ambito.equals(padre.getValor())
+                    /*if (hoja.getHijos().size() > 2) {
+                    if (hoja.getHijos().get(2).getNombre().equals("num_int") || hoja.getHijos().get(2).getNombre().equals("numfloat")
+                            || hoja.getHijos().get(2).getNombre().equals("boolean") || hoja.getHijos().get(2).getNombre().equals("+")
+                            || hoja.getHijos().get(2).getNombre().equals("-") || hoja.getHijos().get(2).getNombre().equals("*")
+                            || hoja.getHijos().get(2).getNombre().equals("/")) {
+                        //System.out.println("entra algo");
+                        valor = comprobarPrecedencia(hoja.getHijos().get(2), tipo, "");
+                        System.out.println("hace precedencia");
+                        SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
+                    } else if (hoja.getHijos().get(2).getNombre().equals("variables")) {
+                        valor = "no asignado";
+                        SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
+                    }
                 } else {
-                    valor = "null";
+                    System.out.println("entra null");
+                    valor = "no asignado";
+                    SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
                 }
-                if (hoja.getHijos().get(0).getNombre().equals("id")) {
-                    id = hoja.getHijos().get(0).getValor();
-                    tipo = hoja.getHijos().get(1).getValor();
-                } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                    recorrerRepeticion(hoja.getHijos().get(0), valor, tipo, 0, ambito);
+                     */
+                    //SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
+                    //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                 }
-                //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
-                SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
+                if (hoja.getNombre().equals("declaracion_funcion")) {
+                    recorrerDominio(hoja, "", hoja.getHijos().get(0).getValor(), ambito + "." + hoja.getHijos().get(0).getValor(),
+                            hoja.getHijos().get(2).getValor());
+                }
+                if (hoja.getNombre().equals("Procedure")) {
+                    SymbolTable.insertar2(hoja.getValor(), "void -> void", "", false, false, ambito);
+                    recorrer(hoja, ambito + "." + hoja.getValor());
+                }
+                recorrer(hoja, ambito);
+                hoja.setVisitado(true);
             }
-            if (hoja.getNombre().equals("declaracion_funcion")) {
-                recorrerDominio(hoja, "", hoja.getHijos().get(0).getValor(), ambito + "." + hoja.getHijos().get(0).getValor(),
-                        hoja.getHijos().get(2).getValor());
-            }
-            recorrer(hoja, ambito);
         }
+    }
+
+    public String comprobarPrecedencia(Nodo padre, String tipo, String valor) {
+        if (padre.getHijos().get(1).getNombre().equals("+")) {
+            valor += padre.getHijos().get(0).getValor() + padre.getNombre();
+            return comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
+        } else if (padre.getHijos().get(1).getNombre().equals("-")) {
+            valor += padre.getHijos().get(0).getValor() + padre.getNombre();
+            return comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
+        } else if (padre.getHijos().get(1).getNombre().equals("*")) {
+            valor += padre.getHijos().get(0).getValor() + padre.getNombre();
+            return comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
+        } else if (padre.getHijos().get(1).getNombre().equals("/")) {
+            valor += padre.getHijos().get(0).getValor() + padre.getNombre();
+            //System.out.println(padre.getHijos().get(1).getNombre() + "siiiii");
+            return comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
+        } else if (padre.getHijos().get(1).getNombre().equals("num_int")) {
+            valor += padre.getHijos().get(0).getValor() + padre.getNombre();
+            valor += padre.getHijos().get(1).getValor();
+        }
+        //falta agregar para cuando sea solo un número
+        return valor;
     }
 
     public int recorrerRepeticion(Nodo padre, String valor, String tipo, int contador, String ambito) {
@@ -738,14 +789,14 @@ public class InterfazCompilador extends javax.swing.JFrame {
             if (hoja.getNombre().equals("parametros_funcion")) {
                 tipo += hoja.getHijos().get(1).getValor() + "x";
                 if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                    int contador = recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), 0, id); // tiene que recibir ambito como string
+                    int contador = recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), 0, ambito); // tiene que recibir ambito como string
                     for (int i = 1; i < contador; i++) {
                         tipo += hoja.getHijos().get(1).getValor() + "x";
                     }
                 } else if (hoja.getHijos().get(0).getNombre().equals("id")) {
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), hoja.getHijos().get(1).getValor(),
-                            "null", false, false, id);
+                            "null", false, false, ambito);
                 }
                 recorrerDominio(hoja, tipo, id, ambito, rango);
             }
