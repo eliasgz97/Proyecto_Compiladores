@@ -662,7 +662,7 @@ tmp.addHijo((Nodo) v);
 RESULT = tmp;
 :}
 |
- PROCEDURE:proc ID:id IS:is Variables:v1 BEG:b Variables:v2
+PROCEDURE:proc ID:id IS:is Variables:v1 BEG:b Variables:v2
 {:
 Nodo tmp = new Nodo("declaracion_global");
 tmp.setNumNodo(parser.contador++);
@@ -670,6 +670,22 @@ Nodo procedure = new Nodo("Procedure");
 procedure.setNumNodo(parser.contador++);
 procedure.setValor(id.toString());
 tmp.addHijo((Nodo) procedure);
+procedure.addHijo((Nodo) v1);
+procedure.addHijo((Nodo) b);
+tmp.addHijo((Nodo) v2);
+parser.padre = (Nodo) tmp;
+RESULT = tmp;
+:}
+|
+PROCEDURE:proc ID:id PARIZQ:parizq parametros_obligatorios:pm PARDER:parder IS:is Variables:v1 BEG:b Variables:v2  
+{:
+Nodo tmp = new Nodo("declaracion_global");
+tmp.setNumNodo(parser.contador++);
+Nodo procedure = new Nodo("Procedure");
+procedure.setNumNodo(parser.contador++);
+procedure.setValor(id.toString());
+tmp.addHijo((Nodo) procedure);
+procedure.addHijo((Nodo) pm); 
 procedure.addHijo((Nodo) v1);
 procedure.addHijo((Nodo) b);
 tmp.addHijo((Nodo) v2);
@@ -811,6 +827,21 @@ parser.padre = (Nodo) tmp;
 RESULT = tmp;
 :}
 |
+PROCEDURE:proc ID:id PARIZQ:parizq parametros_obligatorios:pm PARDER:parder IS:is Variables:v1 BEG:b
+{:
+Nodo tmp = new Nodo("declaracion_global");
+tmp.setNumNodo(parser.contador++);
+Nodo procedure = new Nodo("Procedure");
+procedure.setNumNodo(parser.contador++);
+procedure.setValor(id.toString());
+tmp.addHijo((Nodo) procedure);
+procedure.addHijo((Nodo) pm);
+procedure.addHijo((Nodo) v1);
+procedure.addHijo((Nodo) b);
+parser.padre = (Nodo) tmp;
+RESULT = tmp;
+:}
+|
 PROCEDURE:proc ID:id IS:is BEG:b
 {:
 Nodo tmp = new Nodo("declaracion_global");
@@ -820,6 +851,49 @@ procedure.setNumNodo(parser.contador++);
 procedure.setValor(id.toString());
 tmp.addHijo((Nodo) procedure);
 procedure.addHijo((Nodo) b);
+parser.padre = (Nodo) tmp;
+RESULT = tmp;
+:}
+|
+PROCEDURE:proc ID:id PARIZQ:parizq parametros_obligatorios:pm PARDER:parder IS:is BEG:b
+{:
+Nodo tmp = new Nodo("declaracion_global");
+tmp.setNumNodo(parser.contador++);
+Nodo procedure = new Nodo("Procedure");
+procedure.setNumNodo(parser.contador++);
+procedure.setValor(id.toString());
+tmp.addHijo((Nodo) procedure);
+procedure.addHijo((Nodo) pm);
+procedure.addHijo((Nodo) b);
+parser.padre = (Nodo) tmp;
+RESULT = tmp;
+:}
+|
+PROCEDURE:proc ID:id IS:is BEG:b Variables:v
+{:
+Nodo tmp = new Nodo("declaracion_global");
+tmp.setNumNodo(parser.contador++);
+Nodo procedure = new Nodo("Procedure");
+procedure.setNumNodo(parser.contador++);
+procedure.setValor(id.toString());
+tmp.addHijo((Nodo) procedure);
+procedure.addHijo((Nodo) b);
+procedure.addHijo((Nodo) v);
+parser.padre = (Nodo) tmp;
+RESULT = tmp;
+:}
+|
+PROCEDURE:proc ID:id PARIZQ:parizq parametros_obligatorios:pm PARDER:parder IS:is BEG:b Variables:v
+{:
+Nodo tmp = new Nodo("declaracion_global");
+tmp.setNumNodo(parser.contador++);
+Nodo procedure = new Nodo("Procedure");
+procedure.setNumNodo(parser.contador++);
+procedure.setValor(id.toString());
+tmp.addHijo((Nodo) procedure);
+procedure.addHijo((Nodo) pm);
+procedure.addHijo((Nodo) b);
+procedure.addHijo((Nodo) v);
 parser.padre = (Nodo) tmp;
 RESULT = tmp;
 :}

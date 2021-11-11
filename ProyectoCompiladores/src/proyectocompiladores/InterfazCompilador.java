@@ -462,6 +462,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        SymbolTable.getTablaSimbolos().removeAll(SymbolTable.getTablaSimbolos());
         System.out.println("-----------------comprobacion de tipos----------------");
         try {
             recorrer(sintactico.padre.getHijos().get(0), sintactico.padre.getHijos().get(0).getValor());
@@ -471,12 +472,11 @@ public class InterfazCompilador extends javax.swing.JFrame {
         System.out.println("============================================================:");
         for (Simbolo s : SymbolTable.getTablaSimbolos()) {
             System.out.println(String.format(
-                    "      " + "| Nombre: %s | valor: %s | tipoVariable: %s | tipoConstante: %s | Function: %s | Ambito: %s |",
-                    s.nombre, s.valor, s.tipoVariable, s.tipoConstante, s.isFunction, s.ambito));
+                    "      " + "| Nombre: %s | tipoVariable: %s | tipoConstante: %s | Function: %s | Ambito: %s |",
+                    s.nombre, s.tipoVariable, s.tipoConstante, s.isFunction, s.ambito));
         }
         System.out.println("Saliendo de imprimir en TablaSimbolos");
         System.out.println("============================================================:\n");
-        SymbolTable.getTablaSimbolos().removeAll(SymbolTable.getTablaSimbolos());
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
@@ -702,7 +702,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         tipo = hoja.getHijos().get(1).getValor();
                         SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
                     } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                        recorrerRepeticion(hoja.getHijos().get(0), "null", hoja.getHijos().get(1).getValor(), 0, ambito);
+                        recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), 0, ambito);
                     }
                     //&& ambito.equals(padre.getValor())
                     /*if (hoja.getHijos().size() > 2) {
@@ -728,8 +728,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                 }
                 if (hoja.getNombre().equals("declaracion_funcion")) {
-                    recorrerDominio(hoja, "", hoja.getHijos().get(0).getValor(), ambito + "." + hoja.getHijos().get(0).getValor(),
-                            hoja.getHijos().get(2).getValor());
+                    agregarFuncion(hoja, "", hoja.getHijos().get(0).getValor(), ambito, hoja.getHijos().get(2).getValor());
+                    recorrerDominio(hoja, "", hoja.getHijos().get(0).getValor(), ambito, hoja.getHijos().get(2).getValor());
+
                 }
                 if (hoja.getNombre().equals("Procedure")) {
                     SymbolTable.insertar2(hoja.getValor(), "void -> void", "", false, false, ambito);
@@ -763,13 +764,13 @@ public class InterfazCompilador extends javax.swing.JFrame {
         return valor;
     }
 
-    public int recorrerRepeticion(Nodo padre, String valor, String tipo, int contador, String ambito) {
+    public void recorrerRepeticion(Nodo padre, String valor, String tipo, int contador, String ambito) {
         if (padre.getHijos().get(1).getNombre().equals(",")) {
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            contador++;
+            //contador++;
             SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
-            return recorrerRepeticion(padre.getHijos().get(1), valor, tipo, contador, ambito);
+            recorrerRepeticion(padre.getHijos().get(1), valor, tipo, contador, ambito);
         } else if (padre.getHijos().get(1).getNombre().equals("id")) {
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
@@ -781,22 +782,18 @@ public class InterfazCompilador extends javax.swing.JFrame {
             SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
             //agregar a tabla de símbolos
         }
-        return contador;
     }
 
     public void recorrerDominio(Nodo padre, String tipo, String id, String ambito, String rango) {
         for (Nodo hoja : padre.getHijos()) {
             if (hoja.getNombre().equals("parametros_funcion")) {
-                tipo += hoja.getHijos().get(1).getValor() + "x";
+                //tipo += hoja.getHijos().get(1).getValor() + "x";
                 if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                    int contador = recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), 0, ambito); // tiene que recibir ambito como string
-                    for (int i = 1; i < contador; i++) {
-                        tipo += hoja.getHijos().get(1).getValor() + "x";
-                    }
+                    recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), 0, ambito + "." + id); // tiene que recibir ambito como string
                 } else if (hoja.getHijos().get(0).getNombre().equals("id")) {
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), hoja.getHijos().get(1).getValor(),
-                            "null", false, false, ambito);
+                            "", false, false, ambito + "." + id);
                 }
                 recorrerDominio(hoja, tipo, id, ambito, rango);
             }
@@ -804,18 +801,40 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 String idDeclaracion, tipoDeclaracion, valorDeclaracion;
                 idDeclaracion = hoja.getHijos().get(0).getValor();
                 tipoDeclaracion = hoja.getHijos().get(1).getValor();
-                /*if (hoja.getHijos().get(2).getNombre().equals("")) {
-                    valorDeclaracion = hoja.getHijos().get(2).getValor();
-                } else {
-                   
-                }*/
-                valorDeclaracion = "0";
+                valorDeclaracion = "";
                 SymbolTable.insertar2(idDeclaracion, tipoDeclaracion,
-                        valorDeclaracion, false, false, ambito);
+                        valorDeclaracion, false, false, ambito + "." + id);
                 recorrerDominio(hoja, tipo, id, ambito, rango);
             }
         }
+        //SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + rango, "", false, true, ambito);
+    }
+
+    public void agregarFuncion(Nodo padre, String tipo, String id, String ambito, String rango) {
+        for (Nodo hoja : padre.getHijos()) {
+            if (hoja.getNombre().equals("parametros_funcion")) {
+                tipo += hoja.getHijos().get(1).getValor() + "x";
+                if (hoja.getHijos().get(0).getNombre().equals(",")) {
+                    int contador = contarTipoParametros(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), 0, ambito + "." + id); // tiene que recibir ambito como string
+                    for (int i = 1; i < contador; i++) {
+                        tipo += hoja.getHijos().get(1).getValor() + "x";
+                    }
+
+                }
+                agregarFuncion(hoja, tipo, id, ambito, rango);
+            }
+        }
         SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + rango, "", false, true, ambito);
-        System.out.println(tipo);
+    }
+
+    public int contarTipoParametros(Nodo padre, String valor, String tipo, int contador, String ambito) {
+        if (padre.getHijos().get(1).getNombre().equals(",")) {
+            contador++;
+            return contarTipoParametros(padre.getHijos().get(1), valor, tipo, contador, ambito);
+        } else if (padre.getHijos().get(1).getNombre().equals("id")) {
+            contador++;
+            contador++;
+        }
+        return contador;
     }
 }
