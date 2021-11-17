@@ -704,7 +704,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
                         recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), 0, ambito);
                     }
-                    //&& ambito.equals(padre.getValor())
                     /*if (hoja.getHijos().size() > 2) {
                     if (hoja.getHijos().get(2).getNombre().equals("num_int") || hoja.getHijos().get(2).getNombre().equals("numfloat")
                             || hoja.getHijos().get(2).getNombre().equals("boolean") || hoja.getHijos().get(2).getNombre().equals("+")
@@ -733,7 +732,13 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
                 }
                 if (hoja.getNombre().equals("Procedure")) {
-                    SymbolTable.insertar2(hoja.getValor(), "void -> void", "", false, false, ambito);
+                    //SymbolTable.insertar2(hoja.getValor(), "void -> void", "", false, false, ambito);
+                    boolean existenParametros = false;
+                    if (hoja.getHijos().get(0).getNombre().equals("parametros_funcion")) {
+                        existenParametros = true;
+                    }
+                    agregarProcedure(hoja, "", hoja.getValor(), ambito, existenParametros);
+                    recorrerDominio(hoja, "", hoja.getValor(), ambito, "void");
                     recorrer(hoja, ambito + "." + hoja.getValor());
                 }
                 recorrer(hoja, ambito);
@@ -819,12 +824,30 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     for (int i = 1; i < contador; i++) {
                         tipo += hoja.getHijos().get(1).getValor() + "x";
                     }
-
                 }
                 agregarFuncion(hoja, tipo, id, ambito, rango);
             }
         }
         SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + rango, "", false, true, ambito);
+    }
+    
+     public void agregarProcedure (Nodo padre, String tipo, String id, String ambito, boolean existenParametros) {
+        for (Nodo hoja : padre.getHijos()) {
+            if (hoja.getNombre().equals("parametros_funcion")) {
+                tipo += hoja.getHijos().get(1).getValor() + "x";
+                if (hoja.getHijos().get(0).getNombre().equals(",")) {
+                    int contador = contarTipoParametros(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), 0, ambito); // tiene que recibir ambito como string
+                    for (int i = 1; i < contador; i++) {
+                        tipo += hoja.getHijos().get(1).getValor() + "x";
+                    }
+                }
+                agregarProcedure(hoja, tipo, id, ambito, existenParametros);
+            }
+            if (!existenParametros) {
+                tipo = "void ";
+            }
+        }
+        SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + "void", "", false, true, ambito);
     }
 
     public int contarTipoParametros(Nodo padre, String valor, String tipo, int contador, String ambito) {
