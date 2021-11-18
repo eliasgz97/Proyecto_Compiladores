@@ -71,7 +71,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        jb_tablaSimbolos = new javax.swing.JButton();
         jLabel12 = new javax.swing.JLabel();
 
         jd_compilador.setBackground(new java.awt.Color(0, 0, 51));
@@ -278,10 +278,10 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel9.setText("Elías Girón");
 
-        jButton2.setText("Tabla de Símbolos");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        jb_tablaSimbolos.setText("Tabla de Símbolos");
+        jb_tablaSimbolos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                jb_tablaSimbolosActionPerformed(evt);
             }
         });
 
@@ -312,7 +312,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
-                        .addComponent(jButton2)
+                        .addComponent(jb_tablaSimbolos)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -371,7 +371,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 497, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(56, 56, 56)
-                        .addComponent(jButton2)))
+                        .addComponent(jb_tablaSimbolos)))
                 .addContainerGap(76, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
@@ -461,13 +461,10 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jtxtarea_entrada.setText("");
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void jb_tablaSimbolosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_tablaSimbolosActionPerformed
         SymbolTable.getTablaSimbolos().removeAll(SymbolTable.getTablaSimbolos());
+        recorrer(sintactico.padre.getHijos().get(0), sintactico.padre.getHijos().get(0).getValor());
         System.out.println("-----------------comprobacion de tipos----------------");
-        try {
-            recorrer(sintactico.padre.getHijos().get(0), sintactico.padre.getHijos().get(0).getValor());
-        } catch (Exception e) {
-        }
         System.out.println("\nTABLA DE SIMBOLOS:");
         System.out.println("============================================================:");
         for (Simbolo s : SymbolTable.getTablaSimbolos()) {
@@ -477,7 +474,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         }
         System.out.println("Saliendo de imprimir en TablaSimbolos");
         System.out.println("============================================================:\n");
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_jb_tablaSimbolosActionPerformed
 
     /**
      * @param args the command line arguments
@@ -593,7 +590,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -616,6 +612,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JButton jb_arbol;
+    private javax.swing.JButton jb_tablaSimbolos;
     private javax.swing.JButton jbt_analizar;
     private javax.swing.JDialog jd_compilador;
     private javax.swing.JPanel jp_analizadorlexico;
@@ -635,7 +632,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         try {
             sintactico = new Sintax(lexico);
             sintactico.parse();
-            if (sintactico.errores.isEmpty()) {
+            if (sintactico.errores.isEmpty() && SymbolTable.getErroresSemanticos().isEmpty()) {
                 jb_arbol.setEnabled(true);
                 resultado += "Compilado exitosamente";
                 jtxtarea_salida_sintactico.setForeground(Color.GREEN);
@@ -647,6 +644,13 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
                 jtxtarea_salida_sintactico.setForeground(Color.red);
                 jb_arbol.setEnabled(false);
+            }
+            if (!SymbolTable.getErroresSemanticos().isEmpty()) {
+                for (int i = 0; i < SymbolTable.getErroresSemanticos().size(); i++) {
+                    resultado += SymbolTable.getErroresSemanticos().get(i) + "\n";
+                }
+                jtxtarea_salida_sintactico.setForeground(Color.red);
+                //jb_tablaSimbolos.setEnabled(false);
             }
         } catch (Exception e) {
         }
@@ -694,6 +698,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         //codigo para agregar variables de procedure
         for (Nodo hoja : padre.getHijos()) {
             if (!hoja.isVisitado()) {
+                hoja.setVisitado(true);
                 if (hoja.getNombre().equals("variables")) {
                     String id = "", tipo = "", valor = "";
                     //hay que cambiar este código
@@ -704,32 +709,23 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
                         recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), 0, ambito);
                     }
-                    /*if (hoja.getHijos().size() > 2) {
-                    if (hoja.getHijos().get(2).getNombre().equals("num_int") || hoja.getHijos().get(2).getNombre().equals("numfloat")
-                            || hoja.getHijos().get(2).getNombre().equals("boolean") || hoja.getHijos().get(2).getNombre().equals("+")
-                            || hoja.getHijos().get(2).getNombre().equals("-") || hoja.getHijos().get(2).getNombre().equals("*")
-                            || hoja.getHijos().get(2).getNombre().equals("/")) {
-                        //System.out.println("entra algo");
-                        valor = comprobarPrecedencia(hoja.getHijos().get(2), tipo, "");
-                        System.out.println("hace precedencia");
-                        SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
-                    } else if (hoja.getHijos().get(2).getNombre().equals("variables")) {
-                        valor = "no asignado";
-                        SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
+                    if (hoja.getHijos().size() > 2) {
+                        if (hoja.getHijos().get(2).getNombre().equals("num_int") || hoja.getHijos().get(2).getNombre().equals("numfloat")
+                                || hoja.getHijos().get(2).getNombre().equals("boolean") || hoja.getHijos().get(2).getNombre().equals("id")) {
+                            if (!comprobarValor(tipo, hoja.getHijos().get(2).getNombre(), hoja.getHijos().get(2), ambito)) {
+                                SymbolTable.getErroresSemanticos().add("error, el tipo de asginación es diferente al tipo de la variable");
+                                //System.out.println(SymbolTable.getErroresSemanticos().toString());
+                            }
+                            //System.out.println("entra algo");
+                        }
                     }
-                } else {
-                    System.out.println("entra null");
-                    valor = "no asignado";
-                    SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
-                }
-                     */
-                    //SymbolTable.insertar2(id, tipo, (Object) valor, false, false, ambito);
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                 }
                 if (hoja.getNombre().equals("declaracion_funcion")) {
-                    agregarFuncion(hoja, "", hoja.getHijos().get(0).getValor(), ambito, hoja.getHijos().get(2).getValor());
+                    String tipo = agregarFuncion(hoja, "");
+                    SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), tipo.substring(0, tipo.length() - 1) + " -> "
+                            + hoja.getHijos().get(2).getValor(), "", false, true, ambito);
                     recorrerDominio(hoja, "", hoja.getHijos().get(0).getValor(), ambito, hoja.getHijos().get(2).getValor());
-
                 }
                 if (hoja.getNombre().equals("Procedure")) {
                     //SymbolTable.insertar2(hoja.getValor(), "void -> void", "", false, false, ambito);
@@ -737,36 +733,54 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     if (hoja.getHijos().get(0).getNombre().equals("parametros_funcion")) {
                         existenParametros = true;
                     }
-                    agregarProcedure(hoja, "", hoja.getValor(), ambito, existenParametros);
+                    String tipo = agregarProcedure(hoja, "", existenParametros);
+                    SymbolTable.insertar2(hoja.getValor(), tipo.substring(0, tipo.length() - 1) + " -> " + "void", "", false, true, ambito);
                     recorrerDominio(hoja, "", hoja.getValor(), ambito, "void");
                     recorrer(hoja, ambito + "." + hoja.getValor());
                 }
                 recorrer(hoja, ambito);
-                hoja.setVisitado(true);
             }
         }
     }
 
-    public String comprobarPrecedencia(Nodo padre, String tipo, String valor) {
+    public boolean comprobarValor(String tipo, String valor_tipo, Nodo id, String ambito) {
+        if (tipo.equals("integer") && valor_tipo.equals("num_int")) {
+            return true;
+        } else if (tipo.equals("float") && valor_tipo.equals("numfloat")) {
+            return true;
+        } else if (tipo.equals("boolean") && valor_tipo.equals("boolean")) {
+            return true;
+        } else if (valor_tipo.equals("id")){
+            String tipoId = SymbolTable.buscarTipo(id.getValor());
+            if (!tipoId.equals(tipo)) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public void comprobarPrecedencia(Nodo padre, String tipo, String valor) {
         if (padre.getHijos().get(1).getNombre().equals("+")) {
             valor += padre.getHijos().get(0).getValor() + padre.getNombre();
-            return comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
+            comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
         } else if (padre.getHijos().get(1).getNombre().equals("-")) {
             valor += padre.getHijos().get(0).getValor() + padre.getNombre();
-            return comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
+            comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
         } else if (padre.getHijos().get(1).getNombre().equals("*")) {
             valor += padre.getHijos().get(0).getValor() + padre.getNombre();
-            return comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
+            comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
         } else if (padre.getHijos().get(1).getNombre().equals("/")) {
             valor += padre.getHijos().get(0).getValor() + padre.getNombre();
             //System.out.println(padre.getHijos().get(1).getNombre() + "siiiii");
-            return comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
+            comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
         } else if (padre.getHijos().get(1).getNombre().equals("num_int")) {
             valor += padre.getHijos().get(0).getValor() + padre.getNombre();
             valor += padre.getHijos().get(1).getValor();
         }
         //falta agregar para cuando sea solo un número
-        return valor;
     }
 
     public void recorrerRepeticion(Nodo padre, String valor, String tipo, int contador, String ambito) {
@@ -815,45 +829,53 @@ public class InterfazCompilador extends javax.swing.JFrame {
         //SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + rango, "", false, true, ambito);
     }
 
-    public void agregarFuncion(Nodo padre, String tipo, String id, String ambito, String rango) {
+    public String agregarFuncion(Nodo padre, String tipo) {
         for (Nodo hoja : padre.getHijos()) {
-            if (hoja.getNombre().equals("parametros_funcion")) {
-                tipo += hoja.getHijos().get(1).getValor() + "x";
-                if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                    int contador = contarTipoParametros(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), 0, ambito + "." + id); // tiene que recibir ambito como string
-                    for (int i = 1; i < contador; i++) {
+            if (!hoja.isVisitado()) {
+                hoja.setVisitado(true);
+                if (hoja.getNombre().equals("parametros_funcion")) {
+                    if (hoja.getHijos().get(0).getNombre().equals(",")) {
+                        int contador = contarTipoParametros(hoja.getHijos().get(0), 0);
+                        for (int i = 0; i < contador; i++) {
+                            tipo += hoja.getHijos().get(1).getValor() + "x";
+                        }
+                    } else {
                         tipo += hoja.getHijos().get(1).getValor() + "x";
                     }
+                    agregarFuncion(hoja, tipo);
                 }
-                agregarFuncion(hoja, tipo, id, ambito, rango);
             }
         }
-        SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + rango, "", false, true, ambito);
+        //System.out.println("entra agrega funcion");
+        //
+        return tipo;
     }
-    
-     public void agregarProcedure (Nodo padre, String tipo, String id, String ambito, boolean existenParametros) {
+
+    public String agregarProcedure(Nodo padre, String tipo, boolean existenParametros) {
         for (Nodo hoja : padre.getHijos()) {
             if (hoja.getNombre().equals("parametros_funcion")) {
-                tipo += hoja.getHijos().get(1).getValor() + "x";
                 if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                    int contador = contarTipoParametros(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), 0, ambito); // tiene que recibir ambito como string
+                    int contador = contarTipoParametros(hoja.getHijos().get(0), 0); // tiene que recibir ambito como string
                     for (int i = 1; i < contador; i++) {
                         tipo += hoja.getHijos().get(1).getValor() + "x";
                     }
+                } else {
+                    tipo += hoja.getHijos().get(1).getValor() + "x";
                 }
-                agregarProcedure(hoja, tipo, id, ambito, existenParametros);
+                agregarProcedure(hoja, tipo, existenParametros);
             }
             if (!existenParametros) {
                 tipo = "void ";
             }
         }
-        SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + "void", "", false, true, ambito);
+        return tipo;
+        //SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + "void", "", false, true, ambito);
     }
 
-    public int contarTipoParametros(Nodo padre, String valor, String tipo, int contador, String ambito) {
+    public int contarTipoParametros(Nodo padre, int contador) {
         if (padre.getHijos().get(1).getNombre().equals(",")) {
             contador++;
-            return contarTipoParametros(padre.getHijos().get(1), valor, tipo, contador, ambito);
+            return contarTipoParametros(padre.getHijos().get(1), contador);
         } else if (padre.getHijos().get(1).getNombre().equals("id")) {
             contador++;
             contador++;

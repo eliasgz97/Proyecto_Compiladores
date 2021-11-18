@@ -6,10 +6,20 @@ import java.util.logging.Logger;
 import comprobacionTipos.Simbolo;
 
 public class TablaSimbolos {
+
     static ArrayList<Simbolo> tablaSimbolos = new ArrayList<Simbolo>();
+    static ArrayList<String> erroresSemanticos = new ArrayList<>();
     // static Map<String, Simbolo> tablaSimbolos = new HashMap();
     // static Stack<String> lista;
     // static ArrayList<Nodo> repeticiones;
+
+    public static ArrayList<String> getErroresSemanticos() {
+        return erroresSemanticos;
+    }
+
+    public static void setErroresSemanticos(ArrayList<String> erroresSemanticos) {
+        TablaSimbolos.erroresSemanticos = erroresSemanticos;
+    }
 
     static public ArrayList<Simbolo> getTablaSimbolos() {
         return tablaSimbolos;
@@ -25,7 +35,6 @@ public class TablaSimbolos {
     // tablaSimbolos = new HashMap<String, Simbolo>();
     // lista = new Stack<String>();
     // }
-
     static public String verificarTipoVariable(String nombre) {
         Simbolo s = buscar(nombre);
         return s.tipoVariable;
@@ -41,19 +50,19 @@ public class TablaSimbolos {
         return s.isFunction;
     }
 
-    static public void setAmbito(String nombre, String ambito){
+    static public void setAmbito(String nombre, String ambito) {
         Simbolo s = buscar(nombre);
-        s.ambito  =  ambito;
+        s.ambito = ambito;
         int pos = tablaSimbolos.indexOf(s);
         tablaSimbolos.set(pos, s);
     }
-    static public void setTipoVariable(String nombre, String tipoVariable){
+
+    static public void setTipoVariable(String nombre, String tipoVariable) {
         Simbolo s = buscar(nombre);
-        s.tipoVariable  =  tipoVariable;
+        s.tipoVariable = tipoVariable;
         int pos = tablaSimbolos.indexOf(s);
         tablaSimbolos.set(pos, s);
     }
-    
 
     static public Simbolo insertar2(String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean tipoFuncion, String ambito) {
         Simbolo simbolo = null;
@@ -74,7 +83,8 @@ public class TablaSimbolos {
             //System.out.println("Termino de imprimir");
             return simbolo;
         } else {
-            System.out.println("No se agrego a la tabla de simbolos.");
+            System.out.println("No se agrego a la tabla de simbolos. " + nombre);
+            erroresSemanticos.add("Id " + nombre + " duplicado, verifique el nombre");
             return null;
         }
     }
@@ -116,7 +126,6 @@ public class TablaSimbolos {
         }
     }
 
-
     static public Simbolo insertar(String nombre, Object valor, Boolean constante) {
         //System.out.println("\nIngreso a insertar valor a variable.");
         Simbolo simbolo = buscar(nombre);
@@ -133,8 +142,9 @@ public class TablaSimbolos {
             //imprimir();
             //System.out.println("Saliendo de insertar de TablaSimbolos\n");
             return simbolo;
-        } else
+        } else {
             return null;
+        }
     }
 
     static public Simbolo buscar(String nombre) {
@@ -150,17 +160,32 @@ public class TablaSimbolos {
         }
         return s;
     }
+    
+    static public String buscarTipo (String nombre) {
+        // Simbolo n = (Simbolo)tablaSimbolos.get(nombre);
+        // Busca si existe la variable en tabla de simbolos
+        //System.out.println("buscando: "+nombre);
+        //Simbolo symbol = null;
+        String tipo = "";
+        for (Simbolo s : tablaSimbolos) {
+            if (s.nombre.equals(nombre)) {
+                tipo = s.tipoVariable;
+                break;
+            }
+        }
+        return tipo;
+    }
 
     static public void imprimir() {
         System.out.println("\nTABLA DE SIMBOLOS:");
         System.out.println("============================================================:");
-        for (Simbolo s : tablaSimbolos)
+        for (Simbolo s : tablaSimbolos) {
             System.out.println(String.format(
                     "      " + "| Nombre: %s | valor: %s | tipoVariable: %s | tipoConstante: %s | Function: %s | Ambito: %s |",
                     s.nombre, s.valor, s.tipoVariable, s.tipoConstante, s.isFunction, s.ambito));
+        }
         System.out.println("Saliendo de imprimir en TablaSimbolos");
         System.out.println("============================================================:\n");
     }
 
 }
-
