@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import comprobacionTipos.TablaSimbolos;
 import java.util.ArrayList;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -55,6 +56,11 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jLabel11 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
+        jd_tablaSimbolos = new javax.swing.JDialog();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTable = new javax.swing.JTable();
+        jLabel14 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jbt_analizar = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
@@ -125,7 +131,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
             .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
         );
 
-        jTabbedPane2.addTab("Análisis Sintáctico", jp_analizadorsintactico);
+        jTabbedPane2.addTab("Análisis Sintáctico y Semántico", jp_analizadorsintactico);
 
         javax.swing.GroupLayout jp_codigogeneradoLayout = new javax.swing.GroupLayout(jp_codigogenerado);
         jp_codigogenerado.setLayout(jp_codigogeneradoLayout);
@@ -204,6 +210,55 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     .addGap(65, 65, 65)
                     .addComponent(jLabel15)
                     .addContainerGap(447, Short.MAX_VALUE)))
+        );
+
+        jTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Nombre", "Tipo", "tipoConstante", "tipoFunction", "Ambito", "Offset"
+            }
+        ));
+        jScrollPane6.setViewportView(jTable);
+
+        jLabel14.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
+        jLabel14.setForeground(new java.awt.Color(173, 28, 28));
+        jLabel14.setText("Tabla de Símbolos");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 920, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(325, 325, 325)
+                        .addComponent(jLabel14)))
+                .addContainerGap(28, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addComponent(jLabel14)
+                .addGap(56, 56, 56)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 372, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(126, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jd_tablaSimbolosLayout = new javax.swing.GroupLayout(jd_tablaSimbolos.getContentPane());
+        jd_tablaSimbolos.getContentPane().setLayout(jd_tablaSimbolosLayout);
+        jd_tablaSimbolosLayout.setHorizontalGroup(
+            jd_tablaSimbolosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jd_tablaSimbolosLayout.setVerticalGroup(
+            jd_tablaSimbolosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -462,18 +517,11 @@ public class InterfazCompilador extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jb_tablaSimbolosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jb_tablaSimbolosActionPerformed
-        SymbolTable.getTablaSimbolos().removeAll(SymbolTable.getTablaSimbolos());
-        recorrer(sintactico.padre.getHijos().get(0), sintactico.padre.getHijos().get(0).getValor());
-        System.out.println("-----------------comprobacion de tipos----------------");
-        System.out.println("\nTABLA DE SIMBOLOS:");
-        System.out.println("============================================================:");
-        for (Simbolo s : SymbolTable.getTablaSimbolos()) {
-            System.out.println(String.format(
-                    "      " + "| Nombre: %s | tipoVariable: %s | tipoConstante: %s | Function: %s | Ambito: %s |",
-                    s.nombre, s.tipoVariable, s.tipoConstante, s.isFunction, s.ambito));
-        }
-        System.out.println("Saliendo de imprimir en TablaSimbolos");
-        System.out.println("============================================================:\n");
+        jd_tablaSimbolos.pack();
+        jd_tablaSimbolos.setTitle("PROYECTO COMPILADORES");
+        jd_tablaSimbolos.setVisible(true);
+        jd_tablaSimbolos.setLocationRelativeTo(null);
+        addRowtoJTabletds();
     }//GEN-LAST:event_jb_tablaSimbolosActionPerformed
 
     /**
@@ -588,6 +636,23 @@ public class InterfazCompilador extends javax.swing.JFrame {
         }
     }
 
+    public void addRowtoJTabletds() {
+        jTable.removeAll();
+        DefaultTableModel model = (DefaultTableModel) jTable.getModel();
+        model.setRowCount(0);
+        ArrayList<Simbolo> list = SymbolTable.getTablaSimbolos();
+        Object rowData[] = new Object[7];
+        for (int i = 0; i < list.size(); i++) {
+            rowData[0] = list.get(i).getNombre();
+            rowData[1] = list.get(i).getTipoVariable();
+            rowData[2] = list.get(i).getTipoConstante();
+            rowData[3] = list.get(i).getIsFunction();
+            rowData[4] = list.get(i).getAmbito();
+            rowData[5] = "0";
+            model.addRow(rowData);
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
@@ -596,6 +661,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -606,15 +672,19 @@ public class InterfazCompilador extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTabbedPane jTabbedPane2;
+    private javax.swing.JTable jTable;
     private javax.swing.JButton jb_arbol;
     private javax.swing.JButton jb_tablaSimbolos;
     private javax.swing.JButton jbt_analizar;
     private javax.swing.JDialog jd_compilador;
+    private javax.swing.JDialog jd_tablaSimbolos;
     private javax.swing.JPanel jp_analizadorlexico;
     private javax.swing.JPanel jp_analizadorsintactico;
     private javax.swing.JPanel jp_codigogenerado;
@@ -632,8 +702,12 @@ public class InterfazCompilador extends javax.swing.JFrame {
         try {
             sintactico = new Sintax(lexico);
             sintactico.parse();
+            SymbolTable.getErroresSemanticos().removeAll(SymbolTable.getErroresSemanticos());
+            SymbolTable.getTablaSimbolos().removeAll(SymbolTable.getTablaSimbolos());
+            recorrer(sintactico.padre.getHijos().get(0), sintactico.padre.getHijos().get(0).getValor());
             if (sintactico.errores.isEmpty() && SymbolTable.getErroresSemanticos().isEmpty()) {
                 jb_arbol.setEnabled(true);
+                jb_tablaSimbolos.setEnabled(true);
                 resultado += "Compilado exitosamente";
                 jtxtarea_salida_sintactico.setForeground(Color.GREEN);
             }
@@ -650,7 +724,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     resultado += SymbolTable.getErroresSemanticos().get(i) + "\n";
                 }
                 jtxtarea_salida_sintactico.setForeground(Color.red);
-                //jb_tablaSimbolos.setEnabled(false);
+                jb_tablaSimbolos.setEnabled(false);
             }
         } catch (Exception e) {
         }
@@ -725,7 +799,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     String tipo = agregarFuncion(hoja, "");
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), tipo.substring(0, tipo.length() - 1) + " -> "
                             + hoja.getHijos().get(2).getValor(), "", false, true, ambito);
-                    recorrerDominio(hoja, "", hoja.getHijos().get(0).getValor(), ambito, hoja.getHijos().get(2).getValor());
+                    recorrerDominio(hoja, hoja.getHijos().get(0).getValor(), ambito, hoja.getHijos().get(2).getValor());
                 }
                 if (hoja.getNombre().equals("Procedure")) {
                     //SymbolTable.insertar2(hoja.getValor(), "void -> void", "", false, false, ambito);
@@ -735,7 +809,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     }
                     String tipo = agregarProcedure(hoja, "", existenParametros);
                     SymbolTable.insertar2(hoja.getValor(), tipo.substring(0, tipo.length() - 1) + " -> " + "void", "", false, true, ambito);
-                    recorrerDominio(hoja, "", hoja.getValor(), ambito, "void");
+                    recorrerDominio(hoja, hoja.getValor(), ambito, "void");
                     recorrer(hoja, ambito + "." + hoja.getValor());
                 }
                 recorrer(hoja, ambito);
@@ -750,7 +824,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
             return true;
         } else if (tipo.equals("boolean") && valor_tipo.equals("boolean")) {
             return true;
-        } else if (valor_tipo.equals("id")){
+        } else if (valor_tipo.equals("id")) {
             String tipoId = SymbolTable.buscarTipo(id.getValor());
             if (!tipoId.equals(tipo)) {
                 return false;
@@ -803,7 +877,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
         }
     }
 
-    public void recorrerDominio(Nodo padre, String tipo, String id, String ambito, String rango) {
+    public void recorrerDominio(Nodo padre, String id, String ambito, String rango) {
         for (Nodo hoja : padre.getHijos()) {
             if (hoja.getNombre().equals("parametros_funcion")) {
                 //tipo += hoja.getHijos().get(1).getValor() + "x";
@@ -814,7 +888,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), hoja.getHijos().get(1).getValor(),
                             "", false, false, ambito + "." + id);
                 }
-                recorrerDominio(hoja, tipo, id, ambito, rango);
+                recorrerDominio(hoja, id, ambito, rango);
             }
             if (hoja.getNombre().equals("declaracion_variables")) {
                 String idDeclaracion, tipoDeclaracion, valorDeclaracion;
@@ -823,7 +897,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 valorDeclaracion = "";
                 SymbolTable.insertar2(idDeclaracion, tipoDeclaracion,
                         valorDeclaracion, false, false, ambito + "." + id);
-                recorrerDominio(hoja, tipo, id, ambito, rango);
+                recorrerDominio(hoja, id, ambito, rango);
             }
         }
         //SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + rango, "", false, true, ambito);
@@ -831,19 +905,16 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
     public String agregarFuncion(Nodo padre, String tipo) {
         for (Nodo hoja : padre.getHijos()) {
-            if (!hoja.isVisitado()) {
-                hoja.setVisitado(true);
-                if (hoja.getNombre().equals("parametros_funcion")) {
-                    if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                        int contador = contarTipoParametros(hoja.getHijos().get(0), 0);
-                        for (int i = 0; i < contador; i++) {
-                            tipo += hoja.getHijos().get(1).getValor() + "x";
-                        }
-                    } else {
+            if (hoja.getNombre().equals("parametros_funcion")) {
+                if (hoja.getHijos().get(0).getNombre().equals(",")) {
+                    int contador = contarTipoParametros(hoja.getHijos().get(0), 0);
+                    for (int i = 0; i < contador; i++) {
                         tipo += hoja.getHijos().get(1).getValor() + "x";
                     }
-                    agregarFuncion(hoja, tipo);
+                } else if (hoja.getHijos().get(0).getNombre().equals("id")) {
+                    tipo += hoja.getHijos().get(1).getValor() + "x";
                 }
+                return agregarFuncion(hoja, tipo);
             }
         }
         //System.out.println("entra agrega funcion");
@@ -862,7 +933,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 } else {
                     tipo += hoja.getHijos().get(1).getValor() + "x";
                 }
-                agregarProcedure(hoja, tipo, existenParametros);
+                return agregarProcedure(hoja, tipo, existenParametros);
             }
             if (!existenParametros) {
                 tipo = "void ";
