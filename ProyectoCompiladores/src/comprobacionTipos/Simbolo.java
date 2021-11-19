@@ -50,4 +50,11 @@ public class Simbolo {
         return this.isFunction;
     }
 
+    public String getAmbito() {
+        return ambito;
+    }
+
+    public void setAmbito(String ambito) {
+        this.ambito = ambito;
+    }
 }
