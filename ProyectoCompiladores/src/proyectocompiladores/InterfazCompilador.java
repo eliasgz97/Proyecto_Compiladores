@@ -811,11 +811,48 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 }
                 if (hoja.getNombre().equals("Beg")) {
                     if (hoja.getHijos().get(1).getNombre().equals("nueva_linea")) {
-                        //llamar un método para comprobar asignacion, se le envía el nodo nueva_linea
+                        System.out.println("entra nueva linea");
+                        comprobarAsignacion(hoja.getHijos().get(1), ambito);//llamar un método para comprobar asignacion, se le envía el nodo nueva_linea
+                    } else if (hoja.getHijos().get(1).getNombre().equals("asignar_valor")) {
+                        comprobarAsignacion(hoja, ambito);
                     }
                 }
                 recorrer(hoja, ambito);
             }
+        }
+    }
+
+    public void comprobarAsignacion(Nodo padre, String ambito) {
+        for (Nodo hoja : padre.getHijos()) {
+            if (hoja.getNombre().equals("asignar_valor")) {
+                String tipoAsignado = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
+                //tipo del id que se le está asignando algo
+                if (!tipoAsignado.equals("error, la variable no ha sido encontrada")) {
+                    if (!hoja.getHijos().get(1).getNombre().equals("id")) {
+                        if (!comprobarValorAsignacion(tipoAsignado, hoja.getHijos().get(1).getNombre())) {
+                            SymbolTable.getErroresSemanticos().add("Error, tipo de asignacion es diferente al tipo de variable");
+                        }
+                    }
+                }//comprobarValorAsignacion(tipoAsignado, hoja.getHijos().get(1).getNombre())
+            }
+            if (hoja.getNombre().equals("nueva_linea")) {
+                comprobarAsignacion(hoja, ambito);
+            }
+        }
+    }
+
+    public boolean comprobarValorAsignacion(String tipo, String valor_tipo) { //comprueba valor en asignacion de un begin
+        if (tipo.equals("integer") && valor_tipo.equals("num_int")) {
+            return true;
+        } else if (tipo.equals("float") && valor_tipo.equals("numfloat")) {
+            return true;
+        } else if (tipo.equals("boolean") && valor_tipo.equals("boolean")) {
+            return true;
+        } else if (valor_tipo.equals("id")) {
+            //llamamos el metodo para comprobar ids
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -832,8 +869,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 if (tipoId.equals("ambito no valido")) {
                     SymbolTable.getErroresSemanticos().add("error, la variable " + id.getValor() + " no ha sido declarada");
                     return true;
-                } else if (tipoId.equals("variable de asignación no encontrada")) {
-                    SymbolTable.getErroresSemanticos().add("error, la variable " + id.getValor() + " no ha sido declarada");
+                } else if (tipoId.equals("error, la variable no ha sido encontrada")) {
                     return true;
                 } else {
                     return false;

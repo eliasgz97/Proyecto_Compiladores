@@ -172,11 +172,25 @@ public class TablaSimbolos {
                 if (ambito.contains(s.ambito)) {
                     tipo = s.tipoVariable;
                     System.out.println("tuanitoooo");
-                } else {
-                    tipo = "ambito no valido";
-                    System.out.println("ambito inválidoo");
+                    break;
                 }
-                break;
+            } else {
+                System.out.println("entra else");
+                tipo = "error, la variable no ha sido encontrada";
+            }
+        }
+        if (tipo.equals("error, la variable no ha sido encontrada")) {
+            String tipoError = "error, la variable " + nombre + " no ha sido encontrada";
+            erroresSemanticos.add(tipoError);
+        }
+        return tipo;
+    }
+
+    static public String buscarTipo(String nombre) {
+        String tipo = "";
+        for (Simbolo s : tablaSimbolos) {
+            if (s.nombre.equals(nombre)) {
+                tipo = s.tipoVariable;
             } else {
                 tipo = "variable de asignación no encontrada";
             }
