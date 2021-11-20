@@ -775,7 +775,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 hoja.setVisitado(true);
                 if (hoja.getNombre().equals("variables")) {
                     String id = "", tipo = "", valor = "";
-                    //hay que cambiar este código
                     if (hoja.getHijos().get(0).getNombre().equals("id")) {
                         id = hoja.getHijos().get(0).getValor();
                         tipo = hoja.getHijos().get(1).getValor();
@@ -788,9 +787,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                                 || hoja.getHijos().get(2).getNombre().equals("boolean") || hoja.getHijos().get(2).getNombre().equals("id")) {
                             if (!comprobarValor(tipo, hoja.getHijos().get(2).getNombre(), hoja.getHijos().get(2), ambito)) {
                                 SymbolTable.getErroresSemanticos().add("error, el tipo de asginación es diferente al tipo de la variable");
-                                //System.out.println(SymbolTable.getErroresSemanticos().toString());
                             }
-                            //System.out.println("entra algo");
                         }
                     }
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
@@ -812,6 +809,11 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     recorrerDominio(hoja, hoja.getValor(), ambito, "void");
                     recorrer(hoja, ambito + "." + hoja.getValor());
                 }
+                if (hoja.getNombre().equals("Beg")) {
+                    if (hoja.getHijos().get(1).getNombre().equals("nueva_linea")) {
+                        //llamar un método para comprobar asignacion, se le envía el nodo nueva_linea
+                    }
+                }
                 recorrer(hoja, ambito);
             }
         }
@@ -825,9 +827,17 @@ public class InterfazCompilador extends javax.swing.JFrame {
         } else if (tipo.equals("boolean") && valor_tipo.equals("boolean")) {
             return true;
         } else if (valor_tipo.equals("id")) {
-            String tipoId = SymbolTable.buscarTipo(id.getValor());
+            String tipoId = SymbolTable.buscarTipo(id.getValor(), ambito);
             if (!tipoId.equals(tipo)) {
-                return false;
+                if (tipoId.equals("ambito no valido")) {
+                    SymbolTable.getErroresSemanticos().add("error, la variable " + id.getValor() + " no ha sido declarada");
+                    return true;
+                } else if (tipoId.equals("variable de asignación no encontrada")) {
+                    SymbolTable.getErroresSemanticos().add("error, la variable " + id.getValor() + " no ha sido declarada");
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
                 return true;
             }
