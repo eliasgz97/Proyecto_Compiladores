@@ -160,8 +160,8 @@ public class TablaSimbolos {
         }
         return s;
     }
-    
-    static public String buscarTipo (String nombre) {
+
+    static public String buscarTipo(String nombre, String ambito) {
         // Simbolo n = (Simbolo)tablaSimbolos.get(nombre);
         // Busca si existe la variable en tabla de simbolos
         //System.out.println("buscando: "+nombre);
@@ -169,8 +169,30 @@ public class TablaSimbolos {
         String tipo = "";
         for (Simbolo s : tablaSimbolos) {
             if (s.nombre.equals(nombre)) {
+                if (ambito.contains(s.ambito)) {
+                    tipo = s.tipoVariable;
+                    System.out.println("tuanitoooo");
+                    break;
+                }
+            } else {
+                System.out.println("entra else");
+                tipo = "error, la variable no ha sido encontrada";
+            }
+        }
+        if (tipo.equals("error, la variable no ha sido encontrada")) {
+            String tipoError = "error, la variable " + nombre + " no ha sido encontrada";
+            erroresSemanticos.add(tipoError);
+        }
+        return tipo;
+    }
+
+    static public String buscarTipo(String nombre) {
+        String tipo = "";
+        for (Simbolo s : tablaSimbolos) {
+            if (s.nombre.equals(nombre)) {
                 tipo = s.tipoVariable;
-                break;
+            } else {
+                tipo = "variable de asignación no encontrada";
             }
         }
         return tipo;

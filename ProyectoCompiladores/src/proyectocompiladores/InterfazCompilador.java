@@ -775,23 +775,33 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 hoja.setVisitado(true);
                 if (hoja.getNombre().equals("variables")) {
                     String id = "", tipo = "", valor = "";
-                    //hay que cambiar este código
                     if (hoja.getHijos().get(0).getNombre().equals("id")) {
                         id = hoja.getHijos().get(0).getValor();
                         tipo = hoja.getHijos().get(1).getValor();
-                        SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
                     } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                        recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), 0, ambito);
+                        //tipo = hoja.getHijos().get(1).getValor();
+                        recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito);
                     }
                     if (hoja.getHijos().size() > 2) {
+                        //System.out.println(tipo + "aquiii");
                         if (hoja.getHijos().get(2).getNombre().equals("num_int") || hoja.getHijos().get(2).getNombre().equals("numfloat")
                                 || hoja.getHijos().get(2).getNombre().equals("boolean") || hoja.getHijos().get(2).getNombre().equals("id")) {
                             if (!comprobarValor(tipo, hoja.getHijos().get(2).getNombre(), hoja.getHijos().get(2), ambito)) {
-                                SymbolTable.getErroresSemanticos().add("error, el tipo de asginación es diferente al tipo de la variable");
-                                //System.out.println(SymbolTable.getErroresSemanticos().toString());
+                                SymbolTable.getErroresSemanticos().add("error, el tipo de asginación en " + id + " es diferente al tipo de la variable");
+                            } else {
+                                System.out.println(tipo + "entra este else 1");
+                                if (!tipo.equals("")) {
+                                    SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
+                                }
                             }
-                            //System.out.println("entra algo");
+                        } else {
+                            if (!tipo.equals("")) {
+                                SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
+                            }
                         }
+                    } else {
+                        System.out.println("entra este else");
+                        SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
                     }
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                 }
@@ -812,8 +822,63 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     recorrerDominio(hoja, hoja.getValor(), ambito, "void");
                     recorrer(hoja, ambito + "." + hoja.getValor());
                 }
+                if (hoja.getNombre().equals("Beg")) {
+                    if (hoja.getHijos().get(1).getNombre().equals("nueva_linea")) {
+                        System.out.println("entra nueva linea");
+                        comprobarAsignacion(hoja.getHijos().get(1), ambito);//llamar un método para comprobar asignacion, se le envía el nodo nueva_linea
+                    } else if (hoja.getHijos().get(1).getNombre().equals("asignar_valor")) {
+                        comprobarAsignacion(hoja, ambito);
+                    }
+                }
                 recorrer(hoja, ambito);
             }
+        }
+    }
+
+    public void comprobarAsignacion(Nodo padre, String ambito) {
+        for (Nodo hoja : padre.getHijos()) {
+            if (hoja.getNombre().equals("asignar_valor")) {
+                String tipoAsignado = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
+                //tipo del id que se le está asignando algo
+                if (!tipoAsignado.equals("error, la variable no ha sido encontrada")) {
+                    if (hoja.getHijos().get(1).getNombre().equals("id")) {
+                        if (!comprobarValorAsignacion(tipoAsignado, hoja.getHijos().get(1).getValor(), ambito)) {
+                            SymbolTable.getErroresSemanticos().add("error, tipo de asignacion es diferente al tipo de variable");
+                        }
+                    } else {
+                        if (!comprobarValorAsignacion(tipoAsignado, hoja.getHijos().get(1).getNombre())) {
+                            SymbolTable.getErroresSemanticos().add("error, tipo de asignacion es diferente al tipo de variable");
+                        }
+                    }
+                }//comprobarValorAsignacion(tipoAsignado, hoja.getHijos().get(1).getNombre())
+            } else {
+                comprobarAsignacion(hoja, ambito);
+            }
+        }
+    }
+
+    public boolean comprobarValorAsignacion(String tipo, String valor_tipo) { //comprueba valor en asignacion de un begin
+        if (tipo.equals("integer") && valor_tipo.equals("num_int")) {
+            return true;
+        } else if (tipo.equals("float") && valor_tipo.equals("numfloat")) {
+            return true;
+        } else if (tipo.equals("boolean") && valor_tipo.equals("boolean")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean comprobarValorAsignacion(String tipo, String id, String ambito) {
+        String tipoAsignacion = SymbolTable.buscarTipo(id, ambito);
+        if (!tipoAsignacion.equals(tipo)) {
+            if (tipoAsignacion.equals("error, la variable no ha sido encontrada")) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
         }
     }
 
@@ -825,14 +890,21 @@ public class InterfazCompilador extends javax.swing.JFrame {
         } else if (tipo.equals("boolean") && valor_tipo.equals("boolean")) {
             return true;
         } else if (valor_tipo.equals("id")) {
-            String tipoId = SymbolTable.buscarTipo(id.getValor());
+            String tipoId = SymbolTable.buscarTipo(id.getValor(), ambito);
+            System.out.println(tipo + " tipo normal");
+            System.out.println(tipoId + " tipo id");
             if (!tipoId.equals(tipo)) {
+                System.out.println("entra if");
+                if (tipoId.equals("error, la variable no ha sido encontrada")) {
+                    //SymbolTable.getErroresSemanticos().add("error, la variable " + id.getValor() + " no ha sido declarada");
+                    return true;
+                }
                 return false;
             } else {
                 return true;
             }
         } else {
-            return false;
+            return true;
         }
     }
 
@@ -857,21 +929,19 @@ public class InterfazCompilador extends javax.swing.JFrame {
         //falta agregar para cuando sea solo un número
     }
 
-    public void recorrerRepeticion(Nodo padre, String valor, String tipo, int contador, String ambito) {
+    public void recorrerRepeticion(Nodo padre, String valor, String tipo, String ambito) {
         if (padre.getHijos().get(1).getNombre().equals(",")) {
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
             //contador++;
             SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
-            recorrerRepeticion(padre.getHijos().get(1), valor, tipo, contador, ambito);
+            recorrerRepeticion(padre.getHijos().get(1), valor, tipo, ambito);
         } else if (padre.getHijos().get(1).getNombre().equals("id")) {
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            contador++;
             SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
             //agregar a tabla de símbolos
             rep_id = padre.getHijos().get(1).getValor();
-            contador++;
             SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
             //agregar a tabla de símbolos
         }
@@ -882,7 +952,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
             if (hoja.getNombre().equals("parametros_funcion")) {
                 //tipo += hoja.getHijos().get(1).getValor() + "x";
                 if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                    recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), 0, ambito + "." + id); // tiene que recibir ambito como string
+                    recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), ambito + "." + id); // tiene que recibir ambito como string
                 } else if (hoja.getHijos().get(0).getNombre().equals("id")) {
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), hoja.getHijos().get(1).getValor(),
@@ -891,12 +961,17 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 recorrerDominio(hoja, id, ambito, rango);
             }
             if (hoja.getNombre().equals("declaracion_variables")) {
-                String idDeclaracion, tipoDeclaracion, valorDeclaracion;
-                idDeclaracion = hoja.getHijos().get(0).getValor();
-                tipoDeclaracion = hoja.getHijos().get(1).getValor();
-                valorDeclaracion = "";
-                SymbolTable.insertar2(idDeclaracion, tipoDeclaracion,
-                        valorDeclaracion, false, false, ambito + "." + id);
+                String idDeclaracion, tipoDeclaracion;
+                if (hoja.getHijos().get(0).getValor().equals(",")) {
+                    recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), ambito + "." + id);
+                } else {
+                    idDeclaracion = hoja.getHijos().get(0).getValor();
+                    tipoDeclaracion = hoja.getHijos().get(1).getValor();
+                    //hacemos comprobacion de tipos
+                    SymbolTable.insertar2(idDeclaracion, tipoDeclaracion,
+                            "", false, false, ambito + "." + id);
+                }
+                
                 recorrerDominio(hoja, id, ambito, rango);
             }
         }
