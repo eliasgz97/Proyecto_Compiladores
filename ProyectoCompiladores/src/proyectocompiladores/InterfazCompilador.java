@@ -848,15 +848,14 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 }
                 if (hoja.getNombre().equals("while")) {
                     System.out.println("Hay un while");
-                }
-                if (hoja.getNombre().equals("loop")) {
-                    System.out.println("Hay un loop");
+                    
                 }
                 if (hoja.getNombre().equals("exit-when")) {
                     System.out.println("Hay un exit-when");
-                }
+                }// NUEVO PUSH
                 if (hoja.getNombre().equals("put")) {
                     System.out.println("Hay un put");
+                    
                 }
                 if (hoja.getNombre().equals("get")) {
                     System.out.println("Hay un get");
