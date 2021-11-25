@@ -855,7 +855,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 }// NUEVO PUSH
                 if (hoja.getNombre().equals("put")) {
                     System.out.println("Hay un put");
-                    
+                    comprobarValor(hoja.getHijos().get(0), ambito, ambito);
                 }
                 if (hoja.getNombre().equals("get")) {
                     System.out.println("Hay un get");

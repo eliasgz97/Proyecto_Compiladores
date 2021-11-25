@@ -1490,7 +1490,7 @@ RESULT = hijoIf;
 
 put_function ::= PUT:p PARIZQ:par_izquierdo STRING:cadena PARDER:par_derecho SEMICOLON:semi
 {:
-Nodo nodoPut = new Nodo ("put");
+Nodo nodoPut = new Nodo ("put_string");
 nodoPut.setNumNodo(parser.contador++);
 nodoPut.setValor(cadena.toString().substring(1, cadena.toString().length() - 1));
 RESULT = nodoPut;
@@ -1517,21 +1517,21 @@ PUT PARIZQ STRING error:r SEMICOLON:semi
     RESULT=errorcito;
 :}
 |
-error:r PARIZQ:par_izquierdo valores_numericos_booleanos PARDER:par_derecho SEMICOLON:semi
+error:r PARIZQ:par_izquierdo S:s PARDER:par_derecho SEMICOLON:semi
 {:
     parser.errores.add("Palabra put esperada" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 |
-PUT error:r valores_numericos_booleanos PARDER:par_derecho SEMICOLON:semi
+PUT error:r S:s PARDER:par_derecho SEMICOLON:semi
 {:
     parser.errores.add("Parentesis izquierdo [(] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 |
- PUT PARIZQ valores_numericos_booleanos error:r SEMICOLON:semi
+ PUT PARIZQ S:s error:r SEMICOLON:semi
 {:
     parser.errores.add("Parentesis derecho [)] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
@@ -1573,7 +1573,7 @@ PUT PARIZQ  STRING:cadena PARDER error:r
     RESULT=errorcito;
 :}
 |
-PUT PARIZQ valores_numericos_booleanos:valNumBool PARDER error:r
+PUT PARIZQ S:valNumBool PARDER error:r
 {:
     parser.errores.add("Fin de linea [;] esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
@@ -1587,12 +1587,12 @@ PUT PARIZQ llamado_funcion:llamadoF PARDER error:r
     RESULT=errorcito;
 :}
 |
-PUT:p PARIZQ:par_izquierdo valores_numericos_booleanos:valNumBool PARDER:par_derecho SEMICOLON:semi
+PUT:p PARIZQ:par_izquierdo S:valNumBool PARDER:par_derecho SEMICOLON:semi
 {:
 Nodo nodoPut = new Nodo ("put");
 nodoPut.setNumNodo(parser.contador++);
 Nodo tmp2 = (Nodo) valNumBool;
-nodoPut.setValor(tmp2.getValor());
+nodoPut.addHijo((Nodo) tmp2);
 RESULT = nodoPut;
 :}
 |
@@ -1617,7 +1617,7 @@ tmp.addHijo((Nodo) hijoId);
 tmp.addHijo((Nodo) rep_param);
 RESULT = tmp;
 :}
-|
+/*|
 PARIZQ:par_izq repeticion_parametros:rep_param PARDER:par_der error:r 
 {:
     parser.errores.add("Id de llamado de funcion faltante " + " | linea " + (rright+1) + " columna " +(rleft-2) +" |");  
@@ -1631,6 +1631,7 @@ ID repeticion_parametros:rep_param PARDER:par_der error:r
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
+*/
 |
  ID PARIZQ repeticion_parametros:rep_param error:r 
 {:
@@ -1657,28 +1658,9 @@ RESULT = tmp;
 :}
 ;
 
-valores_funcion ::= NUMINT:num
+valores_funcion ::= S:s
 {:
-Nodo tmp = new Nodo("num_int");
-tmp.setValor(num.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-:}
-|
-ID:id
-{:
-Nodo tmp = new Nodo("id");
-tmp.setValor(id.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-:}
-|
-NUMFLOAT:nfloat
-{:
-Nodo tmp = new Nodo("num_float");
-tmp.setValor(nfloat.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
+RESULT = s;
 :}
 |
 TRUE:t
