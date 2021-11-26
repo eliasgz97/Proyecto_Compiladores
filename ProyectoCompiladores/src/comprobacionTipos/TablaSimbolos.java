@@ -185,6 +185,33 @@ public class TablaSimbolos {
         }
         return tipo;
     }
+    
+    static public String buscarDominio (String tipo) {
+        tipo = tipo.trim();
+        //System.out.println(tipo+"tipo sin espacios");
+        for (int i = 0; i < tipo.length(); i++) {
+            if (tipo.charAt(i) == '-') {
+                tipo = tipo.substring(0, i - 1);
+                //System.out.println(tipo + "tipo Dominio");
+                break;
+            }
+        }
+        return tipo;
+    }
+    
+    static public String buscarRetorno (String tipo) {
+        tipo = tipo.trim();
+        String retorno = "";
+        for (int i = 0; i < tipo.length(); i++) {
+            if (tipo.charAt(i) == '-') {
+                retorno = tipo.substring(i+2, tipo.length());
+                //System.out.println(tipo + "tipo Dominio");
+                break;
+            }
+        }
+        retorno = retorno.trim();
+        return retorno;
+    }
 
     static public String buscarTipo(String nombre) {
         String tipo = "";

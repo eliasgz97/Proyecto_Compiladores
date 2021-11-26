@@ -657,7 +657,7 @@ repeticion_id:rep_id  DECLARACION  TIPOVARIABLE error:r asignar_valor_variables:
 :}
 /*--------------INICIO PRODUCCION FUNCION GENERAL-----------------*/
 |
-funcion:func parametros_funcion:pmF BEG:b Variables:v
+funcion:func Variables:pmF BEG:b Variables:v
 {:
 Nodo tmp = new Nodo("declaracion_global");
 tmp.setNumNodo(parser.contador++);
@@ -811,7 +811,7 @@ tmp.addHijo((Nodo)inicializar);
 RESULT = tmp;
 :}
 |
-funcion:func parametros_funcion:pmF BEG:b
+funcion:func Variables:pmF BEG:b
 {:
 Nodo funcion = (Nodo) func;
 funcion.setNumNodo(parser.contador++);
@@ -1665,18 +1665,22 @@ RESULT = s;
 |
 TRUE:t
 {:
+Nodo assign = new Nodo ("Asignacion");
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(t.toString());
 tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
+assign.addHijo((Nodo) tmp);
+RESULT = assign;
 :}
 |
 FALSE:f
 {:
+Nodo assign = new Nodo ("Asignacion");
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(f.toString());
 tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
+assign.addHijo((Nodo) tmp);
+RESULT = assign;
 :}
 ;
 
@@ -1705,6 +1709,13 @@ GET error:r  ID:id PARDER:par_derecho SEMICOLON:semi
 GET PARIZQ ID:id error:r SEMICOLON:semi
 {: 
     parser.errores.add("Parentesis derecho[)] faltante " + " | linea " + (rright+1) + " columna " +(rleft) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
+|
+GET PARIZQ error:r PARDER SEMICOLON:semi
+{:
+    parser.errores.add("Se esperaba un identificador " + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
