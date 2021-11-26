@@ -180,7 +180,7 @@ public class TablaSimbolos {
             }
         }
         if (tipo.equals("error, la variable no ha sido encontrada")) {
-            String tipoError = "error, la variable " + nombre + " no ha sido encontrada";
+            String tipoError = "error, el identificador " + nombre + " no ha sido encontrado";
             erroresSemanticos.add(tipoError);
         }
         return tipo;

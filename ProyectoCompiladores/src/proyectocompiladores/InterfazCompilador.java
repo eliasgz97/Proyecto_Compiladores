@@ -861,7 +861,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 }
                 if (hoja.getNombre().equals("while")) {
                     System.out.println("Hay un while");
-
                 }
                 if (hoja.getNombre().equals("exit-when")) {
                     System.out.println("Hay un exit-when");
@@ -890,18 +889,42 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 if (hoja.getNombre().equals("return")) {
                     handleReturn++;
                     if (retorno) {
-                        if (padre.getHijos().get(1).getNombre().equals("id")) {
-                            String idTipo = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
-                            if (!idTipo.equals(tipoRetorno)) {
-                                SymbolTable.getErroresSemanticos().add("error, retorno esperado " + tipoRetorno
-                                        + " valor encontrado " + idTipo);
+                        String tipoEncontrado = "";
+                        if (!padre.getHijos().get(1).getNombre().equals("boolean")) {
+                            if (padre.getHijos().get(1).getHijos().get(0).getHijos().size() > 1) {
+                                tipoEncontrado = comprobarValorMejorado(padre.getHijos().get(1).getHijos().get(0), ambito, "");
+                                if (!tipoEncontrado.equals(tipoRetorno) || flagFuncionError) {
+                                    SymbolTable.getErroresSemanticos().add("error, tipo de retorno esperado " + tipoRetorno + ", tipo de retorno encontrado " + tipoEncontrado);
+                                }
+                            } else {
+                                String tipoId;
+                                if (padre.getHijos().get(1).getHijos().get(0).getNombre().equals("id")) {
+                                    tipoId = SymbolTable.buscarTipo(padre.getHijos().get(1).getHijos().get(0).getValor(), ambito);
+                                } else {
+                                    tipoId = convertirTipos(padre.getHijos().get(1).getHijos().get(0).getNombre());
+                                }
+                                if (!tipoId.equals(tipoRetorno)) {
+                                    SymbolTable.getErroresSemanticos().add("error, tipo de retorno esperado "
+                                            + tipoRetorno + ", tipo de retorno encontrado " + tipoId);
+                                }
                             }
                         } else {
-                            if (!convertirTipos(padre.getHijos().get(1).getNombre()).equals(tipoRetorno)) {
-                                SymbolTable.getErroresSemanticos().add("error, retorno esperado " + tipoRetorno + ", valor encontrado "
-                                        + convertirTipos(padre.getHijos().get(1).getNombre()));
+                            if (!tipoRetorno.equals("boolean")) {
+                                SymbolTable.getErroresSemanticos().add("error, tipo esperado " + tipoRetorno + ", tipo encontrado boolean");
                             }
                         }
+//                        if (padre.getHijos().get(1).getNombre().equals("id")) {
+//                            String idTipo = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
+//                            if (!idTipo.equals(tipoRetorno)) {
+//                                SymbolTable.getErroresSemanticos().add("error, retorno esperado " + tipoRetorno
+//                                        + " valor encontrado " + idTipo);
+//                            }
+//                        } else {
+//                            if (!convertirTipos(padre.getHijos().get(1).getNombre()).equals(tipoRetorno)) {
+//                                SymbolTable.getErroresSemanticos().add("error, retorno esperado " + tipoRetorno + ", valor encontrado "
+//                                        + convertirTipos(padre.getHijos().get(1).getNombre()));
+//                            }
+//                        }
                     } else {
                         SymbolTable.getErroresSemanticos().add("error, valor de retorno no esperado");
                     }

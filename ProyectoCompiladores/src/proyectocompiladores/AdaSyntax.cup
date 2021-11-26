@@ -205,31 +205,7 @@ RESULT = e;
 :}
 ;
 
-valores_numericos_booleanos ::= NUMINT:num_Int
-{:
-Nodo tmp = new Nodo("num_int");
-tmp.setValor(num_Int.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-:}
-|
-NUMFLOAT:num_float
-{:
-Nodo tmp = new Nodo("num_float");
-tmp.setValor(num_float.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-:}
-|
-ID:id
-{:
-Nodo tmp = new Nodo("id");
-tmp.setValor(id.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-:}
-|
-FALSE:f
+valores_numericos_booleanos ::= FALSE:f
 {:
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(f.toString());
@@ -1058,6 +1034,18 @@ tmp.addHijo((Nodo) c);
 RESULT = tmp;
 :}
 |
+RETURN:rt S:valNumBool SEMICOLON:semiRT cuerpo:c
+{:
+Nodo tmp = new Nodo ("nueva_linea");
+tmp.setNumNodo(parser.contador++);
+Nodo hijoReturn = new Nodo("return");
+hijoReturn.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) hijoReturn);
+tmp.addHijo((Nodo) valNumBool);
+tmp.addHijo((Nodo) c);
+RESULT = tmp;
+:}
+|
 RETURN:rt valores_numericos_booleanos:valNumBool SEMICOLON:semiRT cuerpo:c
 {:
 Nodo tmp = new Nodo ("nueva_linea");
@@ -1070,14 +1058,14 @@ tmp.addHijo((Nodo) c);
 RESULT = tmp;
 :}
 |
-error:r valores_numericos_booleanos:valNumBool SEMICOLON:semiRT cuerpo:c
+S:valNumBool SEMICOLON:semiRT error:r cuerpo:c
 {:
     parser.errores.add("Return no encontrado" + " | linea"+(rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 |
-RETURN valores_numericos_booleanos:valNumBool error:r cuerpo:c
+RETURN S:valNumBool error:r cuerpo:c
 {:
     parser.errores.add("Fin de linea [;] esperado " +" | linea"+ (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
@@ -1275,6 +1263,17 @@ nuevaLinea.addHijo((Nodo) cuerpo);
 RESULT = nuevaLinea;
 :}
 |
+RETURN:rt S:valNumBool SEMICOLON:semiRT
+{:
+Nodo tmp = new Nodo ("nueva_linea");
+tmp.setNumNodo(parser.contador++);
+Nodo hijoReturn = new Nodo("return");
+hijoReturn.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) hijoReturn);
+tmp.addHijo((Nodo) valNumBool);
+RESULT = tmp;
+:}
+|
 RETURN:rt valores_numericos_booleanos:valNumBool SEMICOLON:semiRT
 {:
 Nodo tmp = new Nodo ("nueva_linea");
@@ -1286,14 +1285,7 @@ tmp.addHijo((Nodo) valNumBool);
 RESULT = tmp;
 :}
 |   
-error:r valores_numericos_booleanos:valNumBool SEMICOLON:semiRT
-{:
-    parser.errores.add("Return no encontrado" + (rright+1) + " columna " +(rleft+1) +" |");  
-    Nodo errorcito= new Nodo("error");
-    RESULT=errorcito;
-:}
-|   
-RETURN valores_numericos_booleanos:valNumBool error:r
+RETURN error:r valores_numericos_booleanos:valNumBool
 {:
     parser.errores.add("Fin de linea [;] esperado" + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
