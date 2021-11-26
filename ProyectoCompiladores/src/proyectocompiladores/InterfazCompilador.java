@@ -700,6 +700,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     Sintax sintactico;
     TablaSimbolos SymbolTable;
     boolean flagFuncionError;
+    int handleReturn = 0;
 
     private String AnalizarSintaxis() {
         lexico = new AdaLexerCup(new BufferedReader(new StringReader(jtxtarea_entrada.getText())));
@@ -825,15 +826,25 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     recorrer(hoja, ambito + "." + hoja.getValor());
                 }
                 if (hoja.getNombre().equals("Beg")) {
-                    System.out.println(padre.getNombre() + "padre");
-                    recorrerCuerpo(hoja.getHijos().get(1), ambito);//llamar un método para comprobar asignacion, se le envía el nodo nueva_linea
+                    boolean retorno = false;
+                    String tipoRetorno = "void";
+                    if (padre.getNombre().equals("declaracion_funcion")) {
+                        retorno = true;
+                        tipoRetorno = padre.getHijos().get(2).getValor();
+                    }
+                    recorrerCuerpo(hoja.getHijos().get(1), ambito, retorno, tipoRetorno);//llamar un método para comprobar asignacion, se le envía el nodo nueva_linea
+                    if (handleReturn == 0 && padre.getNombre().equals("declaracion_funcion")) {
+                        SymbolTable.getErroresSemanticos().add("error, valor de retorno esperado para funcion "
+                                + padre.getHijos().get(0).getValor());
+                    }
+                    handleReturn = 0;
                 }
                 recorrer(hoja, ambito);
             }
         }
     }
 
-    public void recorrerCuerpo(Nodo padre, String ambito) {
+    public void recorrerCuerpo(Nodo padre, String ambito, boolean retorno, String tipoRetorno) {
         for (Nodo hoja : padre.getHijos()) {
             if (!hoja.isVisitado()) {
                 hoja.setVisitado(true);
@@ -842,7 +853,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     comprobarValor(hoja.getHijos().get(1), ambito, tipoAsignado);
                 }
                 if (hoja.getNombre().equals("for")) {
-                    System.out.println("Hay un for");
                     String ambitofor = ambito + "." + contadorid;
                     contadorid++;
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), "integer", "", false, false, ambitofor);
@@ -857,7 +867,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     System.out.println("Hay un exit-when");
                 }// NUEVO PUSH
                 if (hoja.getNombre().equals("put")) {
-                    System.out.println("Hay un put");
                     if (hoja.getHijos().get(0).getHijos().get(0).getHijos().size() > 1) {
                         String tipoPut = comprobarValorMejorado(hoja.getHijos().get(0).getHijos().get(0), ambito, "");
                     }
@@ -867,12 +876,10 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     String encuentraId = SymbolTable.buscarTipo(hoja.getValor(), ambito);
                 }
                 if (hoja.getNombre().equals("llamado_funcion")) {
-                    System.out.println("Hay un llamdo_funcion");
                     String tipoFuncion = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
                     String tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
                     System.out.println(tipoParam);
                     tipoFuncion = SymbolTable.buscarDominio(tipoFuncion);
-                    //System.out.println(tipoFuncion);
                     if (!tipoFuncion.equals(tipoParam) || flagFuncionError == true) {
                         SymbolTable.getErroresSemanticos().add("error, llamado de función inválido");
                     }
@@ -881,11 +888,25 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     System.out.println("Hay un if-then ");
                 }
                 if (hoja.getNombre().equals("return")) {
-                    System.out.println("Hay un return");
-                    String retorno = SymbolTable.buscarRetorno("integerxintegerxboolean -> integer");
-                    System.out.println(retorno);
+                    handleReturn++;
+                    if (retorno) {
+                        if (padre.getHijos().get(1).getNombre().equals("id")) {
+                            String idTipo = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
+                            if (!idTipo.equals(tipoRetorno)) {
+                                SymbolTable.getErroresSemanticos().add("error, retorno esperado " + tipoRetorno
+                                        + " valor encontrado " + idTipo);
+                            }
+                        } else {
+                            if (!convertirTipos(padre.getHijos().get(1).getNombre()).equals(tipoRetorno)) {
+                                SymbolTable.getErroresSemanticos().add("error, retorno esperado " + tipoRetorno + ", valor encontrado "
+                                        + convertirTipos(padre.getHijos().get(1).getNombre()));
+                            }
+                        }
+                    } else {
+                        SymbolTable.getErroresSemanticos().add("error, valor de retorno no esperado");
+                    }
                 }
-                recorrerCuerpo(hoja, ambito);
+                recorrerCuerpo(hoja, ambito, retorno, tipoRetorno);
             }
         }
     }
@@ -898,17 +919,13 @@ public class InterfazCompilador extends javax.swing.JFrame {
             String tipo1, tipo2;
             if (padre.getHijos().get(0).getNombre().equals("id")) { // busca en caso de id
                 tipo1 = SymbolTable.buscarTipo(padre.getHijos().get(0).getValor(), ambito);
-                System.out.println(tipo1 + " tipo 1 caso base");
             } else {
                 tipo1 = convertirTipos(padre.getHijos().get(0).getNombre());
-                System.out.println(tipo1 + " tipo 1 caso base no es id");
             }
             if (padre.getHijos().get(1).getNombre().equals("id")) { //busca en caso de id
                 tipo2 = SymbolTable.buscarTipo(padre.getHijos().get(1).getValor(), ambito);
-                System.out.println(tipo2 + " tipo 2 caso base");
             } else {
                 tipo2 = convertirTipos(padre.getHijos().get(1).getNombre());
-                System.out.println(tipo2 + " tipo 2 caso base no es id");
             }
             if (tipo1.equals(tipo2) && (!tipo1.contains("error"))) { //evalúa que los tipos sean igual
                 tipo = tipo1;
@@ -946,8 +963,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
             } else {
                 tipo2 = convertirTipos(padre.getHijos().get(1).getNombre());
             }
-            System.out.println(padre.getHijos().get(0).getNombre() + " tipooo1 ");
-            System.out.println(tipo2 + " tipooo2");
             if (tipo1.equals(tipo2) && (!tipo1.contains("error"))) { // evalúa si son iguales
                 tipo = tipo1;
                 flagFuncionError = false;
@@ -1112,7 +1127,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 //System.out.println("entró precedencia");
             }
         }
-        return tipo.substring(0, tipo.length()-1);
+        return tipo.substring(0, tipo.length() - 1);
     }
 
     public void recorrerRepeticion(Nodo padre, String valor, String tipo, String ambito) {
