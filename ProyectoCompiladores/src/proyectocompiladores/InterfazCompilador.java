@@ -889,7 +889,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 }
                 if (hoja.getNombre().equals("if-then")) {
                     System.out.println("Hay un if-then ");
-                    String if_then = comprobarValorMejorado(hoja.getHijos().get(0), ambito, "");
+                    Booleanos(hoja.getHijos().get(0), ambito);
                     System.out.println("sale if-then");
                 }
                 if (hoja.getNombre().equals("return")) {
@@ -936,6 +936,23 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     }
                 }
                 recorrerCuerpo(hoja, ambito, retorno, tipoRetorno);
+            }
+        }
+    }
+
+    public void Booleanos(Nodo padre, String ambito) {
+        for (Nodo hoja : padre.getHijos()) {
+            if (!hoja.isVisitado()) {
+                hoja.setVisitado(true);
+                if (hoja.getNombre().equals("and") || hoja.getNombre().equals("or")) {
+                    Booleanos(hoja, ambito);
+                } else {
+                    String tipoEval=convertirTipos(hoja.getHijos().get(0).getNombre());
+                    if(hoja.getHijos().get(0).getNombre().equals("id")){
+                        tipoEval= SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
+                    }
+                    comprobarValorMejorado(hoja, ambito, tipoEval);
+                }
             }
         }
     }
