@@ -72,6 +72,8 @@ public class Cuadruplo {
                 || operator.equals("/")
                 || operator.equals("*")) {
             retval += "     " + result + " = " + args1 + " " + operator + " " + args2;
+        } else if (operator.equals("=")) {
+            retval += "     " + result + " = " + args1;
         }
         return retval;
     }
