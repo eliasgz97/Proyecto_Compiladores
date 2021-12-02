@@ -171,7 +171,7 @@ public class TablaSimbolos {
             if (s.nombre.equals(nombre)) {
                 if (ambito.contains(s.ambito)) {
                     tipo = s.tipoVariable;
-                    System.out.println("tuanitoooo");
+                    //System.out.println("tuanitoooo");
                     break;
                 }
             } else {

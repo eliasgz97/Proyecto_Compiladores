@@ -1,5 +1,6 @@
 package proyectocompiladores;
 
+import codigoIntermedio.Recorrido;
 import comprobacionTipos.Simbolo;
 import java.awt.Color;
 import java.awt.Desktop;
@@ -701,6 +702,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     TablaSimbolos SymbolTable;
     boolean flagFuncionError;
     int handleReturn = 0;
+    Recorrido genCodigoIntermedio;
 
     private String AnalizarSintaxis() {
         lexico = new AdaLexerCup(new BufferedReader(new StringReader(jtxtarea_entrada.getText())));
@@ -716,6 +718,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 jb_tablaSimbolos.setEnabled(true);
                 resultado += "Compilado exitosamente";
                 jtxtarea_salida_sintactico.setForeground(Color.GREEN);
+                genCodigoIntermedio = new Recorrido();
+                genCodigoIntermedio.recorrer(sintactico.padre.getHijos().get(0));
+                System.out.println(genCodigoIntermedio.imprimirCuadruplos());
             }
             if (!sintactico.errores.isEmpty()) {
                 for (int i = 0; i < sintactico.errores.size(); i++) {

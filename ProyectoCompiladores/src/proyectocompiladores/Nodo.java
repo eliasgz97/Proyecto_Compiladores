@@ -35,6 +35,7 @@ public class Nodo {
     private String valor;
     private int numNodo;
     private boolean visitado = false;
+    private boolean visitado2 = false;
     private Nodo padre = null;
     private int columna;
     private int fila;
@@ -86,6 +87,7 @@ public class Nodo {
         setValor("");
         setNumNodo(0);
     }
+
     public Nodo(String nombre) {
         this.nombre = nombre;
         siguiente = "";
@@ -97,6 +99,7 @@ public class Nodo {
         setValor("");
         setNumNodo(0);
     }
+
     public String getAmbito() {
         return ambito;
     }
@@ -132,9 +135,11 @@ public class Nodo {
     public String getNombreTipo() {
         return nombreTipo;
     }
+
     public void addHijo(Nodo hijo) {
         hijos.add(hijo);
     }
+
     public void setNombreTipo(String nombreTipo) {
         this.nombreTipo = nombreTipo;
     }
@@ -167,8 +172,16 @@ public class Nodo {
         return visitado;
     }
 
+    public boolean isVisitado2 () {
+        return visitado2;
+    }
+    
     public void setVisitado(boolean visitado) {
         this.visitado = visitado;
+    }
+    
+    public void setVisitado2(boolean visitado) {
+        this.visitado2 = visitado;
     }
 
     public Nodo getPadre() {
