@@ -1296,7 +1296,7 @@ RETURN error:r valores_numericos_booleanos:valNumBool
 operando1 ::= NUMINT:num
 {:
 System.out.println(num.toString());
-Nodo tmp = new Nodo ("num");
+Nodo tmp = new Nodo ("num_int");
 tmp.setNumNodo(parser.contador++);
 tmp.setValor(num.toString());
 RESULT = tmp;
@@ -1331,7 +1331,7 @@ RESULT = tmp;
 |
 NUMFLOAT:nfloat
 {:
-Nodo tmp = new Nodo("num_float");
+Nodo tmp = new Nodo("numfloat");
 tmp.setValor(nfloat.toString());
 tmp.setNumNodo(parser.contador++);
 RESULT = tmp;

@@ -868,6 +868,10 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 if (hoja.getNombre().equals("put")) {
                     if (hoja.getHijos().get(0).getHijos().get(0).getHijos().size() > 1) {
                         String tipoPut = comprobarValorMejorado(hoja.getHijos().get(0).getHijos().get(0), ambito, "");
+                    } else {
+                        if (hoja.getHijos().get(0).getHijos().get(0).getNombre().equals("id")) {
+                            String idPut = SymbolTable.buscarTipo(hoja.getHijos().get(0).getHijos().get(0).getValor(), ambito);
+                        }
                     }
                 }
                 if (hoja.getNombre().equals("get")) {
@@ -885,6 +889,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 }
                 if (hoja.getNombre().equals("if-then")) {
                     System.out.println("Hay un if-then ");
+                    String if_then = comprobarValorMejorado(hoja.getHijos().get(0), ambito, "");
+                    System.out.println("sale if-then");
                 }
                 if (hoja.getNombre().equals("return")) {
                     handleReturn++;
@@ -940,6 +946,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 && (padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
                 || padre.getHijos().get(1).getNombre().equals("id"))) { //caso base, busca si ambos nodos son un número
             String tipo1, tipo2;
+            System.out.println("entra caso base");
             if (padre.getHijos().get(0).getNombre().equals("id")) { // busca en caso de id
                 tipo1 = SymbolTable.buscarTipo(padre.getHijos().get(0).getValor(), ambito);
             } else {
