@@ -26,6 +26,10 @@ import javax.swing.table.DefaultTableModel;
  */
 public class InterfazCompilador extends javax.swing.JFrame {
 
+    int contadortipo = 0; // integer - 1 | float - 2 | boolean - 3| 
+    int contadorid = 0;
+    boolean banderai, banderaf, banderab = true;
+
     /**
      * Creates new form InterfazCompilador
      */
@@ -695,6 +699,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
     AdaLexerCup lexico;
     Sintax sintactico;
     TablaSimbolos SymbolTable;
+    boolean flagFuncionError;
+    int handleReturn = 0;
 
     private String AnalizarSintaxis() {
         lexico = new AdaLexerCup(new BufferedReader(new StringReader(jtxtarea_entrada.getText())));
@@ -724,7 +730,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     resultado += SymbolTable.getErroresSemanticos().get(i) + "\n";
                 }
                 jtxtarea_salida_sintactico.setForeground(Color.red);
-                jb_tablaSimbolos.setEnabled(false);
+                //jb_tablaSimbolos.setEnabled(false);
             }
         } catch (Exception e) {
         }
@@ -768,40 +774,36 @@ public class InterfazCompilador extends javax.swing.JFrame {
         return cadena;
     }
 
-    public void recorrer(Nodo padre, String ambito) {
+    public void recorrer(Nodo padre, String ambito) { // Metodo de recorrido para agregar a tabla de simbolos y validar tipos en asignaciones
         //codigo para agregar variables de procedure
         for (Nodo hoja : padre.getHijos()) {
             if (!hoja.isVisitado()) {
                 hoja.setVisitado(true);
-                if (hoja.getNombre().equals("variables")) {
+                if (hoja.getNombre().equals("variables")) { // Caso de encontrar declaración de variables
                     String id = "", tipo = "", valor = "";
-                    if (hoja.getHijos().get(0).getNombre().equals("id")) {
-                        id = hoja.getHijos().get(0).getValor();
-                        tipo = hoja.getHijos().get(1).getValor();
-                    } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                        //tipo = hoja.getHijos().get(1).getValor();
-                        recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito);
-                    }
-                    if (hoja.getHijos().size() > 2) {
-                        //System.out.println(tipo + "aquiii");
-                        if (hoja.getHijos().get(2).getNombre().equals("num_int") || hoja.getHijos().get(2).getNombre().equals("numfloat")
-                                || hoja.getHijos().get(2).getNombre().equals("boolean") || hoja.getHijos().get(2).getNombre().equals("id")) {
-                            if (!comprobarValor(tipo, hoja.getHijos().get(2).getNombre(), hoja.getHijos().get(2), ambito)) {
-                                SymbolTable.getErroresSemanticos().add("error, el tipo de asginación en " + id + " es diferente al tipo de la variable");
-                            } else {
-                                System.out.println(tipo + "entra este else 1");
-                                if (!tipo.equals("")) {
-                                    SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
-                                }
-                            }
-                        } else {
-                            if (!tipo.equals("")) {
+                    tipo = hoja.getHijos().get(1).getValor(); // El tipo siempre será la posicion sub 1 
+                    if (hoja.getHijos().size() > 2 && hoja.getHijos().get(2).getNombre().equals("Asignacion")) { // if en caso de que exista una asignacion de un valor u operacion
+                        //Este if valida si hay mas de 2 nodos y que el tercer nodo sea una asignacion de un valor
+                        comprobarValor(hoja.getHijos().get(2), ambito, hoja.getHijos().get(1).getValor());// metodo que comprueba valor de asignación con sus tipos correspondientes
+                        if (contadortipo == 0) {
+                            if (hoja.getHijos().get(0).getNombre().equals("id")) {
+                                id = hoja.getHijos().get(0).getValor();
                                 SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
+                            } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
+                                recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito);
                             }
                         }
-                    } else {
-                        System.out.println("entra este else");
-                        SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
+                        contadortipo = 0;
+                        banderai = true;
+                        banderaf = true;
+                        banderab = true;
+                    } else { // caso en que no tenga valor de asignación
+                        if (hoja.getHijos().get(0).getNombre().equals("id")) {
+                            id = hoja.getHijos().get(0).getValor();
+                            SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
+                        } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
+                            recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito);
+                        }
                     }
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                 }
@@ -810,6 +812,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), tipo.substring(0, tipo.length() - 1) + " -> "
                             + hoja.getHijos().get(2).getValor(), "", false, true, ambito);
                     recorrerDominio(hoja, hoja.getHijos().get(0).getValor(), ambito, hoja.getHijos().get(2).getValor());
+                    recorrer(hoja, ambito + "." + hoja.getHijos().get(0).getValor());
                 }
                 if (hoja.getNombre().equals("Procedure")) {
                     //SymbolTable.insertar2(hoja.getValor(), "void -> void", "", false, false, ambito);
@@ -823,117 +826,344 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     recorrer(hoja, ambito + "." + hoja.getValor());
                 }
                 if (hoja.getNombre().equals("Beg")) {
-                    if (hoja.getHijos().get(1).getNombre().equals("nueva_linea")) {
-                        System.out.println("entra nueva linea");
-                        comprobarAsignacion(hoja.getHijos().get(1), ambito);//llamar un método para comprobar asignacion, se le envía el nodo nueva_linea
-                    } else if (hoja.getHijos().get(1).getNombre().equals("asignar_valor")) {
-                        comprobarAsignacion(hoja, ambito);
+                    boolean retorno = false;
+                    String tipoRetorno = "void";
+                    if (padre.getNombre().equals("declaracion_funcion")) {
+                        retorno = true;
+                        tipoRetorno = padre.getHijos().get(2).getValor();
                     }
+                    recorrerCuerpo(hoja.getHijos().get(1), ambito, retorno, tipoRetorno);//llamar un método para comprobar asignacion, se le envía el nodo nueva_linea
+                    if (handleReturn == 0 && padre.getNombre().equals("declaracion_funcion")) {
+                        SymbolTable.getErroresSemanticos().add("error, valor de retorno esperado para funcion "
+                                + padre.getHijos().get(0).getValor());
+                    }
+                    handleReturn = 0;
                 }
                 recorrer(hoja, ambito);
             }
         }
     }
 
-    public void comprobarAsignacion(Nodo padre, String ambito) {
+    public void recorrerCuerpo(Nodo padre, String ambito, boolean retorno, String tipoRetorno) {
         for (Nodo hoja : padre.getHijos()) {
-            if (hoja.getNombre().equals("asignar_valor")) {
-                String tipoAsignado = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
-                //tipo del id que se le está asignando algo
-                if (!tipoAsignado.equals("error, la variable no ha sido encontrada")) {
-                    if (hoja.getHijos().get(1).getNombre().equals("id")) {
-                        if (!comprobarValorAsignacion(tipoAsignado, hoja.getHijos().get(1).getValor(), ambito)) {
-                            SymbolTable.getErroresSemanticos().add("error, tipo de asignacion es diferente al tipo de variable");
-                        }
+            if (!hoja.isVisitado()) {
+                hoja.setVisitado(true);
+                if (hoja.getNombre().equals("asignar_valor")) {
+                    String tipoAsignado = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);//tipo del id que se le está asignando algo
+                    comprobarValor(hoja.getHijos().get(1), ambito, tipoAsignado);
+                }
+                if (hoja.getNombre().equals("for")) {
+                    String ambitofor = ambito + "." + contadorid;
+                    contadorid++;
+                    SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), "integer", "", false, false, ambitofor);
+                    comprobarValor(hoja.getHijos().get(1), ambito, "integer");
+                    comprobarValor(hoja.getHijos().get(2), ambito, "integer");
+                }
+                if (hoja.getNombre().equals("while")) {
+                    System.out.println("Hay un while");
+                }
+                if (hoja.getNombre().equals("exit-when")) {
+                    System.out.println("Hay un exit-when");
+                }// NUEVO PUSH
+                if (hoja.getNombre().equals("put")) {
+                    if (hoja.getHijos().get(0).getHijos().get(0).getHijos().size() > 1) {
+                        String tipoPut = comprobarValorMejorado(hoja.getHijos().get(0).getHijos().get(0), ambito, "");
                     } else {
-                        if (!comprobarValorAsignacion(tipoAsignado, hoja.getHijos().get(1).getNombre())) {
-                            SymbolTable.getErroresSemanticos().add("error, tipo de asignacion es diferente al tipo de variable");
+                        if (hoja.getHijos().get(0).getHijos().get(0).getNombre().equals("id")) {
+                            String idPut = SymbolTable.buscarTipo(hoja.getHijos().get(0).getHijos().get(0).getValor(), ambito);
                         }
                     }
-                }//comprobarValorAsignacion(tipoAsignado, hoja.getHijos().get(1).getNombre())
-            } else {
-                comprobarAsignacion(hoja, ambito);
-            }
-        }
-    }
-
-    public boolean comprobarValorAsignacion(String tipo, String valor_tipo) { //comprueba valor en asignacion de un begin
-        if (tipo.equals("integer") && valor_tipo.equals("num_int")) {
-            return true;
-        } else if (tipo.equals("float") && valor_tipo.equals("numfloat")) {
-            return true;
-        } else if (tipo.equals("boolean") && valor_tipo.equals("boolean")) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean comprobarValorAsignacion(String tipo, String id, String ambito) {
-        String tipoAsignacion = SymbolTable.buscarTipo(id, ambito);
-        if (!tipoAsignacion.equals(tipo)) {
-            if (tipoAsignacion.equals("error, la variable no ha sido encontrada")) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return true;
-        }
-    }
-
-    public boolean comprobarValor(String tipo, String valor_tipo, Nodo id, String ambito) {
-        if (tipo.equals("integer") && valor_tipo.equals("num_int")) {
-            return true;
-        } else if (tipo.equals("float") && valor_tipo.equals("numfloat")) {
-            return true;
-        } else if (tipo.equals("boolean") && valor_tipo.equals("boolean")) {
-            return true;
-        } else if (valor_tipo.equals("id")) {
-            String tipoId = SymbolTable.buscarTipo(id.getValor(), ambito);
-            System.out.println(tipo + " tipo normal");
-            System.out.println(tipoId + " tipo id");
-            if (!tipoId.equals(tipo)) {
-                System.out.println("entra if");
-                if (tipoId.equals("error, la variable no ha sido encontrada")) {
-                    //SymbolTable.getErroresSemanticos().add("error, la variable " + id.getValor() + " no ha sido declarada");
-                    return true;
                 }
-                return false;
-            } else {
-                return true;
+                if (hoja.getNombre().equals("get")) {
+                    //System.out.println("Hay un get");
+                    String encuentraId = SymbolTable.buscarTipo(hoja.getValor(), ambito);
+                }
+                if (hoja.getNombre().equals("llamado_funcion")) {
+                    String tipoFuncion = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
+                    String tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
+                    System.out.println(tipoParam);
+                    tipoFuncion = SymbolTable.buscarDominio(tipoFuncion);
+                    if (!tipoFuncion.equals(tipoParam) || flagFuncionError == true) {
+                        SymbolTable.getErroresSemanticos().add("error, llamado de función inválido");
+                    }
+                }
+                if (hoja.getNombre().equals("if-then")) {
+                    System.out.println("Hay un if-then ");
+                    String if_then = comprobarValorMejorado(hoja.getHijos().get(0), ambito, "");
+                    System.out.println("sale if-then");
+                }
+                if (hoja.getNombre().equals("return")) {
+                    handleReturn++;
+                    if (retorno) {
+                        String tipoEncontrado = "";
+                        if (!padre.getHijos().get(1).getNombre().equals("boolean")) {
+                            if (padre.getHijos().get(1).getHijos().get(0).getHijos().size() > 1) {
+                                tipoEncontrado = comprobarValorMejorado(padre.getHijos().get(1).getHijos().get(0), ambito, "");
+                                if (!tipoEncontrado.equals(tipoRetorno) || flagFuncionError) {
+                                    SymbolTable.getErroresSemanticos().add("error, tipo de retorno esperado " + tipoRetorno + ", tipo de retorno encontrado " + tipoEncontrado);
+                                }
+                            } else {
+                                String tipoId;
+                                if (padre.getHijos().get(1).getHijos().get(0).getNombre().equals("id")) {
+                                    tipoId = SymbolTable.buscarTipo(padre.getHijos().get(1).getHijos().get(0).getValor(), ambito);
+                                } else {
+                                    tipoId = convertirTipos(padre.getHijos().get(1).getHijos().get(0).getNombre());
+                                }
+                                if (!tipoId.equals(tipoRetorno)) {
+                                    SymbolTable.getErroresSemanticos().add("error, tipo de retorno esperado "
+                                            + tipoRetorno + ", tipo de retorno encontrado " + tipoId);
+                                }
+                            }
+                        } else {
+                            if (!tipoRetorno.equals("boolean")) {
+                                SymbolTable.getErroresSemanticos().add("error, tipo esperado " + tipoRetorno + ", tipo encontrado boolean");
+                            }
+                        }
+//                        if (padre.getHijos().get(1).getNombre().equals("id")) {
+//                            String idTipo = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
+//                            if (!idTipo.equals(tipoRetorno)) {
+//                                SymbolTable.getErroresSemanticos().add("error, retorno esperado " + tipoRetorno
+//                                        + " valor encontrado " + idTipo);
+//                            }
+//                        } else {
+//                            if (!convertirTipos(padre.getHijos().get(1).getNombre()).equals(tipoRetorno)) {
+//                                SymbolTable.getErroresSemanticos().add("error, retorno esperado " + tipoRetorno + ", valor encontrado "
+//                                        + convertirTipos(padre.getHijos().get(1).getNombre()));
+//                            }
+//                        }
+                    } else {
+                        SymbolTable.getErroresSemanticos().add("error, valor de retorno no esperado");
+                    }
+                }
+                recorrerCuerpo(hoja, ambito, retorno, tipoRetorno);
             }
-        } else {
-            return true;
         }
     }
 
-    public void comprobarPrecedencia(Nodo padre, String tipo, String valor) {
-        if (padre.getHijos().get(1).getNombre().equals("+")) {
-            valor += padre.getHijos().get(0).getValor() + padre.getNombre();
-            comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
-        } else if (padre.getHijos().get(1).getNombre().equals("-")) {
-            valor += padre.getHijos().get(0).getValor() + padre.getNombre();
-            comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
-        } else if (padre.getHijos().get(1).getNombre().equals("*")) {
-            valor += padre.getHijos().get(0).getValor() + padre.getNombre();
-            comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
-        } else if (padre.getHijos().get(1).getNombre().equals("/")) {
-            valor += padre.getHijos().get(0).getValor() + padre.getNombre();
-            //System.out.println(padre.getHijos().get(1).getNombre() + "siiiii");
-            comprobarPrecedencia(padre.getHijos().get(1), tipo, valor);
-        } else if (padre.getHijos().get(1).getNombre().equals("num_int")) {
-            valor += padre.getHijos().get(0).getValor() + padre.getNombre();
-            valor += padre.getHijos().get(1).getValor();
+    public String comprobarValorMejorado(Nodo padre, String ambito, String tipo) {
+        if ((padre.getHijos().get(0).getNombre().equals("num_int") || padre.getHijos().get(0).getNombre().equals("numfloat")
+                || padre.getHijos().get(0).getNombre().equals("id"))
+                && (padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
+                || padre.getHijos().get(1).getNombre().equals("id"))) { //caso base, busca si ambos nodos son un número
+            String tipo1, tipo2;
+            System.out.println("entra caso base");
+            if (padre.getHijos().get(0).getNombre().equals("id")) { // busca en caso de id
+                tipo1 = SymbolTable.buscarTipo(padre.getHijos().get(0).getValor(), ambito);
+            } else {
+                tipo1 = convertirTipos(padre.getHijos().get(0).getNombre());
+            }
+            if (padre.getHijos().get(1).getNombre().equals("id")) { //busca en caso de id
+                tipo2 = SymbolTable.buscarTipo(padre.getHijos().get(1).getValor(), ambito);
+            } else {
+                tipo2 = convertirTipos(padre.getHijos().get(1).getNombre());
+            }
+            if (tipo1.equals(tipo2) && (!tipo1.contains("error"))) { //evalúa que los tipos sean igual
+                tipo = tipo1;
+                flagFuncionError = false;
+            } else {
+                String error = padre.getHijos().get(0).getValor() + " posee un tipo diferente a " + padre.getHijos().get(1).getValor();//devuelve el tipo de error
+                SymbolTable.getErroresSemanticos().add(error);//agrega error
+                flagFuncionError = true; //flag para mostrar error de llamado de función al existir un error en operaciones
+                tipo = tipo1;
+            }
         }
-        //falta agregar para cuando sea solo un número
+        if (!(padre.getHijos().get(0).getNombre().equals("num_int") || padre.getHijos().get(0).getNombre().equals("numfloat")//si el de la izquierda no es un número
+                || padre.getHijos().get(0).getNombre().equals("id"))
+                && !(padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
+                || padre.getHijos().get(1).getNombre().equals("id"))) {//y el de la derecha tampoco es un número 
+            String tipo1 = convertirTipos(comprobarValorMejorado(padre.getHijos().get(0), ambito, ""));//busca los tipos
+            String tipo2 = convertirTipos(comprobarValorMejorado(padre.getHijos().get(1), ambito, ""));
+            if (tipo1.equals(tipo2) && (!tipo1.contains("error"))) { // evalúa si los tipos encontrados son iguales y no son error
+                tipo = tipo1; //retorna tipo
+                flagFuncionError = false; //flag para mostrar error de llamado de función al existir un error en operaciones
+            } else {
+                String error = tipo1 + " no se puede asignar a " + tipo2;
+                SymbolTable.getErroresSemanticos().add(error);
+                flagFuncionError = true; //flag para mostrar error de llamado de función al existir un error en operaciones
+            }
+        }
+        if (!(padre.getHijos().get(0).getNombre().equals("num_int") || padre.getHijos().get(0).getNombre().equals("numfloat")
+                || padre.getHijos().get(0).getNombre().equals("id")) //si el de la izquierda no es un número
+                && (padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
+                || padre.getHijos().get(1).getNombre().equals("id"))) {
+            String tipo1 = comprobarValorMejorado(padre.getHijos().get(0), ambito, ""); //busca tipo del nodo izquierdo
+            String tipo2 = "";
+            if (padre.getHijos().get(1).getNombre().equals("id")) { //busca en caso de id
+                tipo2 = SymbolTable.buscarTipo(padre.getHijos().get(1).getValor(), ambito);
+            } else {
+                tipo2 = convertirTipos(padre.getHijos().get(1).getNombre());
+            }
+            if (tipo1.equals(tipo2) && (!tipo1.contains("error"))) { // evalúa si son iguales
+                tipo = tipo1;
+                flagFuncionError = false;
+            } else {
+                String error = "error, mal uso de tipos";//devuelve error de tipos
+                SymbolTable.getErroresSemanticos().add(error); // agrega a errores semánticos
+                flagFuncionError = true; //flag para mostrar error de llamado de función al existir un error en operaciones
+            }
+        }
+        if ((padre.getHijos().get(0).getNombre().equals("num_int") || padre.getHijos().get(0).getNombre().equals("numfloat")
+                || padre.getHijos().get(0).getNombre().equals("id"))
+                && !(padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
+                || padre.getHijos().get(1).getNombre().equals("id"))) { //si no es un número
+            String tipo2 = comprobarValorMejorado(padre.getHijos().get(1), ambito, "");//busca tipo
+            String tipo1;
+            if (padre.getHijos().get(0).getNombre().equals("id")) { // busca en caso de id
+                tipo1 = SymbolTable.buscarTipo(padre.getHijos().get(0).getValor(), ambito);
+            } else {
+                tipo1 = convertirTipos(padre.getHijos().get(0).getNombre());
+            }
+            if (tipo2.equals(tipo1) && (!tipo1.contains("error"))) { //evalúa que sean iguales
+                tipo = tipo2;
+                flagFuncionError = false;
+            } else {
+                String error = "error, mal uso de tipos "; //devuelve error de tipos
+                SymbolTable.getErroresSemanticos().add(error);
+                flagFuncionError = true;//flag para mostrar error de llamado de función al existir un error en operaciones
+            }
+        }
+        return tipo;
+    }
+
+    public String convertirTipos(String tipo) { //convierte num_int y numfloat a sus respectivos tipos
+        String nuevo_tipo = "";
+        switch (tipo) {
+            case "num_int":
+                nuevo_tipo = "integer";
+                break;
+            case "numfloat":
+                nuevo_tipo = "float";
+                break;
+            default:
+                nuevo_tipo = tipo;
+                break;
+        }
+        return nuevo_tipo;
+    }
+
+    public void comprobarValor(Nodo valor, String ambito, String tipo) {
+        //System.out.println("ESTA EN COMPROBAR ");
+        for (Nodo hoja : valor.getHijos()) {
+            if (!hoja.isVisitado()) {
+                hoja.setVisitado(true);
+                switch (hoja.getNombre()) {
+                    case "num_int": //si es un id o uno de estos tipos
+                        if (!tipo.equals("integer") && banderai) { //evalúa si no son tipos iguales
+                            contadortipo++;
+                            banderai = false;
+                            SymbolTable.getErroresSemanticos().add("error, mal uso de tipos, integer no es igual a " + tipo);
+                            //si no son tipos iguales, agrega al arreglo de errores semánticos
+                        }
+                        break;
+                    case "numfloat":
+                        if (!tipo.equals("float") && banderaf) {
+                            contadortipo++;
+                            banderaf = false;
+                            SymbolTable.getErroresSemanticos().add("error, mal uso de tipos, float no es igual a " + tipo);
+                        }
+                        break;
+                    case "boolean":
+                        if (!tipo.equals("boolean") && banderab) {
+                            contadortipo++;
+                            banderab = false;
+                            SymbolTable.getErroresSemanticos().add("error, mal uso de tipos, boolean no es igual a " + tipo);
+                        }
+                        break;
+                    case "id":
+                        String tipoId = SymbolTable.buscarTipo(hoja.getValor(), ambito);
+                        switch (tipoId) {
+                            case "integer":
+                                if (!tipo.equals("integer")) {
+                                    contadortipo++;
+                                    SymbolTable.getErroresSemanticos().add("error, mal uso de tipos en variable " + hoja.getValor() + " no es igual a " + tipo);
+                                }
+                                break;
+                            case "float":
+                                if (!tipo.equals("float")) {
+                                    contadortipo++;
+                                    SymbolTable.getErroresSemanticos().add("error, mal uso de tipos en variable " + hoja.getValor() + " no es igual a " + tipo);
+                                }
+                                break;
+                            case "boolean":
+                                if (!tipo.equals("boolean")) {
+                                    contadortipo++;
+                                    SymbolTable.getErroresSemanticos().add("error, mal uso de tipos en variable " + hoja.getValor() + " no es igual a " + tipo);
+                                }
+                                break;
+                        }
+                        break;
+                    default:
+                        comprobarValor(hoja, ambito, tipo);
+                        break;
+                }
+            }
+        }
+
+    }
+
+    public String comprobarLlamadoFuncion(Nodo valor, String ambito, String tipo) {
+        //System.out.println("entra llamadoFuncion");
+        if (valor.getHijos().get(1).getNombre().equals(",")) { // recorre recursivamente si encuentra una coma
+            switch (valor.getHijos().get(0).getHijos().get(0).getNombre()) {
+                case "num_int":
+                    tipo += convertirTipos("num_int") + "x";
+                    break;
+                case "numfloat":
+                    tipo += convertirTipos("numfloat") + "x";
+                    break;
+                case "boolean":
+                    tipo += "boolean" + "x";
+                    break;
+                case "id":
+                    tipo += SymbolTable.buscarTipo(valor.getHijos().get(0).getHijos().get(0).getValor(), ambito) + "x";
+                    break;
+                default:
+                    tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
+            }
+            return comprobarLlamadoFuncion(valor.getHijos().get(1), ambito, tipo);
+        } else if (valor.getHijos().get(1).getNombre().equals("Asignacion")) {
+            switch (valor.getHijos().get(0).getHijos().get(0).getNombre()) {
+                case "num_int":
+                    tipo += convertirTipos("num_int") + "x";
+                    break;
+                case "numfloat":
+                    tipo += convertirTipos("numfloat") + "x";
+                    break;
+                case "boolean":
+                    tipo += "boolean" + "x";
+                    break;
+                case "id":
+                    tipo += SymbolTable.buscarTipo(valor.getHijos().get(0).getHijos().get(0).getValor(), ambito) + "x";
+                    break;
+                default:
+                    tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
+                //System.out.println("entra precedencia");
+            }
+            switch (valor.getHijos().get(1).getHijos().get(0).getNombre()) {
+                case "num_int":
+                    tipo += convertirTipos("num_int") + "x";
+                    break;
+                case "numfloat":
+                    tipo += convertirTipos("numfloat") + "x";
+                    break;
+                case "boolean":
+                    tipo += "boolean" + "x";
+                    break;
+                case "id":
+                    tipo += SymbolTable.buscarTipo(valor.getHijos().get(1).getHijos().get(0).getValor(), ambito);
+                    break;
+                default:
+                    tipo += comprobarValorMejorado(valor.getHijos().get(1).getHijos().get(0), ambito, "");
+                //System.out.println("entró precedencia");
+            }
+        }
+        return tipo.substring(0, tipo.length() - 1);
     }
 
     public void recorrerRepeticion(Nodo padre, String valor, String tipo, String ambito) {
         if (padre.getHijos().get(1).getNombre().equals(",")) {
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            //contador++;
             SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
             recorrerRepeticion(padre.getHijos().get(1), valor, tipo, ambito);
         } else if (padre.getHijos().get(1).getNombre().equals("id")) {
@@ -960,20 +1190,20 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 }
                 recorrerDominio(hoja, id, ambito, rango);
             }
-            if (hoja.getNombre().equals("declaracion_variables")) {
-                String idDeclaracion, tipoDeclaracion;
-                if (hoja.getHijos().get(0).getValor().equals(",")) {
-                    recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), ambito + "." + id);
-                } else {
-                    idDeclaracion = hoja.getHijos().get(0).getValor();
-                    tipoDeclaracion = hoja.getHijos().get(1).getValor();
-                    //hacemos comprobacion de tipos
-                    SymbolTable.insertar2(idDeclaracion, tipoDeclaracion,
-                            "", false, false, ambito + "." + id);
-                }
-                
-                recorrerDominio(hoja, id, ambito, rango);
-            }
+//            if (hoja.getNombre().equals("declaracion_variables")) {
+//                String idDeclaracion, tipoDeclaracion;
+//                if (hoja.getHijos().get(0).getValor().equals(",")) {
+//                    recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), ambito + "." + id);
+//                } else {
+//                    idDeclaracion = hoja.getHijos().get(0).getValor();
+//                    tipoDeclaracion = hoja.getHijos().get(1).getValor();
+//                    //hacemos comprobacion de tipos
+//                    SymbolTable.insertar2(idDeclaracion, tipoDeclaracion,
+//                            "", false, false, ambito + "." + id);
+//                }
+//
+//                recorrerDominio(hoja, id, ambito, rango);
+//            }
         }
         //SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + rango, "", false, true, ambito);
     }

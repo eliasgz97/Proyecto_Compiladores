@@ -130,7 +130,10 @@ RESULT = "";
 
 S ::= E:e
 {:
-RESULT = e;
+Nodo tmp = new Nodo("Asignacion");
+tmp.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) e);
+RESULT = tmp;
 :}
 ;
 
@@ -202,31 +205,7 @@ RESULT = e;
 :}
 ;
 
-valores_numericos_booleanos ::= NUMINT:num_Int
-{:
-Nodo tmp = new Nodo("num_int");
-tmp.setValor(num_Int.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-:}
-|
-NUMFLOAT:num_float
-{:
-Nodo tmp = new Nodo("num_float");
-tmp.setValor(num_float.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-:}
-|
-ID:id
-{:
-Nodo tmp = new Nodo("id");
-tmp.setValor(id.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-:}
-|
-FALSE:f
+valores_numericos_booleanos ::= FALSE:f
 {:
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(f.toString());
@@ -279,20 +258,24 @@ System.out.println(asignacion.toString());
 |
 ASIGNACION:asignacion TRUE:t
 {:
+Nodo asign = new Nodo("Asignacion");
+asign.setNumNodo(parser.contador++);
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(t.toString());
 tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-System.out.println(asignacion.toString() + t.toString());
+asign.addHijo((Nodo) tmp);
+RESULT = asign;
 :}
 |
 ASIGNACION:asignacion FALSE:f
 {:
+Nodo asign = new Nodo("Asignacion");
+asign.setNumNodo(parser.contador++);
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(f.toString());
 tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-System.out.println(asignacion.toString() + f.toString());
+asign.addHijo((Nodo) tmp);
+RESULT = asign;
 :}
 | ASIGNACION error:r
 {:
@@ -650,7 +633,7 @@ repeticion_id:rep_id  DECLARACION  TIPOVARIABLE error:r asignar_valor_variables:
 :}
 /*--------------INICIO PRODUCCION FUNCION GENERAL-----------------*/
 |
-funcion:func parametros_funcion:pmF BEG:b Variables:v
+funcion:func Variables:pmF BEG:b Variables:v
 {:
 Nodo tmp = new Nodo("declaracion_global");
 tmp.setNumNodo(parser.contador++);
@@ -804,7 +787,7 @@ tmp.addHijo((Nodo)inicializar);
 RESULT = tmp;
 :}
 |
-funcion:func parametros_funcion:pmF BEG:b
+funcion:func Variables:pmF BEG:b
 {:
 Nodo funcion = (Nodo) func;
 funcion.setNumNodo(parser.contador++);
@@ -1051,6 +1034,18 @@ tmp.addHijo((Nodo) c);
 RESULT = tmp;
 :}
 |
+RETURN:rt S:valNumBool SEMICOLON:semiRT cuerpo:c
+{:
+Nodo tmp = new Nodo ("nueva_linea");
+tmp.setNumNodo(parser.contador++);
+Nodo hijoReturn = new Nodo("return");
+hijoReturn.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) hijoReturn);
+tmp.addHijo((Nodo) valNumBool);
+tmp.addHijo((Nodo) c);
+RESULT = tmp;
+:}
+|
 RETURN:rt valores_numericos_booleanos:valNumBool SEMICOLON:semiRT cuerpo:c
 {:
 Nodo tmp = new Nodo ("nueva_linea");
@@ -1063,14 +1058,14 @@ tmp.addHijo((Nodo) c);
 RESULT = tmp;
 :}
 |
-error:r valores_numericos_booleanos:valNumBool SEMICOLON:semiRT cuerpo:c
+S:valNumBool SEMICOLON:semiRT error:r cuerpo:c
 {:
     parser.errores.add("Return no encontrado" + " | linea"+(rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 |
-RETURN valores_numericos_booleanos:valNumBool error:r cuerpo:c
+RETURN S:valNumBool error:r cuerpo:c
 {:
     parser.errores.add("Fin de linea [;] esperado " +" | linea"+ (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
@@ -1163,65 +1158,92 @@ parser.errores.add("Cuerpo no puede ser vacio " +" | linea "+ (rright+1) + " col
 
 fin_cuerpo ::= for_loop:forLoop
 {:
+Nodo nuevaLinea = new Nodo("nueva_linea");
+nuevaLinea.setNumNodo(parser.contador++);
 Nodo cuerpo = (Nodo) forLoop;
 cuerpo.setNumNodo(parser.contador++);
-RESULT = cuerpo;
+nuevaLinea.addHijo((Nodo) cuerpo);
+RESULT = nuevaLinea;
 :}
 |
 while_loop:whileLoop
 {:
+Nodo nuevaLinea = new Nodo("nueva_linea");
+nuevaLinea.setNumNodo(parser.contador++);
 Nodo cuerpo = (Nodo) whileLoop;
 cuerpo.setNumNodo(parser.contador++);
-RESULT = cuerpo;
+nuevaLinea.addHijo((Nodo) cuerpo);
+RESULT = nuevaLinea;
 :}
 |
 loop_func:loopFunc
 {:
+Nodo nuevaLinea = new Nodo("nueva_linea");
+nuevaLinea.setNumNodo(parser.contador++);
 Nodo cuerpo = (Nodo) loopFunc;
 cuerpo.setNumNodo(parser.contador++);
-RESULT = cuerpo;
+nuevaLinea.addHijo((Nodo) cuerpo);
+RESULT = nuevaLinea;
 :}
 |
 put_function:putFunc
 {:
+Nodo nuevaLinea = new Nodo("nueva_linea");
+nuevaLinea.setNumNodo(parser.contador++);
 Nodo cuerpo = (Nodo) putFunc;
 cuerpo.setNumNodo(parser.contador++);
-RESULT = cuerpo;
+nuevaLinea.addHijo((Nodo) cuerpo);
+RESULT = nuevaLinea;
 :}
 |
 get_function:getFunc
 {:
+Nodo nuevaLinea = new Nodo("nueva_linea");
+nuevaLinea.setNumNodo(parser.contador++);
 Nodo cuerpo = (Nodo) getFunc;
 cuerpo.setNumNodo(parser.contador++);
-RESULT = cuerpo;
+nuevaLinea.addHijo((Nodo) cuerpo);
+RESULT = nuevaLinea;
 :}
 |
 bloque_if:bloqueIf
 {:
+Nodo nuevaLinea = new Nodo("nueva_linea");
+nuevaLinea.setNumNodo(parser.contador++);
 Nodo cuerpo = (Nodo) bloqueIf;
 cuerpo.setNumNodo(parser.contador++);
-RESULT = cuerpo;
+nuevaLinea.addHijo((Nodo) cuerpo);
+RESULT = nuevaLinea;
 :}
 |
 asignar_valor:asignar
 {:
+Nodo nuevaLinea = new Nodo("nueva_linea");
+nuevaLinea.setNumNodo(parser.contador++);
 Nodo cuerpo = (Nodo) asignar;
 cuerpo.setNumNodo(parser.contador++);
-RESULT = cuerpo;
+nuevaLinea.addHijo((Nodo) cuerpo);
+RESULT = nuevaLinea;
 :}
 |
 BEG:b
 {:
+Nodo nuevaLinea = new Nodo("nueva_linea");
+nuevaLinea.setNumNodo(parser.contador++);
 Nodo cuerpo = (Nodo) b;
 cuerpo.setNumNodo(parser.contador++);
-RESULT = cuerpo;
+nuevaLinea.addHijo((Nodo) cuerpo);
+RESULT = nuevaLinea;
 :}
 |
 llamado_funcion:llamadoF SEMICOLON:semi
 {:
+Nodo nuevaLinea = new Nodo("nueva_linea");
+nuevaLinea.setNumNodo(parser.contador++);
 Nodo cuerpo = (Nodo) llamadoF;
 cuerpo.setNumNodo(parser.contador++);
-RESULT = cuerpo;
+nuevaLinea.addHijo((Nodo) cuerpo);
+RESULT = nuevaLinea;
 :}
 |
 llamado_funcion:llamadoF error:r
@@ -1233,9 +1255,23 @@ llamado_funcion:llamadoF error:r
 |
 exit_when:exitWhen
 {:
+Nodo nuevaLinea = new Nodo("nueva_linea");
+nuevaLinea.setNumNodo(parser.contador++);
 Nodo cuerpo = (Nodo) exitWhen;
 cuerpo.setNumNodo(parser.contador++);
-RESULT = cuerpo; 
+nuevaLinea.addHijo((Nodo) cuerpo);
+RESULT = nuevaLinea;
+:}
+|
+RETURN:rt S:valNumBool SEMICOLON:semiRT
+{:
+Nodo tmp = new Nodo ("nueva_linea");
+tmp.setNumNodo(parser.contador++);
+Nodo hijoReturn = new Nodo("return");
+hijoReturn.setNumNodo(parser.contador++);
+tmp.addHijo((Nodo) hijoReturn);
+tmp.addHijo((Nodo) valNumBool);
+RESULT = tmp;
 :}
 |
 RETURN:rt valores_numericos_booleanos:valNumBool SEMICOLON:semiRT
@@ -1249,14 +1285,7 @@ tmp.addHijo((Nodo) valNumBool);
 RESULT = tmp;
 :}
 |   
-error:r valores_numericos_booleanos:valNumBool SEMICOLON:semiRT
-{:
-    parser.errores.add("Return no encontrado" + (rright+1) + " columna " +(rleft+1) +" |");  
-    Nodo errorcito= new Nodo("error");
-    RESULT=errorcito;
-:}
-|   
-RETURN valores_numericos_booleanos:valNumBool error:r
+RETURN error:r valores_numericos_booleanos:valNumBool
 {:
     parser.errores.add("Fin de linea [;] esperado" + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
@@ -1267,7 +1296,7 @@ RETURN valores_numericos_booleanos:valNumBool error:r
 operando1 ::= NUMINT:num
 {:
 System.out.println(num.toString());
-Nodo tmp = new Nodo ("num");
+Nodo tmp = new Nodo ("num_int");
 tmp.setNumNodo(parser.contador++);
 tmp.setValor(num.toString());
 RESULT = tmp;
@@ -1302,7 +1331,7 @@ RESULT = tmp;
 |
 NUMFLOAT:nfloat
 {:
-Nodo tmp = new Nodo("num_float");
+Nodo tmp = new Nodo("numfloat");
 tmp.setValor(nfloat.toString());
 tmp.setNumNodo(parser.contador++);
 RESULT = tmp;
@@ -1453,7 +1482,7 @@ RESULT = hijoIf;
 
 put_function ::= PUT:p PARIZQ:par_izquierdo STRING:cadena PARDER:par_derecho SEMICOLON:semi
 {:
-Nodo nodoPut = new Nodo ("put");
+Nodo nodoPut = new Nodo ("put_string");
 nodoPut.setNumNodo(parser.contador++);
 nodoPut.setValor(cadena.toString().substring(1, cadena.toString().length() - 1));
 RESULT = nodoPut;
@@ -1480,21 +1509,21 @@ PUT PARIZQ STRING error:r SEMICOLON:semi
     RESULT=errorcito;
 :}
 |
-error:r PARIZQ:par_izquierdo valores_numericos_booleanos PARDER:par_derecho SEMICOLON:semi
+error:r PARIZQ:par_izquierdo S:s PARDER:par_derecho SEMICOLON:semi
 {:
     parser.errores.add("Palabra put esperada" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 |
-PUT error:r valores_numericos_booleanos PARDER:par_derecho SEMICOLON:semi
+PUT error:r S:s PARDER:par_derecho SEMICOLON:semi
 {:
     parser.errores.add("Parentesis izquierdo [(] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 |
- PUT PARIZQ valores_numericos_booleanos error:r SEMICOLON:semi
+ PUT PARIZQ S:s error:r SEMICOLON:semi
 {:
     parser.errores.add("Parentesis derecho [)] esperado" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
@@ -1536,7 +1565,7 @@ PUT PARIZQ  STRING:cadena PARDER error:r
     RESULT=errorcito;
 :}
 |
-PUT PARIZQ valores_numericos_booleanos:valNumBool PARDER error:r
+PUT PARIZQ S:valNumBool PARDER error:r
 {:
     parser.errores.add("Fin de linea [;] esperado " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
@@ -1550,12 +1579,12 @@ PUT PARIZQ llamado_funcion:llamadoF PARDER error:r
     RESULT=errorcito;
 :}
 |
-PUT:p PARIZQ:par_izquierdo valores_numericos_booleanos:valNumBool PARDER:par_derecho SEMICOLON:semi
+PUT:p PARIZQ:par_izquierdo S:valNumBool PARDER:par_derecho SEMICOLON:semi
 {:
 Nodo nodoPut = new Nodo ("put");
 nodoPut.setNumNodo(parser.contador++);
 Nodo tmp2 = (Nodo) valNumBool;
-nodoPut.setValor(tmp2.getValor());
+nodoPut.addHijo((Nodo) tmp2);
 RESULT = nodoPut;
 :}
 |
@@ -1580,7 +1609,7 @@ tmp.addHijo((Nodo) hijoId);
 tmp.addHijo((Nodo) rep_param);
 RESULT = tmp;
 :}
-|
+/*|
 PARIZQ:par_izq repeticion_parametros:rep_param PARDER:par_der error:r 
 {:
     parser.errores.add("Id de llamado de funcion faltante " + " | linea " + (rright+1) + " columna " +(rleft-2) +" |");  
@@ -1594,6 +1623,7 @@ ID repeticion_parametros:rep_param PARDER:par_der error:r
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
+*/
 |
  ID PARIZQ repeticion_parametros:rep_param error:r 
 {:
@@ -1620,44 +1650,29 @@ RESULT = tmp;
 :}
 ;
 
-valores_funcion ::= NUMINT:num
+valores_funcion ::= S:s
 {:
-Nodo tmp = new Nodo("num_int");
-tmp.setValor(num.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-:}
-|
-ID:id
-{:
-Nodo tmp = new Nodo("id");
-tmp.setValor(id.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
-:}
-|
-NUMFLOAT:nfloat
-{:
-Nodo tmp = new Nodo("num_float");
-tmp.setValor(nfloat.toString());
-tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
+RESULT = s;
 :}
 |
 TRUE:t
 {:
+Nodo assign = new Nodo ("Asignacion");
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(t.toString());
 tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
+assign.addHijo((Nodo) tmp);
+RESULT = assign;
 :}
 |
 FALSE:f
 {:
+Nodo assign = new Nodo ("Asignacion");
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(f.toString());
 tmp.setNumNodo(parser.contador++);
-RESULT = tmp;
+assign.addHijo((Nodo) tmp);
+RESULT = assign;
 :}
 ;
 
@@ -1689,9 +1704,16 @@ GET PARIZQ ID:id error:r SEMICOLON:semi
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
+|
+GET PARIZQ error:r PARDER SEMICOLON:semi
+{:
+    parser.errores.add("Se esperaba un identificador " + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");  
+    Nodo errorcito= new Nodo("error");
+    RESULT=errorcito;
+:}
 ;
 
-for_loop ::= FOR:f ID:id IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+for_loop ::= FOR:f ID:id IN:i S:op1 DOSPUNTOS:puntos S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {:
 Nodo nodoFor = new Nodo ("for");
 nodoFor.setNumNodo(parser.contador++);
@@ -1705,7 +1727,7 @@ nodoFor.addHijo((Nodo) c);
 RESULT = nodoFor;
 :}
 | 
-error:r ID:id IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+error:r ID:id IN:i S:op1 DOSPUNTOS:puntos S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
     System.out.println("Entra for sin cabaeza");
     parser.errores.add("Palabra for faltante " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
@@ -1713,7 +1735,7 @@ error:r ID:id IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerp
     RESULT=errorcito;
 :}
 | 
-FOR error:r IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+FOR error:r IN:i S:op1 DOSPUNTOS:puntos S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
     System.out.println("Entra for sin id");
     parser.errores.add("Id faltante para for" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
@@ -1721,7 +1743,7 @@ FOR error:r IN:i operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:
     RESULT=errorcito;
 :}
 | 
-FOR ID error:r  operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+FOR ID error:r  S:op1 DOSPUNTOS:puntos S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
     System.out.println("Palabra in faltante para for");
     parser.errores.add("Palabra in faltante para for" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
@@ -1729,34 +1751,35 @@ FOR ID error:r  operando1:op1 DOSPUNTOS:puntos operando1:op1_2 LOOP:lp1 cuerpo:c
     RESULT=errorcito;
 :}
 | 
-error:r FOR ID IN  operando1:op1  operando1:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+error:r FOR ID IN  S:op1  S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
     parser.errores.add("Simbolo [..] faltante entre operandos" + " | linea " + (rright+1) + " columna " +(rleft+4) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 | 
-FOR ID IN  operando1:op1 DOSPUNTOS operando1:op1_2 error:r cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
+FOR ID IN  S:op1 DOSPUNTOS S:op1_2 error:r cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
     parser.errores.add("Palabra Loop faltante" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 | 
-FOR ID IN  operando1:op1 DOSPUNTOS operando1:op1_2 LOOP cuerpo:c END LOOP error:r
+FOR ID IN  S:op1 DOSPUNTOS S:op1_2 LOOP cuerpo:c END LOOP error:r
 {: 
     parser.errores.add("Fin de linea [;] esperado " + " |linea "+(rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 | 
-FOR ID IN  operando1:op1 DOSPUNTOS operando1:op1_2 LOOP cuerpo:c END error:r SEMICOLON
+FOR ID IN  S:op1 DOSPUNTOS S:op1_2 LOOP cuerpo:c END error:r SEMICOLON
 {: 
     parser.errores.add("End Loop faltante " + " |linea "+(rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
 ;
+
 
 while_loop ::= WHILE:wh condicion_if:cond_while LOOP:lp cuerpo:c END:e LOOP:lp1 SEMICOLON:semi
 {:

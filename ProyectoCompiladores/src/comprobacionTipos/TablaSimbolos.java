@@ -180,8 +180,21 @@ public class TablaSimbolos {
             }
         }
         if (tipo.equals("error, la variable no ha sido encontrada")) {
-            String tipoError = "error, la variable " + nombre + " no ha sido encontrada";
+            String tipoError = "error, el identificador " + nombre + " no ha sido encontrado";
             erroresSemanticos.add(tipoError);
+        }
+        return tipo;
+    }
+    
+    static public String buscarDominio (String tipo) {
+        tipo = tipo.trim();
+        //System.out.println(tipo+"tipo sin espacios");
+        for (int i = 0; i < tipo.length(); i++) {
+            if (tipo.charAt(i) == '-') {
+                tipo = tipo.substring(0, i - 1);
+                //System.out.println(tipo + "tipo Dominio");
+                break;
+            }
         }
         return tipo;
     }
