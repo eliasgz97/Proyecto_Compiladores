@@ -865,11 +865,20 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     comprobarValor(hoja.getHijos().get(2), ambito, "integer");
                 }
                 if (hoja.getNombre().equals("while")) {
-                    System.out.println("Hay un while");
+                    //System.out.println("Hay un while");
+                    if (hoja.getHijos().get(0).getNombre().equals("and") || hoja.getHijos().get(0).getNombre().equals("or")) {
+                        Booleanos(hoja.getHijos().get(0), ambito);
+                    } else {
+                        comprobarValorMejorado(hoja.getHijos().get(0), ambito, "");
+                    }
                 }
                 if (hoja.getNombre().equals("exit-when")) {
-                    System.out.println("Hay un exit-when");
-                }// NUEVO PUSH
+                    if (hoja.getHijos().get(0).getNombre().equals("and") || hoja.getHijos().get(0).getNombre().equals("or")) {
+                        Booleanos(hoja.getHijos().get(0), ambito);
+                    } else {
+                        comprobarValorMejorado(hoja.getHijos().get(0), ambito, "");
+                    }
+                }
                 if (hoja.getNombre().equals("put")) {
                     if (hoja.getHijos().get(0).getHijos().get(0).getHijos().size() > 1) {
                         String tipoPut = comprobarValorMejorado(hoja.getHijos().get(0).getHijos().get(0), ambito, "");
@@ -893,9 +902,18 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     }
                 }
                 if (hoja.getNombre().equals("if-then")) {
-                    System.out.println("Hay un if-then ");
-                    Booleanos(hoja.getHijos().get(0), ambito);
-                    System.out.println("sale if-then");
+                    if (hoja.getHijos().get(0).getNombre().equals("and") || hoja.getHijos().get(0).getNombre().equals("or")) {
+                        Booleanos(hoja.getHijos().get(0), ambito);
+                    } else {
+                        comprobarValorMejorado(hoja.getHijos().get(0), ambito, "");
+                    }
+                }
+                if (hoja.getNombre().equals("elsif-then")) {
+                    if (hoja.getHijos().get(0).getNombre().equals("and") || hoja.getHijos().get(0).getNombre().equals("or")) {
+                        Booleanos(hoja.getHijos().get(0), ambito);
+                    } else {
+                        comprobarValorMejorado(hoja.getHijos().get(0), ambito, "");
+                    }
                 }
                 if (hoja.getNombre().equals("return")) {
                     handleReturn++;
@@ -952,11 +970,12 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 if (hoja.getNombre().equals("and") || hoja.getNombre().equals("or")) {
                     Booleanos(hoja, ambito);
                 } else {
-                    String tipoEval=convertirTipos(hoja.getHijos().get(0).getNombre());
-                    if(hoja.getHijos().get(0).getNombre().equals("id")){
-                        tipoEval= SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
-                    }
-                    comprobarValorMejorado(hoja, ambito, tipoEval);
+                    /*String tipoEval = convertirTipos(hoja.getHijos().get(0).getNombre());
+                    if (hoja.getHijos().get(0).getNombre().equals("id")) {
+                        tipoEval = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
+                    }*/
+                    comprobarValorMejorado(hoja, ambito, "");
+                    //System.out.println("booleanos booleanos booleanos");
                 }
             }
         }
@@ -964,11 +983,10 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
     public String comprobarValorMejorado(Nodo padre, String ambito, String tipo) {
         if ((padre.getHijos().get(0).getNombre().equals("num_int") || padre.getHijos().get(0).getNombre().equals("numfloat")
-                || padre.getHijos().get(0).getNombre().equals("id"))
+                || padre.getHijos().get(0).getNombre().equals("id") || padre.getHijos().get(0).getNombre().equals("boolean"))
                 && (padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
-                || padre.getHijos().get(1).getNombre().equals("id"))) { //caso base, busca si ambos nodos son un número
+                || padre.getHijos().get(1).getNombre().equals("id") || padre.getHijos().get(1).getNombre().equals("boolean"))) { //caso base, busca si ambos nodos son un número
             String tipo1, tipo2;
-            System.out.println("entra caso base");
             if (padre.getHijos().get(0).getNombre().equals("id")) { // busca en caso de id
                 tipo1 = SymbolTable.buscarTipo(padre.getHijos().get(0).getValor(), ambito);
             } else {
@@ -990,9 +1008,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
             }
         }
         if (!(padre.getHijos().get(0).getNombre().equals("num_int") || padre.getHijos().get(0).getNombre().equals("numfloat")//si el de la izquierda no es un número
-                || padre.getHijos().get(0).getNombre().equals("id"))
+                || padre.getHijos().get(0).getNombre().equals("id") || padre.getHijos().get(0).getNombre().equals("boolean"))
                 && !(padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
-                || padre.getHijos().get(1).getNombre().equals("id"))) {//y el de la derecha tampoco es un número 
+                || padre.getHijos().get(1).getNombre().equals("id") || padre.getHijos().get(1).getNombre().equals("boolean"))) {//y el de la derecha tampoco es un número 
             String tipo1 = convertirTipos(comprobarValorMejorado(padre.getHijos().get(0), ambito, ""));//busca los tipos
             String tipo2 = convertirTipos(comprobarValorMejorado(padre.getHijos().get(1), ambito, ""));
             if (tipo1.equals(tipo2) && (!tipo1.contains("error"))) { // evalúa si los tipos encontrados son iguales y no son error
@@ -1005,9 +1023,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
             }
         }
         if (!(padre.getHijos().get(0).getNombre().equals("num_int") || padre.getHijos().get(0).getNombre().equals("numfloat")
-                || padre.getHijos().get(0).getNombre().equals("id")) //si el de la izquierda no es un número
+                || padre.getHijos().get(0).getNombre().equals("id") || padre.getHijos().get(0).getNombre().equals("boolean")) //si el de la izquierda no es un número
                 && (padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
-                || padre.getHijos().get(1).getNombre().equals("id"))) {
+                || padre.getHijos().get(1).getNombre().equals("id") || padre.getHijos().get(1).getNombre().equals("boolean"))) {
             String tipo1 = comprobarValorMejorado(padre.getHijos().get(0), ambito, ""); //busca tipo del nodo izquierdo
             String tipo2 = "";
             if (padre.getHijos().get(1).getNombre().equals("id")) { //busca en caso de id
@@ -1025,9 +1043,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
             }
         }
         if ((padre.getHijos().get(0).getNombre().equals("num_int") || padre.getHijos().get(0).getNombre().equals("numfloat")
-                || padre.getHijos().get(0).getNombre().equals("id"))
+                || padre.getHijos().get(0).getNombre().equals("id") || padre.getHijos().get(0).getNombre().equals("boolean"))
                 && !(padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
-                || padre.getHijos().get(1).getNombre().equals("id"))) { //si no es un número
+                || padre.getHijos().get(1).getNombre().equals("id") || padre.getHijos().get(1).getNombre().equals("boolean"))) { //si no es un número
             String tipo2 = comprobarValorMejorado(padre.getHijos().get(1), ambito, "");//busca tipo
             String tipo1;
             if (padre.getHijos().get(0).getNombre().equals("id")) { // busca en caso de id

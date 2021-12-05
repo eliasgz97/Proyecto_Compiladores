@@ -427,7 +427,6 @@ RESULT = tmp;
 /*-------------------------------PARAMETROS FUNCION--------------------------------------------*/
 parametros_funcion ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi parametros_funcion:paramF
 {:
-System.out.println("entra");
 Nodo tmp = new Nodo("declaracion_variables");
 tmp.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) rep_id);
@@ -1008,7 +1007,6 @@ RESULT = tmp;
 
 cuerpo ::= for_loop:forLoop cuerpo:c
 {:
-System.out.println("entra for cuerpo");
 Nodo tmp = new Nodo("nueva_linea");
 tmp.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) forLoop);
@@ -1430,7 +1428,6 @@ error:r
 
 elseif_else ::= ELSIF:elif condicion_if:cond_elif THEN:then cuerpo:c elseif_else:elif_else
 {:
-System.out.println("entra elsif");
 Nodo elsif = new Nodo ("elsif-then");
 elsif.setNumNodo(parser.contador++);
 elsif.addHijo((Nodo) cond_elif);
@@ -1441,7 +1438,6 @@ RESULT = elsif;
 |
 ELSE:else1 cuerpo:c END:end_if IF:if2 SEMICOLON:semi
 {:
-System.out.println("entra if con else");
 Nodo hijoElse = new Nodo ("else");
 hijoElse.setNumNodo(parser.contador++);
 hijoElse.addHijo((Nodo) c);
@@ -1453,7 +1449,6 @@ RESULT = hijoElse;
 
 bloque_if ::= IF:i condicion_if:cond_if THEN:then cuerpo:c elseif_else:el_if
 {:
-System.out.println("entra if elsif");
 Nodo hijoIf = new Nodo ("if-then");
 hijoIf.setNumNodo(parser.contador++);
 hijoIf.addHijo((Nodo) cond_if);
@@ -1471,7 +1466,6 @@ error:r condicion_if:cond_if THEN:then cuerpo:c elseif_else:el_if
 |
 IF:i condicion_if:cond_if THEN:then cuerpo:c END:end_if IF:if1 SEMICOLON:semi
 {:
-System.out.println("entra if elsif");
 Nodo hijoIf = new Nodo ("if-then");
 hijoIf.setNumNodo(parser.contador++);
 hijoIf.addHijo((Nodo) cond_if);
@@ -1729,7 +1723,6 @@ RESULT = nodoFor;
 | 
 error:r ID:id IN:i S:op1 DOSPUNTOS:puntos S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
-    System.out.println("Entra for sin cabaeza");
     parser.errores.add("Palabra for faltante " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
@@ -1737,7 +1730,6 @@ error:r ID:id IN:i S:op1 DOSPUNTOS:puntos S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:l
 | 
 FOR error:r IN:i S:op1 DOSPUNTOS:puntos S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
-    System.out.println("Entra for sin id");
     parser.errores.add("Id faltante para for" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;

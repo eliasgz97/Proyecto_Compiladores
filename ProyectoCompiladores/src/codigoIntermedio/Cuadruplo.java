@@ -74,6 +74,13 @@ public class Cuadruplo {
             retval += "     " + result + " = " + args1 + " " + operator + " " + args2;
         } else if (operator.equals("=")) {
             retval += "     " + result + " = " + args1;
+        } else if (operator.contains("IF")) {
+            String temp_op = operator.replace("IF", "");
+            retval += "     if " + args1 + temp_op + args2 + " " + result;
+        } else if (operator.startsWith("ETIQ")) {
+            retval += args1 + ": ";
+        } else if (operator.equals("GOTO")) {
+            retval += "     goto " + args1;
         }
         return retval;
     }

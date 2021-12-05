@@ -239,6 +239,30 @@ public class Nodo {
     public void setComienzo(String comienzo) {
         this.comienzo = comienzo;
     }
+    
+    public Nodo getElement() {
+        try {
+            return hijos.get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public Nodo getLeft() {
+        try {
+            return hijos.get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Nodo getRight() {
+        try {
+            return hijos.get(1);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     public Nodo() {
 
