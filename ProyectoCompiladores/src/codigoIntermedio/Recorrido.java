@@ -80,7 +80,7 @@ public class Recorrido {
                     }
                 } else if (hoja.getNombre().equals("put_string")) {
                     cuadruplos.generarCuadruplo("=", hoja.getValor(),
-                                        "", "print");
+                            "", "print");
                 }
                 if (hoja.getNombre().equals("if-then")) {
                     hoja.siguiente = cuadruplos.etiquetaNueva();
@@ -92,9 +92,41 @@ public class Recorrido {
                     genCuadruploWhile(hoja);
                     cuadruplos.generarCuadruplo("ETIQUE", hoja.siguiente, "", "");
                 }
+                if (hoja.getNombre().equals("for")) {
+                    hoja.siguiente = cuadruplos.etiquetaNueva();
+                    genCuadruploFor(hoja);
+                    cuadruplos.generarCuadruplo("ETIQ", hoja.siguiente, "", "");
+                    hoja.getHijos().get(1).setVisitado2(true);
+                    hoja.getHijos().get(2).setVisitado2(true);
+                }
                 recorrer(hoja);
             }
         }
+    }
+
+    public void genCuadruploFor(Nodo n) {
+        if (n.getHijos().get(1).getHijos().get(0).getNombre().equals("num_int")) {
+            System.out.println("entra num int for");
+            cuadruplos.generarCuadruplo("=", n.getHijos().get(1).getHijos().get(0).getValor(),
+                    "", n.getHijos().get(0).getValor());
+            //n.getHijos().getsetVisitado2(true);
+        } else {
+            recorrerAsignacion(n);
+            cuadruplos.generarCuadruplo("=", cuadruplos.getLastTemp(), "", n.getHijos().get(0).getValor());
+            //n.setVisitado2(true);
+        }
+        n.comienzo = cuadruplos.etiquetaNueva();
+        n.verdadera = cuadruplos.etiquetaNueva();
+        cuadruplos.generarCuadruplo("ETIQ", n.comienzo, "", "");
+        cuadruplos.generarCuadruplo("IF<=", n.getHijos().get(0).getValor(), n.getHijos().get(2).getHijos().get(0).getValor(), "GOTO " + n.verdadera);
+        cuadruplos.generarCuadruplo("GOTO", n.siguiente, "", "");
+        cuadruplos.generarCuadruplo("ETIQ", n.verdadera, "", "");
+        n.getHijos().get(3).siguiente = cuadruplos.etiquetaNueva();
+        recorrer(n.getHijos().get(3));
+        //n.getHijos().get(3).setVisitado2(true);
+        cuadruplos.generarCuadruplo("+", n.getHijos().get(0).getValor(), "1", cuadruplos.temporalNuevo());
+        cuadruplos.generarCuadruplo("=", cuadruplos.getLastTemp(), "", n.getHijos().get(0).getValor());
+        cuadruplos.generarCuadruplo("GOTO", n.comienzo, "", "");
     }
 
     public void genCuadruploWhile(Nodo n) {
@@ -198,16 +230,12 @@ public class Recorrido {
             n.getRight().setVisitado2(true);
         } else {
             n.setVisitado2(true);
-            generarExpresion(n);
+            String etiquv = n.verdadera;
+            String etiquf = n.falsa;
+            //System.out.println(n.getNombre());
+            cuadruplos.generarCuadruplo("IF" + n.getNombre(), n.getHijos().get(0).getValor(), n.getHijos().get(1).getValor(), "GOTO " + etiquv);
+            cuadruplos.generarCuadruplo("GOTO", etiquf, "", "");
         }
-    }
-
-    public void generarExpresion(Nodo n) {
-        String etiquv = n.verdadera;
-        String etiquf = n.falsa;
-        //System.out.println(n.getNombre());
-        cuadruplos.generarCuadruplo("IF" + (n).getNombre(), n.getHijos().get(0).getValor(), n.getHijos().get(1).getValor(), "GOTO " + etiquv);
-        cuadruplos.generarCuadruplo("GOTO", etiquf, "", "");
     }
 
     public void imprimirTabla() {
