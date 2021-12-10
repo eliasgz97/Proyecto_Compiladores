@@ -16,20 +16,30 @@ public class Simbolo {
     public Boolean tipoConstante;
     public Boolean isFunction;
     public String ambito;
+    public int offset;
 
-    public Simbolo(String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito) {
+    public Simbolo(String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito, int offset) {
         this.nombre = nombre;
         this.tipoVariable = tipoVariable;
         this.valor = valor;
         this.tipoConstante = tipoConstante;
         this.isFunction = isFunction;
         this.ambito = ambito;
+        this.offset = offset;
     }
 
     public Simbolo() {
 
     }
 
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+    
     public String getNombre() {
         return this.nombre;
     }

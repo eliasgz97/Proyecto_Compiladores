@@ -253,7 +253,6 @@ RESULT = hijo;
 asignar_valor_variables ::= ASIGNACION:asignacion S:s
 {:
 RESULT = s;
-System.out.println(asignacion.toString());
 :}
 |
 ASIGNACION:asignacion TRUE:t
@@ -277,7 +276,18 @@ tmp.setNumNodo(parser.contador++);
 asign.addHijo((Nodo) tmp);
 RESULT = asign;
 :}
-| ASIGNACION error:r
+|
+ASIGNACION:asignacion llamado_funcion:funCall
+{:
+Nodo assign = new Nodo ("Asignacion");
+assign.setNumNodo(parser.contador++);
+Nodo func_call = new Nodo ();
+func_call = (Nodo) funCall;
+assign.addHijo((Nodo) func_call);
+RESULT = assign;
+:}
+| 
+ASIGNACION error:r
 {:
     parser.errores.add("Valor esperado para asignacion" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");
     Nodo errorcito= new Nodo("error");
@@ -962,7 +972,6 @@ RESULT = tmp;
 | 
 ID:id ASIGNACION:asignacion FALSE:f SEMICOLON:semi
 {:
-System.out.println(id.toString() + asignacion.toString() + f.toString());
 Nodo tmp = new Nodo ("asignar_valor");
 tmp.setNumNodo(parser.contador++);
 Nodo hijoId = new Nodo("id");
@@ -987,7 +996,24 @@ tmp.addHijo((Nodo) hijoId);
 tmp.addHijo((Nodo) s1);
 RESULT = tmp;
 :}
+|
+ID:id ASIGNACION:asignacion llamado_funcion:func_call SEMICOLON:semi
+{:
+Nodo tmp = new Nodo ("asignar_valor");
+tmp.setNumNodo(parser.contador++);
+Nodo hijoId = new Nodo("id");
+hijoId.setNumNodo(parser.contador++);
+hijoId.setValor(id.toString());
+tmp.addHijo((Nodo) hijoId);
+Nodo funCall = new Nodo ("Asignacion");
+funCall.setNumNodo(parser.contador++);
+funCall.addHijo((Nodo) func_call);
+tmp.addHijo((Nodo) funCall);
+RESULT = tmp;
+:}
 ;
+
+
 
 BEG ::= BEGIN:bgn cuerpo:c END:end end_id:endId SEMICOLON:semi
 {:
@@ -1625,6 +1651,18 @@ ID repeticion_parametros:rep_param PARDER:par_der error:r
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
+/*|
+ID:id
+{:
+Nodo tmp = new Nodo ("llamado_funcion");
+tmp.setNumNodo(parser.contador++);
+Nodo hijoId = new Nodo ("id");
+hijoId.setNumNodo(parser.contador++);
+hijoId.setValor(id.toString());
+tmp.addHijo((Nodo) hijoId);
+RESULT = tmp;
+:}
+*/
 ;
 
 repeticion_parametros ::= valores_funcion:vf COMA:c repeticion_parametros:repParam
@@ -1652,6 +1690,7 @@ RESULT = s;
 TRUE:t
 {:
 Nodo assign = new Nodo ("Asignacion");
+assign.setNumNodo(parser.contador++);
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(t.toString());
 tmp.setNumNodo(parser.contador++);
@@ -1661,12 +1700,13 @@ RESULT = assign;
 |
 FALSE:f
 {:
-Nodo assign = new Nodo ("Asignacion");
+Nodo assign1 = new Nodo ("Asignacion");
+assign1.setNumNodo(parser.contador++);
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(f.toString());
 tmp.setNumNodo(parser.contador++);
-assign.addHijo((Nodo) tmp);
-RESULT = assign;
+assign1.addHijo((Nodo) tmp);
+RESULT = assign1;
 :}
 ;
 

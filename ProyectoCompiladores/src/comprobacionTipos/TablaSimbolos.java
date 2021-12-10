@@ -64,7 +64,7 @@ public class TablaSimbolos {
         tablaSimbolos.set(pos, s);
     }
 
-    static public Simbolo insertar2(String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean tipoFuncion, String ambito) {
+    static public Simbolo insertar2(String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean tipoFuncion, String ambito, int offset) {
         Simbolo simbolo = null;
         boolean existe = false;
         for (Simbolo s : tablaSimbolos) {
@@ -75,7 +75,7 @@ public class TablaSimbolos {
         }
         // La variable no existe
         if (!existe) {
-            simbolo = new Simbolo(nombre, tipoVariable, valor.toString(), tipoConstante, tipoFuncion, ambito);
+            simbolo = new Simbolo(nombre, tipoVariable, valor.toString(), tipoConstante, tipoFuncion, ambito, offset);
             System.out.println("Agregando a tabla de simbolos con nombre: " + nombre);
             tablaSimbolos.add(simbolo);
             // System.out.println("Variable creada exitosamente!!!");
@@ -101,7 +101,7 @@ public class TablaSimbolos {
         }
     }
 
-    static public Simbolo crear(String nombre, String tipoVariable, Boolean constante, Boolean function) {
+    static public Simbolo crear(String nombre, String tipoVariable, Boolean constante, Boolean function, int offset) {
         Simbolo simbolo = null;
         // Validar si existe
         boolean existe = false;
@@ -113,7 +113,7 @@ public class TablaSimbolos {
         }
         // La variable no existe
         if (!existe) {
-            simbolo = new Simbolo(nombre, tipoVariable, null, constante, function, "");
+            simbolo = new Simbolo(nombre, tipoVariable, null, constante, function, "", offset);
             System.out.println("Agregando a tabla de simbolos con nombre: " + nombre);
             tablaSimbolos.add(simbolo);
             // System.out.println("Variable creada exitosamente!!!");
@@ -175,7 +175,6 @@ public class TablaSimbolos {
                     break;
                 }
             } else {
-                System.out.println("entra else");
                 tipo = "error, la variable no ha sido encontrada";
             }
         }
@@ -197,6 +196,18 @@ public class TablaSimbolos {
             }
         }
         return tipo;
+    }
+    
+    static public String buscarRetorno (String tipo) {
+        //System.out.println(tipo+"tipo sin espacios");
+        for (int i = 0; i < tipo.length(); i++) {
+            if (tipo.charAt(i) == '-') {
+                tipo = tipo.substring(i+2, tipo.length());
+                //System.out.println(tipo + "tipo Dominio");
+                break;
+            }
+        }
+        return tipo.trim();
     }
 
     static public String buscarTipo(String nombre) {

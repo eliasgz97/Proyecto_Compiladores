@@ -480,6 +480,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jd_compilador.pack();
         jd_compilador.setVisible(true);
         jd_compilador.setLocationRelativeTo(null);
+        offset = 0;
+        SymbolTable.getErroresSemanticos().removeAll(SymbolTable.getErroresSemanticos());
+        SymbolTable.getTablaSimbolos().removeAll(SymbolTable.getTablaSimbolos());
         String result = AnalizarSintaxis();
         try {
             jtxtarea_salida.setText(Analizar());
@@ -653,7 +656,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
             rowData[2] = list.get(i).getTipoConstante();
             rowData[3] = list.get(i).getIsFunction();
             rowData[4] = list.get(i).getAmbito();
-            rowData[5] = "0";
+            rowData[5] = list.get(i).getOffset();
             model.addRow(rowData);
         }
     }
@@ -702,6 +705,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     TablaSimbolos SymbolTable;
     boolean flagFuncionError;
     int handleReturn = 0;
+    int offset = 0;
     Recorrido genCodigoIntermedio;
 
     private String AnalizarSintaxis() {
@@ -710,8 +714,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
         try {
             sintactico = new Sintax(lexico);
             sintactico.parse();
-            SymbolTable.getErroresSemanticos().removeAll(SymbolTable.getErroresSemanticos());
-            SymbolTable.getTablaSimbolos().removeAll(SymbolTable.getTablaSimbolos());
             recorrer(sintactico.padre.getHijos().get(0), sintactico.padre.getHijos().get(0).getValor());
             if (sintactico.errores.isEmpty() && SymbolTable.getErroresSemanticos().isEmpty()) {
                 jb_arbol.setEnabled(true);
@@ -793,7 +795,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         if (contadortipo == 0) {
                             if (hoja.getHijos().get(0).getNombre().equals("id")) {
                                 id = hoja.getHijos().get(0).getValor();
-                                SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
+                                SymbolTable.insertar2(id, tipo, valor, false, false, ambito, offset);
+                                offset += retornaOffset(tipo);
                             } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
                                 recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito);
                             }
@@ -805,7 +808,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     } else { // caso en que no tenga valor de asignación
                         if (hoja.getHijos().get(0).getNombre().equals("id")) {
                             id = hoja.getHijos().get(0).getValor();
-                            SymbolTable.insertar2(id, tipo, valor, false, false, ambito);
+                            SymbolTable.insertar2(id, tipo, valor, false, false, ambito, offset);
+                            offset += retornaOffset(tipo);
                         } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
                             recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito);
                         }
@@ -815,7 +819,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 if (hoja.getNombre().equals("declaracion_funcion")) {
                     String tipo = agregarFuncion(hoja, "");
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), tipo.substring(0, tipo.length() - 1) + " -> "
-                            + hoja.getHijos().get(2).getValor(), "", false, true, ambito);
+                            + hoja.getHijos().get(2).getValor(), "", false, true, ambito, -1);
                     recorrerDominio(hoja, hoja.getHijos().get(0).getValor(), ambito, hoja.getHijos().get(2).getValor());
                     recorrer(hoja, ambito + "." + hoja.getHijos().get(0).getValor());
                 }
@@ -826,7 +830,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         existenParametros = true;
                     }
                     String tipo = agregarProcedure(hoja, "", existenParametros);
-                    SymbolTable.insertar2(hoja.getValor(), tipo.substring(0, tipo.length() - 1) + " -> " + "void", "", false, true, ambito);
+                    SymbolTable.insertar2(hoja.getValor(), tipo.substring(0, tipo.length() - 1) + " -> " + "void", "", false, true, ambito, -1);
                     recorrerDominio(hoja, hoja.getValor(), ambito, "void");
                     recorrer(hoja, ambito + "." + hoja.getValor());
                 }
@@ -860,7 +864,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 if (hoja.getNombre().equals("for")) {
                     String ambitofor = ambito + "." + contadorid;
                     contadorid++;
-                    SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), "integer", "", false, false, ambitofor);
+                    SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), "integer", "", false, false, ambitofor, offset);
                     comprobarValor(hoja.getHijos().get(1), ambito, "integer");
                     comprobarValor(hoja.getHijos().get(2), ambito, "integer");
                 }
@@ -895,7 +899,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 if (hoja.getNombre().equals("llamado_funcion")) {
                     String tipoFuncion = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
                     String tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
-                    System.out.println(tipoParam);
                     tipoFuncion = SymbolTable.buscarDominio(tipoFuncion);
                     if (!tipoFuncion.equals(tipoParam) || flagFuncionError == true) {
                         SymbolTable.getErroresSemanticos().add("error, llamado de función inválido");
@@ -960,6 +963,19 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 }
                 recorrerCuerpo(hoja, ambito, retorno, tipoRetorno);
             }
+        }
+    }
+
+    public int retornaOffset(String tipo) {
+        switch (tipo) {
+            case "integer":
+                return 4;
+            case "boolean":
+                return 2;
+            case "float":
+                return 4;
+            default:
+                return 0;
         }
     }
 
@@ -1132,6 +1148,24 @@ public class InterfazCompilador extends javax.swing.JFrame {
                                 break;
                         }
                         break;
+                    case "llamado_funcion":
+                        //aquiii
+                        //System.out.println("entra asignacion de funcion");
+                        String tipoFuncion = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
+                        if (!tipoFuncion.contains("error")) {
+                            String retornoFuncion = SymbolTable.buscarRetorno(tipoFuncion);
+                            if (!retornoFuncion.equals(tipo)) {
+                                SymbolTable.getErroresSemanticos().add("error, mal uso de tipos, "
+                                        + "la función es de tipo " + retornoFuncion + " y la variable es de tipo " + tipo);
+                            } else {
+                                String tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
+                                tipoFuncion = SymbolTable.buscarDominio(tipoFuncion);
+                                if (!tipoFuncion.equals(tipoParam) || flagFuncionError == true) {
+                                    SymbolTable.getErroresSemanticos().add("error, llamado de función inválido");
+                                }
+                            }
+                        }
+                        break;
                     default:
                         comprobarValor(hoja, ambito, tipo);
                         break;
@@ -1200,20 +1234,21 @@ public class InterfazCompilador extends javax.swing.JFrame {
         return tipo.substring(0, tipo.length() - 1);
     }
 
-    public void recorrerRepeticion(Nodo padre, String valor, String tipo, String ambito) {
-        if (padre.getHijos().get(1).getNombre().equals(",")) {
+    public void recorrerRepeticion(Nodo padre, String valor, String tipo, String ambito) { //metodo que agrega variables separadas por coma
+        if (padre.getHijos().get(1).getNombre().equals(",")) { //caso base cuando encuentra un id
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito, offset);
+            offset += retornaOffset(tipo);
             recorrerRepeticion(padre.getHijos().get(1), valor, tipo, ambito);
-        } else if (padre.getHijos().get(1).getNombre().equals("id")) {
+        } else if (padre.getHijos().get(1).getNombre().equals("id")) { //caso cuando encuentra una coma
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
-            //agregar a tabla de símbolos
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito, offset);
+            offset += retornaOffset(tipo);
             rep_id = padre.getHijos().get(1).getValor();
-            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito);
-            //agregar a tabla de símbolos
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito, offset);
+            offset += retornaOffset(tipo);
         }
     }
 
@@ -1226,7 +1261,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 } else if (hoja.getHijos().get(0).getNombre().equals("id")) {
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), hoja.getHijos().get(1).getValor(),
-                            "", false, false, ambito + "." + id);
+                            "", false, false, ambito + "." + id, offset);
+                    offset += retornaOffset(hoja.getHijos().get(1).getValor());
                 }
                 recorrerDominio(hoja, id, ambito, rango);
             }

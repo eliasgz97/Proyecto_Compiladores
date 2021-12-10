@@ -9,6 +9,9 @@ import proyectocompiladores.Nodo;
 public class Recorrido {
 
     TablaCuadruplos cuadruplos;
+    String verdadera = "";
+    String falsa = "";
+    int contador;
 
     public Recorrido() {
         cuadruplos = new TablaCuadruplos();
@@ -18,32 +21,50 @@ public class Recorrido {
         for (Nodo hoja : padre.getHijos()) {
             if (!hoja.isVisitado2()) {
                 hoja.setVisitado2(true);
-                //System.out.println(hoja.getNombre() + " nodo");
-                //perales(5+9*7, true, 8.9)
+                //System.out.println(hoja.verdadera + hoja.getNombre());
                 if (hoja.getNombre().equals("Asignacion")) {
                     if (!padre.getNombre().equals("put") && !padre.getNombre().equals("get")) {
                         switch (hoja.getHijos().get(0).getNombre()) {
                             case "num_int":
-                                //System.out.println("entra num int " + hoja.getHijos().get(0).getNombre());
-                                cuadruplos.generarCuadruplo("=", hoja.getHijos().get(0).getValor(),
-                                        "", padre.getHijos().get(0).getValor());
+                                if (padre.getHijos().get(0).getNombre().equals(",")) {
+                                    recorrerRepeticion(padre.getHijos().get(0), hoja.getHijos().get(0).getValor());
+                                } else {
+                                    cuadruplos.generarCuadruplo("=", hoja.getHijos().get(0).getValor(),
+                                            "", padre.getHijos().get(0).getValor());
+                                }
                                 break;
                             case "numfloat":
-                                cuadruplos.generarCuadruplo("=", hoja.getHijos().get(0).getValor(),
-                                        "", padre.getHijos().get(0).getValor());
+                                if (padre.getHijos().get(0).getNombre().equals(",")) {
+                                    recorrerRepeticion(padre.getHijos().get(0), hoja.getHijos().get(0).getValor());
+                                } else {
+                                    cuadruplos.generarCuadruplo("=", hoja.getHijos().get(0).getValor(),
+                                            "", padre.getHijos().get(0).getValor());
+                                }
                                 break;
                             case "boolean":
-                                cuadruplos.generarCuadruplo("=", hoja.getHijos().get(0).getValor(),
-                                        "", padre.getHijos().get(0).getValor());
+                                if (padre.getHijos().get(0).getNombre().equals(",")) {
+                                    recorrerRepeticion(padre.getHijos().get(0), hoja.getHijos().get(0).getValor());
+                                } else {
+                                    cuadruplos.generarCuadruplo("=", hoja.getHijos().get(0).getValor(),
+                                            "", padre.getHijos().get(0).getValor());
+                                }
                                 break;
                             case "id":
-                                cuadruplos.generarCuadruplo("=", hoja.getHijos().get(0).getValor(),
-                                        "", padre.getHijos().get(0).getValor());
+                                if (padre.getHijos().get(0).getNombre().equals(",")) {
+                                    recorrerRepeticion(padre.getHijos().get(0), hoja.getHijos().get(0).getValor());
+                                } else {
+                                    cuadruplos.generarCuadruplo("=", hoja.getHijos().get(0).getValor(),
+                                            "", padre.getHijos().get(0).getValor());
+                                }
                                 break;
                             default:
                                 recorrerAsignacion(hoja.getHijos().get(0));
-                                cuadruplos.generarCuadruplo("=", cuadruplos.getLastTemp(),
-                                        "", padre.getHijos().get(0).getValor());
+                                if (padre.getHijos().get(0).getNombre().equals(",")) {
+                                    recorrerRepeticion(padre.getHijos().get(0), cuadruplos.getLastTemp());
+                                } else {
+                                    cuadruplos.generarCuadruplo("=", cuadruplos.getLastTemp(),
+                                            "", padre.getHijos().get(0).getValor());
+                                }
                                 hoja.getHijos().get(0).setVisitado2(true);
                                 break;
                         }
@@ -87,10 +108,23 @@ public class Recorrido {
                     genCuadruploIF(hoja);
                     cuadruplos.generarCuadruplo("ETIQ", hoja.siguiente, "", "");
                 }
+                if (hoja.getNombre().equals("loop")) {
+                    //System.out.println("entra loop");
+                    hoja.siguiente = cuadruplos.etiquetaNueva();
+                    genCuadruploExit_When(hoja);
+                    cuadruplos.generarCuadruplo("ETIQ", hoja.siguiente, "", "");
+                }
+                if (hoja.getNombre().equals("exit-when")) {
+                    //System.out.println(hoja.verdadera + "algooo");
+                    //System.out.println(verdadera + " verdadera");
+                    hoja.getHijos().get(0).verdadera = verdadera;
+                    hoja.getHijos().get(0).falsa = falsa;
+                    generarE(hoja.getHijos().get(0));
+                }
                 if (hoja.getNombre().equals("while")) {
                     hoja.siguiente = cuadruplos.etiquetaNueva();
                     genCuadruploWhile(hoja);
-                    cuadruplos.generarCuadruplo("ETIQUE", hoja.siguiente, "", "");
+                    cuadruplos.generarCuadruplo("ETIQ", hoja.siguiente, "", "");
                 }
                 if (hoja.getNombre().equals("for")) {
                     hoja.siguiente = cuadruplos.etiquetaNueva();
@@ -104,9 +138,34 @@ public class Recorrido {
         }
     }
 
+    public void genCuadruploExit_When(Nodo n) {
+        //System.out.println("entra exit");
+        n.getHijos().get(0).getHijos().get(1).falsa = cuadruplos.etiquetaNueva();
+        cuadruplos.generarCuadruplo("ETIQ", n.getHijos().get(0).getHijos().get(1).falsa, "", "");
+        n.getHijos().get(0).getHijos().get(1).verdadera = n.siguiente;
+        verdadera = n.getHijos().get(0).getHijos().get(1).verdadera;
+        falsa = n.getHijos().get(0).getHijos().get(1).falsa;
+        recorrer(n.getHijos().get(0));
+    }
+
+    public void recorrerRepeticion(Nodo n, String valor) {
+        if (n.getHijos().get(1).getNombre().equals(",")) { //caso base cuando encuentra un id
+            String rep_id;
+            rep_id = n.getHijos().get(0).getValor();
+            cuadruplos.generarCuadruplo("=", valor, "", rep_id);
+            recorrerRepeticion(n.getHijos().get(1), valor);
+        } else if (n.getHijos().get(1).getNombre().equals("id")) { //caso cuando encuentra una coma
+            String rep_id;
+            rep_id = n.getHijos().get(0).getValor();
+            cuadruplos.generarCuadruplo("=", valor, "", rep_id);
+            rep_id = n.getHijos().get(1).getValor();
+            cuadruplos.generarCuadruplo("=", valor, "", rep_id);
+        }
+    }
+
     public void genCuadruploFor(Nodo n) {
         if (n.getHijos().get(1).getHijos().get(0).getNombre().equals("num_int")) {
-            System.out.println("entra num int for");
+            //System.out.println("entra num int for");
             cuadruplos.generarCuadruplo("=", n.getHijos().get(1).getHijos().get(0).getValor(),
                     "", n.getHijos().get(0).getValor());
             //n.getHijos().getsetVisitado2(true);
@@ -129,13 +188,13 @@ public class Recorrido {
         cuadruplos.generarCuadruplo("GOTO", n.comienzo, "", "");
     }
 
-    public void genCuadruploWhile(Nodo n) {
+    public void genCuadruploWhile(Nodo n) { //aquiiii
         n.comienzo = cuadruplos.etiquetaNueva();
-        cuadruplos.generarCuadruplo("ETIQUE", n.comienzo, "", "");
+        cuadruplos.generarCuadruplo("ETIQ", n.comienzo, "", "");
         n.getHijos().get(0).verdadera = cuadruplos.etiquetaNueva();
         n.getHijos().get(0).falsa = n.siguiente;
         generarE(n.getHijos().get(0));
-        cuadruplos.generarCuadruplo("ETIQUE", n.getHijos().get(0).verdadera, "", "");
+        cuadruplos.generarCuadruplo("ETIQ", n.getHijos().get(0).verdadera, "", "");
         n.getHijos().get(1).siguiente = n.comienzo;
         recorrer(n.getHijos().get(1));
         cuadruplos.generarCuadruplo("GOTO", n.comienzo, "", "");
@@ -159,6 +218,13 @@ public class Recorrido {
                 cuadruplos.generarCuadruplo("GOTO", n.siguiente, "", "");
                 cuadruplos.generarCuadruplo("ETIQ", n.getHijos().get(0).falsa, "", "");
                 n.getHijos().get(2).getHijos().get(0).siguiente = n.siguiente;
+                recorrer(n.getHijos().get(2).getHijos().get(0));
+            } else {
+                cuadruplos.generarCuadruplo("GOTO", n.siguiente, "", "");
+                cuadruplos.generarCuadruplo("ETIQ", n.getHijos().get(0).falsa, "", "");
+                n.getHijos().get(2).getHijos().get(0).siguiente = n.siguiente;
+                n.getHijos().get(2).siguiente = n.siguiente;
+                genCuadruploIF(n.getHijos().get(2));
                 recorrer(n.getHijos().get(2).getHijos().get(0));
             }
         }
