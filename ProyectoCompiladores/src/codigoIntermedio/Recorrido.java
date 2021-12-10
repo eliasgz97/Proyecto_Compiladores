@@ -12,18 +12,43 @@ public class Recorrido {
     String verdadera = "";
     String falsa = "";
     int contador;
+    Nodo etiqfunct = new Nodo("funciones");
 
     public Recorrido() {
         cuadruplos = new TablaCuadruplos();
     }
 
+    public TablaCuadruplos getCuadruplos() {
+        return cuadruplos;
+    }
+    
+    public void recorrerfunct() {
+        for (Nodo hoja : etiqfunct.getHijos()) {
+            hoja.setVisitado2(false);
+           if (hoja.getNombre().equals("Procedure")) {
+                    cuadruplos.generarCuadruplo("ETIQ", "FUN_" + hoja.getValor(), "", "");
+                     for (int i = 0; i < hoja.getHijos().size(); i++) {
+                        hoja.getHijos().get(i).setVisitado2(false);
+                    }
+                    recorrer(hoja);
+                }
+                if (hoja.getNombre().equals("declaracion_funcion")) {
+                    cuadruplos.generarCuadruplo("ETIQ", "FUN_" + hoja.getHijos().get(0).getValor(), "", "");
+                     for (int i = 0; i < hoja.getHijos().size(); i++) {
+                        hoja.getHijos().get(i).setVisitado2(false);
+                    }
+                    recorrer(hoja);
+                } 
+        }
+    }
+
     public void recorrer(Nodo padre) {
         for (Nodo hoja : padre.getHijos()) {
-            if (!hoja.isVisitado2()) {
+            if ((!hoja.isVisitado2())) {
                 hoja.setVisitado2(true);
                 //System.out.println(hoja.verdadera + hoja.getNombre());
                 if (hoja.getNombre().equals("Asignacion")) {
-                    if (!padre.getNombre().equals("put") && !padre.getNombre().equals("get")) {
+                    if (!padre.getNombre().equals("put") && !padre.getNombre().equals("get") && !(padre.getNombre().equals("nueva_linea") && padre.getHijos().get(0).getNombre().equals("return"))) {
                         switch (hoja.getHijos().get(0).getNombre()) {
                             case "num_int":
                                 if (padre.getHijos().get(0).getNombre().equals(",")) {
@@ -98,6 +123,32 @@ public class Recorrido {
                         cuadruplos.generarCuadruplo("=", hoja.getHijos().get(0).getValor(),
                                 "", "get");
                         hoja.getHijos().get(0).setVisitado2(true);
+                    } else if (padre.getNombre().equals("nueva_linea") && padre.getHijos().get(0).getNombre().equals("return")) {
+                        switch (hoja.getHijos().get(0).getNombre()) {
+                            case "num_int":
+                                //System.out.println("entra num int " + hoja.getHijos().get(0).getNombre());
+                                cuadruplos.generarCuadruplo("RET", hoja.getHijos().get(0).getValor(),
+                                        "", "");
+                                break;
+                            case "numfloat":
+                                cuadruplos.generarCuadruplo("RET", hoja.getHijos().get(0).getValor(),
+                                        "", "");
+                                break;
+                            case "boolean":
+                                cuadruplos.generarCuadruplo("RET", hoja.getHijos().get(0).getValor(),
+                                        "", "");
+                                break;
+                            case "id":
+                                cuadruplos.generarCuadruplo("RET", hoja.getHijos().get(0).getValor(),
+                                        "", "");
+                                break;
+                            default:
+                                recorrerAsignacion(padre.getHijos().get(1).getHijos().get(0));
+                                cuadruplos.generarCuadruplo("RET", cuadruplos.getLastTemp(),
+                                        "", "");
+                                hoja.getHijos().get(0).setVisitado2(true);
+                                break;
+                        }
                     }
                 } else if (hoja.getNombre().equals("put_string")) {
                     cuadruplos.generarCuadruplo("=", hoja.getValor(),
@@ -133,11 +184,19 @@ public class Recorrido {
                     hoja.getHijos().get(1).setVisitado2(true);
                     hoja.getHijos().get(2).setVisitado2(true);
                 }
-                if (hoja.getNombre().equals("Procedure") || hoja.getNombre().equals("declaracion_funcion")) {
-                    hoja.comienzo = hoja.getValor();
-                    System.out.println(hoja.getValor());
-                    cuadruplos.generarCuadruplo("ETIQ", hoja.getValor(), "", "");
-                    recorrer(hoja);
+                if (hoja.getNombre().equals("Procedure")) {
+                    etiqfunct.addHijo((Nodo)hoja);
+                    //cuadruplos.generarCuadruplo("ETIQ", "FUN_" + hoja.getValor(), "", "");
+                    for (int i = 0; i < hoja.getHijos().size(); i++) {
+                        hoja.getHijos().get(i).setVisitado2(true);
+                    }
+                }
+                if (hoja.getNombre().equals("declaracion_funcion")) {
+                    etiqfunct.addHijo((Nodo)hoja);
+                    //cuadruplos.generarCuadruplo("ETIQ", "FUN_" + hoja.getHijos().get(0).getValor(), "", "");
+                     for (int i = 0; i < hoja.getHijos().size(); i++) {
+                        hoja.getHijos().get(i).setVisitado2(true);
+                    }
                 }
                 recorrer(hoja);
             }

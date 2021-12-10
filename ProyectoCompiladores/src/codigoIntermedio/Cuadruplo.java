@@ -81,6 +81,8 @@ public class Cuadruplo {
             retval += args1 + ": ";
         } else if (operator.equals("GOTO")) {
             retval += "     goto " + args1;
+        }else if (operator.equals("RET")) {
+            retval += "     ret " + args1;
         }
         return retval;
     }

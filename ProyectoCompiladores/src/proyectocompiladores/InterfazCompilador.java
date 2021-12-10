@@ -721,7 +721,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 resultado += "Compilado exitosamente";
                 jtxtarea_salida_sintactico.setForeground(Color.GREEN);
                 genCodigoIntermedio = new Recorrido();
+                genCodigoIntermedio.getCuadruplos().generarCuadruplo("ETIQ", "main", "", "s");
                 genCodigoIntermedio.recorrer(sintactico.padre.getHijos().get(0));
+                genCodigoIntermedio.recorrerfunct();
                 System.out.println(genCodigoIntermedio.imprimirCuadruplos());
             }
             if (!sintactico.errores.isEmpty()) {
