@@ -133,6 +133,12 @@ public class Recorrido {
                     hoja.getHijos().get(1).setVisitado2(true);
                     hoja.getHijos().get(2).setVisitado2(true);
                 }
+                if (hoja.getNombre().equals("Procedure") || hoja.getNombre().equals("declaracion_funcion")) {
+                    hoja.comienzo = hoja.getValor();
+                    System.out.println(hoja.getValor());
+                    cuadruplos.generarCuadruplo("ETIQ", hoja.getValor(), "", "");
+                    recorrer(hoja);
+                }
                 recorrer(hoja);
             }
         }

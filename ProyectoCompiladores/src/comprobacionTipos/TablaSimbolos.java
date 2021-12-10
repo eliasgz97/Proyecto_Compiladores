@@ -76,7 +76,6 @@ public class TablaSimbolos {
         // La variable no existe
         if (!existe) {
             simbolo = new Simbolo(nombre, tipoVariable, valor.toString(), tipoConstante, tipoFuncion, ambito, offset);
-            System.out.println("Agregando a tabla de simbolos con nombre: " + nombre);
             tablaSimbolos.add(simbolo);
             // System.out.println("Variable creada exitosamente!!!");
             //imprimir();
@@ -185,8 +184,20 @@ public class TablaSimbolos {
         return tipo;
     }
     
+    static public boolean esFuncion (String nombre, String ambito) {
+        boolean isFuncion = false;
+        for (Simbolo s : tablaSimbolos) {
+            if (s.nombre.equals(nombre)) {
+                if (ambito.contains(s.ambito)) {
+                    isFuncion = s.isFunction;
+                    break;
+                }
+            }
+        }
+        return isFuncion;
+    }
+    
     static public String buscarDominio (String tipo) {
-        tipo = tipo.trim();
         //System.out.println(tipo+"tipo sin espacios");
         for (int i = 0; i < tipo.length(); i++) {
             if (tipo.charAt(i) == '-') {
@@ -195,7 +206,7 @@ public class TablaSimbolos {
                 break;
             }
         }
-        return tipo;
+        return tipo.trim();
     }
     
     static public String buscarRetorno (String tipo) {

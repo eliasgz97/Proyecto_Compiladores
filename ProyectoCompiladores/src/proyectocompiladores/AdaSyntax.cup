@@ -1178,8 +1178,6 @@ parser.errores.add("Cuerpo no puede ser vacio " +" | linea "+ (rright+1) + " col
 :}
 ;
 
-
-
 fin_cuerpo ::= for_loop:forLoop
 {:
 Nodo nuevaLinea = new Nodo("nueva_linea");
@@ -1651,8 +1649,8 @@ ID repeticion_parametros:rep_param PARDER:par_der error:r
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
-/*|
-ID:id
+|
+ID:id PARIZQ PARDER
 {:
 Nodo tmp = new Nodo ("llamado_funcion");
 tmp.setNumNodo(parser.contador++);
@@ -1662,7 +1660,6 @@ hijoId.setValor(id.toString());
 tmp.addHijo((Nodo) hijoId);
 RESULT = tmp;
 :}
-*/
 ;
 
 repeticion_parametros ::= valores_funcion:vf COMA:c repeticion_parametros:repParam

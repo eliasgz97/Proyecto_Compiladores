@@ -897,12 +897,27 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     String encuentraId = SymbolTable.buscarTipo(hoja.getValor(), ambito);
                 }
                 if (hoja.getNombre().equals("llamado_funcion")) {
-                    String tipoFuncion = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
-                    String tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
-                    tipoFuncion = SymbolTable.buscarDominio(tipoFuncion);
-                    if (!tipoFuncion.equals(tipoParam) || flagFuncionError == true) {
-                        SymbolTable.getErroresSemanticos().add("error, llamado de función inválido");
+                    if (SymbolTable.esFuncion(hoja.getHijos().get(0).getValor(), ambito)) { //evalúa si el id es una función
+                        String tipoFuncion = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);//busca el tipo de la función
+                        if (hoja.getHijos().size() > 1) { //si la función tiene parámetros
+                            String tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
+                            //llama al método que retorna el tipo de los parámetros enviados concatenados
+                            tipoFuncion = SymbolTable.buscarDominio(tipoFuncion); //busca el dominio de la función
+                            if (!tipoFuncion.equals(tipoParam) || flagFuncionError == true) {
+                                //compara que el dominio de la función sea igual a los tipos de los parámetros enviados concatenados
+                                SymbolTable.getErroresSemanticos().add("error, llamado de función inválido");
+                            }
+                        } else { //si la función se llama sin parámetros
+                            tipoFuncion = SymbolTable.buscarDominio(tipoFuncion); //busca el dominio de la función
+                            if (!tipoFuncion.equals("void")) { //revisa si el dominio de la función no es de tipo void
+                                SymbolTable.getErroresSemanticos().add("error, la función " + hoja.getHijos().get(0).getValor() + 
+                                        " esperaba parámetros");
+                            }
+                        }
+                    } else { //si no, no es una función o procedimiento
+                        SymbolTable.getErroresSemanticos().add("error, variable no es una función o procedimiento");
                     }
+
                 }
                 if (hoja.getNombre().equals("if-then")) {
                     if (hoja.getHijos().get(0).getNombre().equals("and") || hoja.getHijos().get(0).getNombre().equals("or")) {
@@ -945,18 +960,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
                                 SymbolTable.getErroresSemanticos().add("error, tipo esperado " + tipoRetorno + ", tipo encontrado boolean");
                             }
                         }
-//                        if (padre.getHijos().get(1).getNombre().equals("id")) {
-//                            String idTipo = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
-//                            if (!idTipo.equals(tipoRetorno)) {
-//                                SymbolTable.getErroresSemanticos().add("error, retorno esperado " + tipoRetorno
-//                                        + " valor encontrado " + idTipo);
-//                            }
-//                        } else {
-//                            if (!convertirTipos(padre.getHijos().get(1).getNombre()).equals(tipoRetorno)) {
-//                                SymbolTable.getErroresSemanticos().add("error, retorno esperado " + tipoRetorno + ", valor encontrado "
-//                                        + convertirTipos(padre.getHijos().get(1).getNombre()));
-//                            }
-//                        }
                     } else {
                         SymbolTable.getErroresSemanticos().add("error, valor de retorno no esperado");
                     }
@@ -1151,19 +1154,34 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     case "llamado_funcion":
                         //aquiii
                         //System.out.println("entra asignacion de funcion");
-                        String tipoFuncion = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
-                        if (!tipoFuncion.contains("error")) {
-                            String retornoFuncion = SymbolTable.buscarRetorno(tipoFuncion);
-                            if (!retornoFuncion.equals(tipo)) {
-                                SymbolTable.getErroresSemanticos().add("error, mal uso de tipos, "
-                                        + "la función es de tipo " + retornoFuncion + " y la variable es de tipo " + tipo);
-                            } else {
-                                String tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
-                                tipoFuncion = SymbolTable.buscarDominio(tipoFuncion);
-                                if (!tipoFuncion.equals(tipoParam) || flagFuncionError == true) {
-                                    SymbolTable.getErroresSemanticos().add("error, llamado de función inválido");
+                        if (SymbolTable.esFuncion(hoja.getHijos().get(0).getValor(), ambito)) { // if que revisa si el id es funcion
+                            String tipoFuncion = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);
+                            if (!tipoFuncion.contains("error")) { // si la funcion contiene error el buscar tipo agregar el error a errores semánticos
+                                String retornoFuncion = SymbolTable.buscarRetorno(tipoFuncion);
+                                //busca el retorno de la función para evaluar con el tipo de la variable
+                                if (!retornoFuncion.equals(tipo)) { //si el retorno no es igual al tipo de la variable
+                                    SymbolTable.getErroresSemanticos().add("error, mal uso de tipos, "
+                                            + "la función es de tipo " + retornoFuncion + " y la variable es de tipo " + tipo);
+                                    //mostramos error semántico
+                                } else { //si el tipo de retorno de la función es igual al tipo de la variable
+                                    if (hoja.getHijos().size() > 1) { //evaluamos si se está enviando la cantidad de parámetros correcta
+                                        String tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
+                                        //retorna el tipo de los parametros concatenados
+                                        tipoFuncion = SymbolTable.buscarDominio(tipoFuncion); //encuentra el dominio de la función
+                                        if (!tipoFuncion.equals(tipoParam) || flagFuncionError == true) {
+                                            //evalúa si el tipo concatenado de los parametros es igual al dominio de la funcion
+                                            SymbolTable.getErroresSemanticos().add("error, llamado de función inválido");
+                                        }
+                                    } else { //else para cuando la función no reciba parametros
+                                        tipoFuncion = SymbolTable.buscarDominio(tipoFuncion); //busca el dominio de la funcion
+                                        if (!tipoFuncion.equals("void")) { //revisa si el dominio de la función no es de tipo void
+                                            SymbolTable.getErroresSemanticos().add("error, el llamado a función esperaba parámetros");
+                                        }
+                                    }
                                 }
                             }
+                        } else { //si el id encontrado no es una funcion o procedimiento
+                            SymbolTable.getErroresSemanticos().add("error, variable no es una función o procedimiento");
                         }
                         break;
                     default:
@@ -1177,59 +1195,63 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
     public String comprobarLlamadoFuncion(Nodo valor, String ambito, String tipo) {
         //System.out.println("entra llamadoFuncion");
-        if (valor.getHijos().get(1).getNombre().equals(",")) { // recorre recursivamente si encuentra una coma
-            switch (valor.getHijos().get(0).getHijos().get(0).getNombre()) {
-                case "num_int":
-                    tipo += convertirTipos("num_int") + "x";
-                    break;
-                case "numfloat":
-                    tipo += convertirTipos("numfloat") + "x";
-                    break;
-                case "boolean":
-                    tipo += "boolean" + "x";
-                    break;
-                case "id":
-                    tipo += SymbolTable.buscarTipo(valor.getHijos().get(0).getHijos().get(0).getValor(), ambito) + "x";
-                    break;
-                default:
-                    tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
+        if (valor.getHijos().size() > 1) {
+            if (valor.getHijos().get(1).getNombre().equals(",")) { // recorre recursivamente si encuentra una coma
+                switch (valor.getHijos().get(0).getHijos().get(0).getNombre()) {
+                    case "num_int":
+                        tipo += convertirTipos("num_int") + "x";
+                        break;
+                    case "numfloat":
+                        tipo += convertirTipos("numfloat") + "x";
+                        break;
+                    case "boolean":
+                        tipo += "boolean" + "x";
+                        break;
+                    case "id":
+                        tipo += SymbolTable.buscarTipo(valor.getHijos().get(0).getHijos().get(0).getValor(), ambito) + "x";
+                        break;
+                    default:
+                        tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
+                }
+                return comprobarLlamadoFuncion(valor.getHijos().get(1), ambito, tipo);
+            } else if (valor.getHijos().get(1).getNombre().equals("Asignacion")) { //cuando encuentra una asignacion a la derecha
+                switch (valor.getHijos().get(0).getHijos().get(0).getNombre()) {
+                    case "num_int":
+                        tipo += convertirTipos("num_int") + "x";
+                        break;
+                    case "numfloat":
+                        tipo += convertirTipos("numfloat") + "x";
+                        break;
+                    case "boolean":
+                        tipo += "boolean" + "x";
+                        break;
+                    case "id":
+                        tipo += SymbolTable.buscarTipo(valor.getHijos().get(0).getHijos().get(0).getValor(), ambito) + "x";
+                        break;
+                    default:
+                        tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
+                    //System.out.println("entra precedencia");
+                }
+                switch (valor.getHijos().get(1).getHijos().get(0).getNombre()) {
+                    case "num_int":
+                        tipo += convertirTipos("num_int") + "x";
+                        break;
+                    case "numfloat":
+                        tipo += convertirTipos("numfloat") + "x";
+                        break;
+                    case "boolean":
+                        tipo += "boolean" + "x";
+                        break;
+                    case "id":
+                        tipo += SymbolTable.buscarTipo(valor.getHijos().get(1).getHijos().get(0).getValor(), ambito);
+                        break;
+                    default:
+                        tipo += comprobarValorMejorado(valor.getHijos().get(1).getHijos().get(0), ambito, "");
+                    //System.out.println("entró precedencia");
+                }
             }
-            return comprobarLlamadoFuncion(valor.getHijos().get(1), ambito, tipo);
-        } else if (valor.getHijos().get(1).getNombre().equals("Asignacion")) {
-            switch (valor.getHijos().get(0).getHijos().get(0).getNombre()) {
-                case "num_int":
-                    tipo += convertirTipos("num_int") + "x";
-                    break;
-                case "numfloat":
-                    tipo += convertirTipos("numfloat") + "x";
-                    break;
-                case "boolean":
-                    tipo += "boolean" + "x";
-                    break;
-                case "id":
-                    tipo += SymbolTable.buscarTipo(valor.getHijos().get(0).getHijos().get(0).getValor(), ambito) + "x";
-                    break;
-                default:
-                    tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
-                //System.out.println("entra precedencia");
-            }
-            switch (valor.getHijos().get(1).getHijos().get(0).getNombre()) {
-                case "num_int":
-                    tipo += convertirTipos("num_int") + "x";
-                    break;
-                case "numfloat":
-                    tipo += convertirTipos("numfloat") + "x";
-                    break;
-                case "boolean":
-                    tipo += "boolean" + "x";
-                    break;
-                case "id":
-                    tipo += SymbolTable.buscarTipo(valor.getHijos().get(1).getHijos().get(0).getValor(), ambito);
-                    break;
-                default:
-                    tipo += comprobarValorMejorado(valor.getHijos().get(1).getHijos().get(0), ambito, "");
-                //System.out.println("entró precedencia");
-            }
+        } else {
+            tipo = convertirTipos(valor.getHijos().get(0).getNombre());
         }
         return tipo.substring(0, tipo.length() - 1);
     }
