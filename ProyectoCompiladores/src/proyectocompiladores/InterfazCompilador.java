@@ -85,14 +85,16 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jb_tablaSimbolos = new javax.swing.JButton();
         jLabel12 = new javax.swing.JLabel();
 
-        jd_compilador.setBackground(new java.awt.Color(0, 0, 51));
+        jd_compilador.setBackground(new java.awt.Color(51, 51, 51));
 
         jLabel2.setFont(new java.awt.Font("Eras Bold ITC", 2, 24)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(0, 0, 102));
         jLabel2.setText("ADA 95");
 
-        jTabbedPane2.setBackground(new java.awt.Color(0, 0, 51));
+        jTabbedPane2.setBackground(new java.awt.Color(51, 51, 51));
+        jTabbedPane2.setForeground(new java.awt.Color(255, 255, 255));
 
+        jtxtarea_salida.setBackground(new java.awt.Color(0, 0, 0));
         jtxtarea_salida.setColumns(20);
         jtxtarea_salida.setRows(5);
         jScrollPane1.setViewportView(jtxtarea_salida);
@@ -268,8 +270,10 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(0, 0, 153));
+        jPanel1.setBackground(new java.awt.Color(51, 51, 51));
 
+        jbt_analizar.setBackground(new java.awt.Color(0, 0, 0));
+        jbt_analizar.setForeground(new java.awt.Color(255, 255, 255));
         jbt_analizar.setText("||>");
         jbt_analizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -281,6 +285,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(173, 28, 28));
         jLabel1.setText("95");
 
+        jButton1.setBackground(new java.awt.Color(0, 0, 0));
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Limpiar ");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -288,6 +294,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
             }
         });
 
+        jb_arbol.setBackground(new java.awt.Color(0, 0, 0));
+        jb_arbol.setForeground(new java.awt.Color(255, 255, 255));
         jb_arbol.setText("Mostrar Árbol");
         jb_arbol.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -295,10 +303,14 @@ public class InterfazCompilador extends javax.swing.JFrame {
             }
         });
 
+        jtxtarea_entrada.setBackground(new java.awt.Color(0, 0, 0));
         jtxtarea_entrada.setColumns(20);
+        jtxtarea_entrada.setForeground(new java.awt.Color(255, 255, 255));
         jtxtarea_entrada.setRows(5);
         jScrollPane2.setViewportView(jtxtarea_entrada);
 
+        jButton3.setBackground(new java.awt.Color(0, 0, 0));
+        jButton3.setForeground(new java.awt.Color(255, 255, 255));
         jButton3.setText("Generar Jflex y Cup");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -338,6 +350,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel9.setText("Elías Girón");
 
+        jb_tablaSimbolos.setBackground(new java.awt.Color(0, 0, 0));
+        jb_tablaSimbolos.setForeground(new java.awt.Color(255, 255, 255));
         jb_tablaSimbolos.setText("Tabla de Símbolos");
         jb_tablaSimbolos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -722,7 +736,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 jtxtarea_salida_sintactico.setForeground(Color.GREEN);
                 genCodigoIntermedio = new Recorrido();
                 genCodigoIntermedio.getCuadruplos().generarCuadruplo("ETIQ", "main", "", "s");
-                genCodigoIntermedio.recorrer(sintactico.padre.getHijos().get(0));
+                genCodigoIntermedio.recorrer(sintactico.padre.getHijos().get(0), 0);
                 genCodigoIntermedio.recorrerfunct();
                 System.out.println(genCodigoIntermedio.imprimirCuadruplos());
             }
@@ -797,7 +811,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         if (contadortipo == 0) {
                             if (hoja.getHijos().get(0).getNombre().equals("id")) {
                                 id = hoja.getHijos().get(0).getValor();
-                                SymbolTable.insertar2(id, tipo, valor, false, false, ambito, offset);
+                                SymbolTable.insertar2(id, tipo, valor, false, false, false, ambito, offset);
                                 offset += retornaOffset(tipo);
                             } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
                                 recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito);
@@ -810,7 +824,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     } else { // caso en que no tenga valor de asignación
                         if (hoja.getHijos().get(0).getNombre().equals("id")) {
                             id = hoja.getHijos().get(0).getValor();
-                            SymbolTable.insertar2(id, tipo, valor, false, false, ambito, offset);
+                            SymbolTable.insertar2(id, tipo, valor, false, false, false, ambito, offset);
                             offset += retornaOffset(tipo);
                         } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
                             recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito);
@@ -821,7 +835,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 if (hoja.getNombre().equals("declaracion_funcion")) {
                     String tipo = agregarFuncion(hoja, "");
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), tipo.substring(0, tipo.length() - 1) + " -> "
-                            + hoja.getHijos().get(2).getValor(), "", false, true, ambito, -1);
+                            + hoja.getHijos().get(2).getValor(), "", false, true, false, ambito, -1);
                     recorrerDominio(hoja, hoja.getHijos().get(0).getValor(), ambito, hoja.getHijos().get(2).getValor());
                     recorrer(hoja, ambito + "." + hoja.getHijos().get(0).getValor());
                 }
@@ -832,7 +846,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         existenParametros = true;
                     }
                     String tipo = agregarProcedure(hoja, "", existenParametros);
-                    SymbolTable.insertar2(hoja.getValor(), tipo.substring(0, tipo.length() - 1) + " -> " + "void", "", false, true, ambito, -1);
+                    SymbolTable.insertar2(hoja.getValor(), tipo.substring(0, tipo.length() - 1) + " -> " + "void", "", false, true, true, ambito, -1);
                     recorrerDominio(hoja, hoja.getValor(), ambito, "void");
                     recorrer(hoja, ambito + "." + hoja.getValor());
                 }
@@ -866,7 +880,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 if (hoja.getNombre().equals("for")) {
                     String ambitofor = ambito + "." + contadorid;
                     contadorid++;
-                    SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), "integer", "", false, false, ambitofor, offset);
+                    SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), "integer", "", false, false, false, ambitofor, offset);
                     comprobarValor(hoja.getHijos().get(1), ambito, "integer");
                     comprobarValor(hoja.getHijos().get(2), ambito, "integer");
                 }
@@ -899,10 +913,16 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     String encuentraId = SymbolTable.buscarTipo(hoja.getValor(), ambito);
                 }
                 if (hoja.getNombre().equals("llamado_funcion")) {
-                    if (SymbolTable.esFuncion(hoja.getHijos().get(0).getValor(), ambito)) { //evalúa si el id es una función
+                    if (SymbolTable.esProcedure(hoja.getHijos().get(0).getValor(), ambito)) {
+                        //evalúa si el id es un procedure
                         String tipoFuncion = SymbolTable.buscarTipo(hoja.getHijos().get(0).getValor(), ambito);//busca el tipo de la función
                         if (hoja.getHijos().size() > 1) { //si la función tiene parámetros
-                            String tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
+                            String tipoParam = "";
+                            if (hoja.getHijos().get(1).getNombre().equals(",")) {
+                                tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
+                            } else {
+                                tipoParam = convertirTipos(hoja.getHijos().get(1).getHijos().get(0).getNombre());
+                            }
                             //llama al método que retorna el tipo de los parámetros enviados concatenados
                             tipoFuncion = SymbolTable.buscarDominio(tipoFuncion); //busca el dominio de la función
                             if (!tipoFuncion.equals(tipoParam) || flagFuncionError == true) {
@@ -912,14 +932,11 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         } else { //si la función se llama sin parámetros
                             tipoFuncion = SymbolTable.buscarDominio(tipoFuncion); //busca el dominio de la función
                             if (!tipoFuncion.equals("void")) { //revisa si el dominio de la función no es de tipo void
-                                SymbolTable.getErroresSemanticos().add("error, la función " + hoja.getHijos().get(0).getValor() + 
-                                        " esperaba parámetros");
+                                SymbolTable.getErroresSemanticos().add("error, la función " + hoja.getHijos().get(0).getValor()
+                                        + " esperaba parámetros");
                             }
                         }
-                    } else { //si no, no es una función o procedimiento
-                        SymbolTable.getErroresSemanticos().add("error, variable no es una función o procedimiento");
                     }
-
                 }
                 if (hoja.getNombre().equals("if-then")) {
                     if (hoja.getHijos().get(0).getNombre().equals("and") || hoja.getHijos().get(0).getNombre().equals("or")) {
@@ -1167,7 +1184,12 @@ public class InterfazCompilador extends javax.swing.JFrame {
                                     //mostramos error semántico
                                 } else { //si el tipo de retorno de la función es igual al tipo de la variable
                                     if (hoja.getHijos().size() > 1) { //evaluamos si se está enviando la cantidad de parámetros correcta
-                                        String tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
+                                        String tipoParam = "";
+                                        if (hoja.getHijos().get(1).getNombre().equals(",")) {
+                                            tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
+                                        } else {
+                                            tipoParam = convertirTipos(hoja.getHijos().get(1).getHijos().get(0).getNombre());
+                                        }
                                         //retorna el tipo de los parametros concatenados
                                         tipoFuncion = SymbolTable.buscarDominio(tipoFuncion); //encuentra el dominio de la función
                                         if (!tipoFuncion.equals(tipoParam) || flagFuncionError == true) {
@@ -1214,6 +1236,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         break;
                     default:
                         tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
+                        break;
                 }
                 return comprobarLlamadoFuncion(valor.getHijos().get(1), ambito, tipo);
             } else if (valor.getHijos().get(1).getNombre().equals("Asignacion")) { //cuando encuentra una asignacion a la derecha
@@ -1232,6 +1255,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         break;
                     default:
                         tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
+                        break;
                     //System.out.println("entra precedencia");
                 }
                 switch (valor.getHijos().get(1).getHijos().get(0).getNombre()) {
@@ -1249,6 +1273,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         break;
                     default:
                         tipo += comprobarValorMejorado(valor.getHijos().get(1).getHijos().get(0), ambito, "");
+                        break;
                     //System.out.println("entró precedencia");
                 }
             }
@@ -1262,16 +1287,16 @@ public class InterfazCompilador extends javax.swing.JFrame {
         if (padre.getHijos().get(1).getNombre().equals(",")) { //caso base cuando encuentra un id
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito, offset);
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, false, ambito, offset);
             offset += retornaOffset(tipo);
             recorrerRepeticion(padre.getHijos().get(1), valor, tipo, ambito);
         } else if (padre.getHijos().get(1).getNombre().equals("id")) { //caso cuando encuentra una coma
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito, offset);
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, false, ambito, offset);
             offset += retornaOffset(tipo);
             rep_id = padre.getHijos().get(1).getValor();
-            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, ambito, offset);
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, false, ambito, offset);
             offset += retornaOffset(tipo);
         }
     }
@@ -1285,7 +1310,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 } else if (hoja.getHijos().get(0).getNombre().equals("id")) {
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), hoja.getHijos().get(1).getValor(),
-                            "", false, false, ambito + "." + id, offset);
+                            "", false, false, false, ambito + "." + id, offset);
                     offset += retornaOffset(hoja.getHijos().get(1).getValor());
                 }
                 recorrerDominio(hoja, id, ambito, rango);

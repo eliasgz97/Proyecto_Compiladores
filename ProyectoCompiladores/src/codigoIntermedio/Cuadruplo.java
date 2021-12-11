@@ -81,8 +81,22 @@ public class Cuadruplo {
             retval += args1 + ": ";
         } else if (operator.equals("GOTO")) {
             retval += "     goto " + args1;
-        }else if (operator.equals("RET")) {
+        } else if (operator.equals("RET")) {
             retval += "     ret " + args1;
+        } else if (operator.startsWith("FIN-ETIQ")) {
+            retval += "     goto " + operator;
+        } else if (operator.equals("print")) {
+            retval += "     print " + args1;
+        } else if (operator.equals("get")) {
+            retval += "     get " + args1;
+        } else if (operator.equals("PARAM")) {
+            retval += "     param " + args1;
+        } else if (operator.equals("CALL")) {
+            retval += "     call " + args1 + args2;
+        } else if (operator.equals("RET")) {
+            retval += "     ret " + args1;
+        } else if (operator.equals("= RET")) {
+            retval += "     " + result + " = " + args1;
         }
         return retval;
     }

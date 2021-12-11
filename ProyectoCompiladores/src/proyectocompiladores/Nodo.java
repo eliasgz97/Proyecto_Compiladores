@@ -119,7 +119,7 @@ public class Nodo {
     public String getNombre() {
         return nombre;
     }
-
+    
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -223,7 +223,7 @@ public class Nodo {
     public void setVerdadera(String verdadera) {
         this.verdadera = verdadera;
     }
-
+    
     public String getFalsa() {
         return falsa;
     }
@@ -255,7 +255,47 @@ public class Nodo {
             return null;
         }
     }
-
+    
+    public Nodo getParams() {
+        try {
+            return getHijos().get(0).getHijos().get(1);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public Nodo getValorParam() {
+        try {
+            return getHijos().get(0).getHijos().get(1).getHijos().get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public Nodo getParamDerecha() {
+        try {
+            return getHijos().get(1).getHijos().get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public Nodo getFunctionId() {
+        try {
+            return getHijos().get(0).getHijos().get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public Nodo getParamIzquierda () {
+        try {
+            return getHijos().get(0).getHijos().get(0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
     public Nodo getRight() {
         try {
             return hijos.get(1);
