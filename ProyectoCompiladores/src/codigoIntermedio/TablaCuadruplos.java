@@ -64,5 +64,15 @@ public class TablaCuadruplos {
         etiqueta = etiqueta.substring(0, 4) + getNextEtiqueta();
         return etiqueta;
     }
+    
+    public ArrayList<String> getMensajes () {
+        ArrayList<String> mensajes = new ArrayList();
+        for (int i = 0; i < Cuadruplos.size(); i++) {
+            if (Cuadruplos.get(i).getOperator().equals("print") && Cuadruplos.get(i).getArgs1().contains("\"")) {
+                mensajes.add(Cuadruplos.get(i).getArgs1());
+            }
+        }
+        return mensajes;
+    }
 
 }

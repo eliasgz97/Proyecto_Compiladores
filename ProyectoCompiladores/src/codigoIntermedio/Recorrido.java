@@ -165,7 +165,7 @@ public class Recorrido {
                     recorrer(hoja, semaforo);
                 } else if (hoja.getNombre().equals("put_string")) {
                     if (semaforo != 1) { //este semaforo ayuda a generar el codigo intermedio de procedure y funciones después del main
-                        cuadruplos.generarCuadruplo("print", hoja.getValor(),
+                        cuadruplos.generarCuadruplo("print", '"' + hoja.getValor() + '"',
                                 "", "");
                     } else {
                         hoja.setVisitado2(false);

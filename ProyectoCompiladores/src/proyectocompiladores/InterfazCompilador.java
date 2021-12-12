@@ -2,6 +2,7 @@ package proyectocompiladores;
 
 import codigoIntermedio.Recorrido;
 import comprobacionTipos.Simbolo;
+import codigoFinal.CodigoFinal;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.io.BufferedReader;
@@ -721,6 +722,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     int handleReturn = 0;
     int offset = 0;
     Recorrido genCodigoIntermedio;
+    CodigoFinal mips;
 
     private String AnalizarSintaxis() {
         lexico = new AdaLexerCup(new BufferedReader(new StringReader(jtxtarea_entrada.getText())));
@@ -738,7 +740,14 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 genCodigoIntermedio.getCuadruplos().generarCuadruplo("ETIQ", "main", "", "s");
                 genCodigoIntermedio.recorrer(sintactico.padre.getHijos().get(0), 0);
                 genCodigoIntermedio.recorrerfunct();
+                mips = new CodigoFinal(SymbolTable, genCodigoIntermedio.getCuadruplos());
                 System.out.println(genCodigoIntermedio.imprimirCuadruplos());
+                genCodigoIntermedio.imprimirTabla();
+                mips.llamadoMetodos();
+                ArrayList <String> codigoMips = mips.getCodigoFinal();
+                for (int i = 0; i < codigoMips.size(); i++) {
+                    System.out.println(codigoMips.get(i));
+                }
             }
             if (!sintactico.errores.isEmpty()) {
                 for (int i = 0; i < sintactico.errores.size(); i++) {

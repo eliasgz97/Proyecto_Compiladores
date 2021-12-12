@@ -268,5 +268,16 @@ public class TablaSimbolos {
         System.out.println("Saliendo de imprimir en TablaSimbolos");
         System.out.println("============================================================:\n");
     }
-
+    
+    static public ArrayList<Simbolo> getVariablesGlobales () {
+        ArrayList<Simbolo> listavars = new ArrayList();
+        for (int i = 0; i < tablaSimbolos.size(); i++) {
+            if (!tablaSimbolos.get(i).getAmbito().contains(".") && (tablaSimbolos.get(i).getTipoVariable().equals("integer") 
+                    || tablaSimbolos.get(i).getTipoVariable().equals("boolean") || tablaSimbolos.get(i).getTipoVariable().equals("float"))) {
+                listavars.add(tablaSimbolos.get(i));
+            }
+        }
+        return listavars;
+    }
+    
 }
