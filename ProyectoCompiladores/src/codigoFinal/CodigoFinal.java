@@ -133,9 +133,15 @@ public class CodigoFinal {
             if (cuadruplosRecorrer.get(i).getArgs1().contains("FUN_")) {
                 String nombreFuncion = cuadruplosRecorrer.get(i).getArgs1();
                 actualFuncion = nombreFuncion.substring(4, nombreFuncion.length());
-                lineas.add("        sw $fp, -4($sp)");
-                lineas.add("        sw $ra, -8($sp)");
+                lineas.add("\t sw $fp, -4($sp)");
+                lineas.add("\t sw $ra, -8($sp)");
                 ingresarVariablesLocales();
+            }
+            if(cuadruplosRecorrer.get(i).getArgs1().equals("fin_proc")){
+                lineas.add("\t move $sp, $fp");
+                lineas.add("\t lw $fp, -4($sp)");
+                lineas.add("\t lw $ra, -8($sp)");
+                lineas.add("\t jr $ra");
             }
         }
     }
