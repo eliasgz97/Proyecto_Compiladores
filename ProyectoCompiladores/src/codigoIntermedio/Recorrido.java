@@ -235,7 +235,7 @@ public class Recorrido {
                                 hoja.getHijos().get(1).setVisitado2(true);
                             } else { //si no, solo hay un parámetro
                                 cuadruplos.generarCuadruplo("PARAM", hoja.getParamDerecha().getValor(), "", ""); //solo generamos un parámetro
-                                hoja.getParamDerecha().setVisitado2(true);
+                                hoja.getHijos().get(1).setVisitado2(true);
                             }
                             cuadruplos.generarCuadruplo("CALL", hoja.getHijos().get(0).getValor(), "", ""); //se genera el llamado a la función
                         } else if (hoja.getHijos().size() == 1) { // es porque no tiene parámetros

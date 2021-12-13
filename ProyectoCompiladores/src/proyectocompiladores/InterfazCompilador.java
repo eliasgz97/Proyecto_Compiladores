@@ -744,7 +744,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 System.out.println(genCodigoIntermedio.imprimirCuadruplos());
                 genCodigoIntermedio.imprimirTabla();
                 mips.llamadoMetodos();
-                ArrayList <String> codigoMips = mips.getCodigoFinal();
+                ArrayList<String> codigoMips = mips.getCodigoFinal();
                 for (int i = 0; i < codigoMips.size(); i++) {
                     System.out.println(codigoMips.get(i));
                 }
@@ -930,7 +930,24 @@ public class InterfazCompilador extends javax.swing.JFrame {
                             if (hoja.getHijos().get(1).getNombre().equals(",")) {
                                 tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
                             } else {
-                                tipoParam = convertirTipos(hoja.getHijos().get(1).getHijos().get(0).getNombre());
+                                String evaluacionTipo = hoja.getHijos().get(1).getHijos().get(0).getNombre();
+                                switch (evaluacionTipo) {
+                                    case "num_int":
+                                        tipoParam = convertirTipos(evaluacionTipo);
+                                        break;
+                                    case "numfloat":
+                                        tipoParam = convertirTipos(evaluacionTipo);
+                                        break;
+                                    case "boolean":
+                                        tipoParam = convertirTipos(evaluacionTipo);
+                                        break;
+                                    case "id":
+                                        String tipoID = SymbolTable.buscarTipo(hoja.getHijos().get(1).getHijos().get(0).getValor(), ambito);
+                                        if (!tipoID.contains("error")) {
+                                            tipoParam = tipoID;
+                                        }
+                                        break;
+                                }
                             }
                             //llama al método que retorna el tipo de los parámetros enviados concatenados
                             tipoFuncion = SymbolTable.buscarDominio(tipoFuncion); //busca el dominio de la función
@@ -1197,7 +1214,24 @@ public class InterfazCompilador extends javax.swing.JFrame {
                                         if (hoja.getHijos().get(1).getNombre().equals(",")) {
                                             tipoParam = comprobarLlamadoFuncion(hoja.getHijos().get(1), ambito, "");
                                         } else {
-                                            tipoParam = convertirTipos(hoja.getHijos().get(1).getHijos().get(0).getNombre());
+                                            String evaluacionTipo = hoja.getHijos().get(1).getHijos().get(0).getNombre();
+                                            switch (evaluacionTipo) {
+                                                case "num_int":
+                                                    tipoParam = convertirTipos(evaluacionTipo);
+                                                    break;
+                                                case "numfloat":
+                                                    tipoParam = convertirTipos(evaluacionTipo);
+                                                    break;
+                                                case "boolean":
+                                                    tipoParam = convertirTipos(evaluacionTipo);
+                                                    break;
+                                                case "id":
+                                                    String tipoID = SymbolTable.buscarTipo(hoja.getHijos().get(1).getHijos().get(0).getValor(), ambito);
+                                                    if (!tipoID.contains("error")) {
+                                                        tipoParam = tipoID;
+                                                    }
+                                                    break;
+                                            }
                                         }
                                         //retorna el tipo de los parametros concatenados
                                         tipoFuncion = SymbolTable.buscarDominio(tipoFuncion); //encuentra el dominio de la función
@@ -1228,66 +1262,62 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
     public String comprobarLlamadoFuncion(Nodo valor, String ambito, String tipo) {
         //System.out.println("entra llamadoFuncion");
-        if (valor.getHijos().size() > 1) {
-            if (valor.getHijos().get(1).getNombre().equals(",")) { // recorre recursivamente si encuentra una coma
-                switch (valor.getHijos().get(0).getHijos().get(0).getNombre()) {
-                    case "num_int":
-                        tipo += convertirTipos("num_int") + "x";
-                        break;
-                    case "numfloat":
-                        tipo += convertirTipos("numfloat") + "x";
-                        break;
-                    case "boolean":
-                        tipo += "boolean" + "x";
-                        break;
-                    case "id":
-                        tipo += SymbolTable.buscarTipo(valor.getHijos().get(0).getHijos().get(0).getValor(), ambito) + "x";
-                        break;
-                    default:
-                        tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
-                        break;
-                }
-                return comprobarLlamadoFuncion(valor.getHijos().get(1), ambito, tipo);
-            } else if (valor.getHijos().get(1).getNombre().equals("Asignacion")) { //cuando encuentra una asignacion a la derecha
-                switch (valor.getHijos().get(0).getHijos().get(0).getNombre()) {
-                    case "num_int":
-                        tipo += convertirTipos("num_int") + "x";
-                        break;
-                    case "numfloat":
-                        tipo += convertirTipos("numfloat") + "x";
-                        break;
-                    case "boolean":
-                        tipo += "boolean" + "x";
-                        break;
-                    case "id":
-                        tipo += SymbolTable.buscarTipo(valor.getHijos().get(0).getHijos().get(0).getValor(), ambito) + "x";
-                        break;
-                    default:
-                        tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
-                        break;
-                    //System.out.println("entra precedencia");
-                }
-                switch (valor.getHijos().get(1).getHijos().get(0).getNombre()) {
-                    case "num_int":
-                        tipo += convertirTipos("num_int") + "x";
-                        break;
-                    case "numfloat":
-                        tipo += convertirTipos("numfloat") + "x";
-                        break;
-                    case "boolean":
-                        tipo += "boolean" + "x";
-                        break;
-                    case "id":
-                        tipo += SymbolTable.buscarTipo(valor.getHijos().get(1).getHijos().get(0).getValor(), ambito);
-                        break;
-                    default:
-                        tipo += comprobarValorMejorado(valor.getHijos().get(1).getHijos().get(0), ambito, "");
-                        break;
-                    //System.out.println("entró precedencia");
-                }
+        if (valor.getHijos().get(1).getNombre().equals(",")) { // recorre recursivamente si encuentra una coma
+            switch (valor.getHijos().get(0).getHijos().get(0).getNombre()) {
+                case "num_int":
+                    tipo += convertirTipos("num_int") + "x";
+                    break;
+                case "numfloat":
+                    tipo += convertirTipos("numfloat") + "x";
+                    break;
+                case "boolean":
+                    tipo += "boolean" + "x";
+                    break;
+                case "id":
+                    tipo += SymbolTable.buscarTipo(valor.getHijos().get(0).getHijos().get(0).getValor(), ambito) + "x";
+                    break;
+                default:
+                    tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
+                    break;
             }
-        } else {
-            tipo = convertirTipos(valor.getHijos().get(0).getNombre());
+            return comprobarLlamadoFuncion(valor.getHijos().get(1), ambito, tipo);
+        } else if (valor.getHijos().get(1).getNombre().equals("Asignacion")) { //cuando encuentra una asignacion a la derecha
+            switch (valor.getHijos().get(0).getHijos().get(0).getNombre()) {
+                case "num_int":
+                    tipo += convertirTipos("num_int") + "x";
+                    break;
+                case "numfloat":
+                    tipo += convertirTipos("numfloat") + "x";
+                    break;
+                case "boolean":
+                    tipo += "boolean" + "x";
+                    break;
+                case "id":
+                    tipo += SymbolTable.buscarTipo(valor.getHijos().get(0).getHijos().get(0).getValor(), ambito) + "x";
+                    break;
+                default:
+                    tipo += convertirTipos(comprobarValorMejorado(valor.getHijos().get(0).getHijos().get(0), ambito, "")) + "x";
+                    break;
+                //System.out.println("entra precedencia");
+                }
+            switch (valor.getHijos().get(1).getHijos().get(0).getNombre()) {
+                case "num_int":
+                    tipo += convertirTipos("num_int") + "x";
+                    break;
+                case "numfloat":
+                    tipo += convertirTipos("numfloat") + "x";
+                    break;
+                case "boolean":
+                    tipo += "boolean" + "x";
+                    break;
+                case "id":
+                    tipo += SymbolTable.buscarTipo(valor.getHijos().get(1).getHijos().get(0).getValor(), ambito) + "x";
+                    break;
+                default:
+                    tipo += comprobarValorMejorado(valor.getHijos().get(1).getHijos().get(0), ambito, "") + "x";
+                    break;
+                //System.out.println("entró precedencia");
+                }
         }
         return tipo.substring(0, tipo.length() - 1);
     }
