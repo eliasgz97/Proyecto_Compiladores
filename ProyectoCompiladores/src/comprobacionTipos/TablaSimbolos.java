@@ -1,5 +1,6 @@
 package comprobacionTipos;
 
+import com.sun.org.apache.xerces.internal.util.SymbolTable;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -9,6 +10,7 @@ public class TablaSimbolos {
 
     static ArrayList<Simbolo> tablaSimbolos = new ArrayList<Simbolo>();
     static ArrayList<String> erroresSemanticos = new ArrayList<>();
+    static String errorAmbito = "";
     // static Map<String, Simbolo> tablaSimbolos = new HashMap();
     // static Stack<String> lista;
     // static ArrayList<Nodo> repeticiones;
@@ -64,7 +66,7 @@ public class TablaSimbolos {
         tablaSimbolos.set(pos, s);
     }
 
-    static public Simbolo insertar2(String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean tipoFuncion, String ambito) {
+    static public Simbolo insertar2(String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean tipoFuncion, Boolean tipoProcedure, String ambito, int offset) {
         Simbolo simbolo = null;
         boolean existe = false;
         for (Simbolo s : tablaSimbolos) {
@@ -75,8 +77,7 @@ public class TablaSimbolos {
         }
         // La variable no existe
         if (!existe) {
-            simbolo = new Simbolo(nombre, tipoVariable, valor.toString(), tipoConstante, tipoFuncion, ambito);
-            System.out.println("Agregando a tabla de simbolos con nombre: " + nombre);
+            simbolo = new Simbolo(nombre, tipoVariable, valor.toString(), tipoConstante, tipoFuncion, tipoProcedure, ambito, offset);
             tablaSimbolos.add(simbolo);
             // System.out.println("Variable creada exitosamente!!!");
             //imprimir();
@@ -100,8 +101,46 @@ public class TablaSimbolos {
             return nombre;
         }
     }
+    
+    static public String get_ambit_hijos_func(String namefunc) {
+        String ambitohijos = "";
+        for (int j = 0; j < tablaSimbolos.size(); j++) {
+            if (tablaSimbolos.get(j).getNombre().equals(namefunc)) {
+                ambitohijos = tablaSimbolos.get(j).getAmbito();
+                break;
+            }
+        }
+        return ambitohijos;
+    }
+    
+    static public Simbolo get_offsert_var_locales(String namefunc, String var) {
+        Simbolo vartoken = null;
+        String ambitohijos = get_ambit_hijos_func(namefunc);
+        for (int j = 0; j < tablaSimbolos.size(); j++) {
+            if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && tablaSimbolos.get(j).getNombre().equals(var) && tablaSimbolos.get(j).getTipoConstante()) {
+                vartoken = tablaSimbolos.get(j);
+                break;
+            }
+        }
+        return vartoken;
+    }
+    
+    static public ArrayList<Simbolo> get_variables_locales(String namefunc) {
 
-    static public Simbolo crear(String nombre, String tipoVariable, Boolean constante, Boolean function) {
+        ArrayList<Simbolo> listavars = new ArrayList();
+        String ambitohijos = get_ambit_hijos_func(namefunc);
+        ambitohijos += "." + namefunc;
+        for (int j = 0; j < tablaSimbolos.size(); j++) {
+            if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && !tablaSimbolos.get(j).getTipoConstante()) {
+                listavars.add(tablaSimbolos.get(j));
+                System.out.println(tablaSimbolos.get(j).getNombre() + ":::");
+            }
+        }
+        return listavars;
+
+    }
+    
+    static public Simbolo crear(String nombre, String tipoVariable, Boolean constante, Boolean function, Boolean procedure, int offset) {
         Simbolo simbolo = null;
         // Validar si existe
         boolean existe = false;
@@ -113,7 +152,7 @@ public class TablaSimbolos {
         }
         // La variable no existe
         if (!existe) {
-            simbolo = new Simbolo(nombre, tipoVariable, null, constante, function, "");
+            simbolo = new Simbolo(nombre, tipoVariable, null, constante, function, procedure, "", offset);
             System.out.println("Agregando a tabla de simbolos con nombre: " + nombre);
             tablaSimbolos.add(simbolo);
             // System.out.println("Variable creada exitosamente!!!");
@@ -175,7 +214,6 @@ public class TablaSimbolos {
                     break;
                 }
             } else {
-                System.out.println("entra else");
                 tipo = "error, la variable no ha sido encontrada";
             }
         }
@@ -185,9 +223,43 @@ public class TablaSimbolos {
         }
         return tipo;
     }
-    
-    static public String buscarDominio (String tipo) {
-        tipo = tipo.trim();
+
+    static public boolean esFuncion(String nombre, String ambito) {
+        boolean isFuncion = false;
+        for (Simbolo s : tablaSimbolos) {
+            if (s.nombre.equals(nombre)) {
+                if (ambito.contains(s.ambito)) {
+                    isFuncion = s.isFunction;
+                    break;
+                }
+            }
+        }
+        return isFuncion;
+    }
+
+    static public boolean esProcedure(String nombre, String ambito) {
+        boolean isProcedure = false;
+        String ambitoEncontrado = "";
+        for (Simbolo s : tablaSimbolos) {
+            if (s.nombre.equals(nombre)) {
+                if (s.isProcedure) {
+                    if (ambito.contains(s.ambito)) {
+                        isProcedure = s.isProcedure;
+                        ambitoEncontrado = "ambito encontrado";
+                        break;
+                    } else {
+                        ambitoEncontrado = "ambito no encontrado";
+                    }
+                }
+            }
+        }
+        if (ambitoEncontrado.equals("ambito no encontrado") || ambitoEncontrado.equals("")) {
+            erroresSemanticos.add("error, el procedimiento " + nombre + " no ha sido encontrado");
+        }
+        return isProcedure;
+    }
+
+    static public String buscarDominio(String tipo) {
         //System.out.println(tipo+"tipo sin espacios");
         for (int i = 0; i < tipo.length(); i++) {
             if (tipo.charAt(i) == '-') {
@@ -196,7 +268,19 @@ public class TablaSimbolos {
                 break;
             }
         }
-        return tipo;
+        return tipo.trim();
+    }
+
+    static public String buscarRetorno(String tipo) {
+        //System.out.println(tipo+"tipo sin espacios");
+        for (int i = 0; i < tipo.length(); i++) {
+            if (tipo.charAt(i) == '-') {
+                tipo = tipo.substring(i + 2, tipo.length());
+                //System.out.println(tipo + "tipo Dominio");
+                break;
+            }
+        }
+        return tipo.trim();
     }
 
     static public String buscarTipo(String nombre) {
@@ -222,5 +306,16 @@ public class TablaSimbolos {
         System.out.println("Saliendo de imprimir en TablaSimbolos");
         System.out.println("============================================================:\n");
     }
-
+    
+    static public ArrayList<Simbolo> getVariablesGlobales () {
+        ArrayList<Simbolo> listavars = new ArrayList();
+        for (int i = 0; i < tablaSimbolos.size(); i++) {
+            if (!tablaSimbolos.get(i).getAmbito().contains(".") && (tablaSimbolos.get(i).getTipoVariable().equals("integer") 
+                    || tablaSimbolos.get(i).getTipoVariable().equals("boolean") || tablaSimbolos.get(i).getTipoVariable().equals("float"))) {
+                listavars.add(tablaSimbolos.get(i));
+            }
+        }
+        return listavars;
+    }
+    
 }

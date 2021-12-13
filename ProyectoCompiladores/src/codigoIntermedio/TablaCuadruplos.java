@@ -20,6 +20,7 @@ public class TablaCuadruplos {
     public TablaCuadruplos() {
         Cuadruplos = new ArrayList<Cuadruplo>();
         temporal = "t0";
+        etiqueta = "ETIQ0";
     }
 
     public ArrayList<Cuadruplo> getCuadruplos() {
@@ -53,6 +54,25 @@ public class TablaCuadruplos {
 
     public String temporalAnterior() {
         return temporal.substring(0, 1) + (getLastTemporal());
+    }
+    
+    private int getNextEtiqueta() {
+        return Integer.parseInt(etiqueta.substring(4)) + 1;
+    }
+
+    public String etiquetaNueva() {
+        etiqueta = etiqueta.substring(0, 4) + getNextEtiqueta();
+        return etiqueta;
+    }
+    
+    public ArrayList<String> getMensajes () {
+        ArrayList<String> mensajes = new ArrayList();
+        for (int i = 0; i < Cuadruplos.size(); i++) {
+            if (Cuadruplos.get(i).getOperator().equals("print") && Cuadruplos.get(i).getArgs1().contains("\"")) {
+                mensajes.add(Cuadruplos.get(i).getArgs1());
+            }
+        }
+        return mensajes;
     }
 
 }

@@ -253,7 +253,6 @@ RESULT = hijo;
 asignar_valor_variables ::= ASIGNACION:asignacion S:s
 {:
 RESULT = s;
-System.out.println(asignacion.toString());
 :}
 |
 ASIGNACION:asignacion TRUE:t
@@ -277,7 +276,18 @@ tmp.setNumNodo(parser.contador++);
 asign.addHijo((Nodo) tmp);
 RESULT = asign;
 :}
-| ASIGNACION error:r
+|
+ASIGNACION:asignacion llamado_funcion:funCall
+{:
+Nodo assign = new Nodo ("Asignacion");
+assign.setNumNodo(parser.contador++);
+Nodo func_call = new Nodo ();
+func_call = (Nodo) funCall;
+assign.addHijo((Nodo) func_call);
+RESULT = assign;
+:}
+| 
+ASIGNACION error:r
 {:
     parser.errores.add("Valor esperado para asignacion" + " | linea " + (rright+1) + " columna " +(rleft-1) +" |");
     Nodo errorcito= new Nodo("error");
@@ -427,7 +437,6 @@ RESULT = tmp;
 /*-------------------------------PARAMETROS FUNCION--------------------------------------------*/
 parametros_funcion ::= repeticion_id:rep_id DECLARACION:dec TIPOVARIABLE:tipo SEMICOLON:semi parametros_funcion:paramF
 {:
-System.out.println("entra");
 Nodo tmp = new Nodo("declaracion_variables");
 tmp.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) rep_id);
@@ -876,7 +885,7 @@ procedure.setValor(id.toString());
 tmp.addHijo((Nodo) procedure);
 procedure.addHijo((Nodo) pm);
 procedure.addHijo((Nodo) b);
-procedure.addHijo((Nodo) v);
+tmp.addHijo((Nodo) v);
 parser.padre = (Nodo) tmp;
 RESULT = tmp;
 :}
@@ -963,7 +972,6 @@ RESULT = tmp;
 | 
 ID:id ASIGNACION:asignacion FALSE:f SEMICOLON:semi
 {:
-System.out.println(id.toString() + asignacion.toString() + f.toString());
 Nodo tmp = new Nodo ("asignar_valor");
 tmp.setNumNodo(parser.contador++);
 Nodo hijoId = new Nodo("id");
@@ -988,7 +996,24 @@ tmp.addHijo((Nodo) hijoId);
 tmp.addHijo((Nodo) s1);
 RESULT = tmp;
 :}
+|
+ID:id ASIGNACION:asignacion llamado_funcion:func_call SEMICOLON:semi
+{:
+Nodo tmp = new Nodo ("asignar_valor");
+tmp.setNumNodo(parser.contador++);
+Nodo hijoId = new Nodo("id");
+hijoId.setNumNodo(parser.contador++);
+hijoId.setValor(id.toString());
+tmp.addHijo((Nodo) hijoId);
+Nodo funCall = new Nodo ("Asignacion");
+funCall.setNumNodo(parser.contador++);
+funCall.addHijo((Nodo) func_call);
+tmp.addHijo((Nodo) funCall);
+RESULT = tmp;
+:}
 ;
+
+
 
 BEG ::= BEGIN:bgn cuerpo:c END:end end_id:endId SEMICOLON:semi
 {:
@@ -1008,7 +1033,6 @@ RESULT = tmp;
 
 cuerpo ::= for_loop:forLoop cuerpo:c
 {:
-System.out.println("entra for cuerpo");
 Nodo tmp = new Nodo("nueva_linea");
 tmp.setNumNodo(parser.contador++);
 tmp.addHijo((Nodo) forLoop);
@@ -1153,8 +1177,6 @@ parser.errores.add("Cuerpo no puede ser vacio " +" | linea "+ (rright+1) + " col
     RESULT=errorcito;
 :}
 ;
-
-
 
 fin_cuerpo ::= for_loop:forLoop
 {:
@@ -1430,7 +1452,6 @@ error:r
 
 elseif_else ::= ELSIF:elif condicion_if:cond_elif THEN:then cuerpo:c elseif_else:elif_else
 {:
-System.out.println("entra elsif");
 Nodo elsif = new Nodo ("elsif-then");
 elsif.setNumNodo(parser.contador++);
 elsif.addHijo((Nodo) cond_elif);
@@ -1441,7 +1462,6 @@ RESULT = elsif;
 |
 ELSE:else1 cuerpo:c END:end_if IF:if2 SEMICOLON:semi
 {:
-System.out.println("entra if con else");
 Nodo hijoElse = new Nodo ("else");
 hijoElse.setNumNodo(parser.contador++);
 hijoElse.addHijo((Nodo) c);
@@ -1453,7 +1473,6 @@ RESULT = hijoElse;
 
 bloque_if ::= IF:i condicion_if:cond_if THEN:then cuerpo:c elseif_else:el_if
 {:
-System.out.println("entra if elsif");
 Nodo hijoIf = new Nodo ("if-then");
 hijoIf.setNumNodo(parser.contador++);
 hijoIf.addHijo((Nodo) cond_if);
@@ -1471,7 +1490,6 @@ error:r condicion_if:cond_if THEN:then cuerpo:c elseif_else:el_if
 |
 IF:i condicion_if:cond_if THEN:then cuerpo:c END:end_if IF:if1 SEMICOLON:semi
 {:
-System.out.println("entra if elsif");
 Nodo hijoIf = new Nodo ("if-then");
 hijoIf.setNumNodo(parser.contador++);
 hijoIf.addHijo((Nodo) cond_if);
@@ -1631,6 +1649,17 @@ ID repeticion_parametros:rep_param PARDER:par_der error:r
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
 :}
+|
+ID:id PARIZQ PARDER
+{:
+Nodo tmp = new Nodo ("llamado_funcion");
+tmp.setNumNodo(parser.contador++);
+Nodo hijoId = new Nodo ("id");
+hijoId.setNumNodo(parser.contador++);
+hijoId.setValor(id.toString());
+tmp.addHijo((Nodo) hijoId);
+RESULT = tmp;
+:}
 ;
 
 repeticion_parametros ::= valores_funcion:vf COMA:c repeticion_parametros:repParam
@@ -1658,6 +1687,7 @@ RESULT = s;
 TRUE:t
 {:
 Nodo assign = new Nodo ("Asignacion");
+assign.setNumNodo(parser.contador++);
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(t.toString());
 tmp.setNumNodo(parser.contador++);
@@ -1667,12 +1697,13 @@ RESULT = assign;
 |
 FALSE:f
 {:
-Nodo assign = new Nodo ("Asignacion");
+Nodo assign1 = new Nodo ("Asignacion");
+assign1.setNumNodo(parser.contador++);
 Nodo tmp = new Nodo("boolean");
 tmp.setValor(f.toString());
 tmp.setNumNodo(parser.contador++);
-assign.addHijo((Nodo) tmp);
-RESULT = assign;
+assign1.addHijo((Nodo) tmp);
+RESULT = assign1;
 :}
 ;
 
@@ -1729,7 +1760,6 @@ RESULT = nodoFor;
 | 
 error:r ID:id IN:i S:op1 DOSPUNTOS:puntos S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
-    System.out.println("Entra for sin cabaeza");
     parser.errores.add("Palabra for faltante " + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
@@ -1737,7 +1767,6 @@ error:r ID:id IN:i S:op1 DOSPUNTOS:puntos S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:l
 | 
 FOR error:r IN:i S:op1 DOSPUNTOS:puntos S:op1_2 LOOP:lp1 cuerpo:c END:e LOOP:lp2 SEMICOLON:semi
 {: 
-    System.out.println("Entra for sin id");
     parser.errores.add("Id faltante para for" + " | linea " + (rright+1) + " columna " +(rleft+1) +" |");  
     Nodo errorcito= new Nodo("error");
     RESULT=errorcito;
