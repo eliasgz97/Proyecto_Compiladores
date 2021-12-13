@@ -101,7 +101,45 @@ public class TablaSimbolos {
             return nombre;
         }
     }
+    
+    static public String get_ambit_hijos_func(String namefunc) {
+        String ambitohijos = "";
+        for (int j = 0; j < tablaSimbolos.size(); j++) {
+            if (tablaSimbolos.get(j).getNombre().equals(namefunc)) {
+                ambitohijos = tablaSimbolos.get(j).getAmbito();
+                break;
+            }
+        }
+        return ambitohijos;
+    }
+    
+    static public Simbolo get_offsert_var_locales(String namefunc, String var) {
+        Simbolo vartoken = null;
+        String ambitohijos = get_ambit_hijos_func(namefunc);
+        for (int j = 0; j < tablaSimbolos.size(); j++) {
+            if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && tablaSimbolos.get(j).getNombre().equals(var) && tablaSimbolos.get(j).getTipoConstante()) {
+                vartoken = tablaSimbolos.get(j);
+                break;
+            }
+        }
+        return vartoken;
+    }
+    
+    static public ArrayList<Simbolo> get_variables_locales(String namefunc) {
 
+        ArrayList<Simbolo> listavars = new ArrayList();
+        String ambitohijos = get_ambit_hijos_func(namefunc);
+        ambitohijos += "." + namefunc;
+        for (int j = 0; j < tablaSimbolos.size(); j++) {
+            if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && !tablaSimbolos.get(j).getTipoConstante()) {
+                listavars.add(tablaSimbolos.get(j));
+                System.out.println(tablaSimbolos.get(j).getNombre() + ":::");
+            }
+        }
+        return listavars;
+
+    }
+    
     static public Simbolo crear(String nombre, String tipoVariable, Boolean constante, Boolean function, Boolean procedure, int offset) {
         Simbolo simbolo = null;
         // Validar si existe

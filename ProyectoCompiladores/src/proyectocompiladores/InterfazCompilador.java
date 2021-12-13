@@ -823,7 +823,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                                 SymbolTable.insertar2(id, tipo, valor, false, false, false, ambito, offset);
                                 offset += retornaOffset(tipo);
                             } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                                recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito);
+                                recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito, false);
                             }
                         }
                         contadortipo = 0;
@@ -836,7 +836,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                             SymbolTable.insertar2(id, tipo, valor, false, false, false, ambito, offset);
                             offset += retornaOffset(tipo);
                         } else if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                            recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito);
+                            recorrerRepeticion(hoja.getHijos().get(0), valor, hoja.getHijos().get(1).getValor(), ambito, false);
                         }
                     }
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
@@ -1002,7 +1002,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
             case "integer":
                 return 4;
             case "boolean":
-                return 2;
+                return 1;
             case "float":
                 return 4;
             default:
@@ -1292,20 +1292,20 @@ public class InterfazCompilador extends javax.swing.JFrame {
         return tipo.substring(0, tipo.length() - 1);
     }
 
-    public void recorrerRepeticion(Nodo padre, String valor, String tipo, String ambito) { //metodo que agrega variables separadas por coma
+    public void recorrerRepeticion(Nodo padre, String valor, String tipo, String ambito, boolean esParametro) { //metodo que agrega variables separadas por coma
         if (padre.getHijos().get(1).getNombre().equals(",")) { //caso base cuando encuentra un id
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, false, ambito, offset);
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, esParametro, false, false, ambito, offset);
             offset += retornaOffset(tipo);
-            recorrerRepeticion(padre.getHijos().get(1), valor, tipo, ambito);
+            recorrerRepeticion(padre.getHijos().get(1), valor, tipo, ambito, esParametro);
         } else if (padre.getHijos().get(1).getNombre().equals("id")) { //caso cuando encuentra una coma
             String rep_id;
             rep_id = padre.getHijos().get(0).getValor();
-            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, false, ambito, offset);
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, esParametro, false, false, ambito, offset);
             offset += retornaOffset(tipo);
             rep_id = padre.getHijos().get(1).getValor();
-            SymbolTable.insertar2(rep_id, tipo, (Object) valor, false, false, false, ambito, offset);
+            SymbolTable.insertar2(rep_id, tipo, (Object) valor, esParametro, false, false, ambito, offset);
             offset += retornaOffset(tipo);
         }
     }
@@ -1315,11 +1315,11 @@ public class InterfazCompilador extends javax.swing.JFrame {
             if (hoja.getNombre().equals("parametros_funcion")) {
                 //tipo += hoja.getHijos().get(1).getValor() + "x";
                 if (hoja.getHijos().get(0).getNombre().equals(",")) {
-                    recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), ambito + "." + id); // tiene que recibir ambito como string
+                    recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), ambito + "." + id, true); // tiene que recibir ambito como string
                 } else if (hoja.getHijos().get(0).getNombre().equals("id")) {
                     //String nombre, String tipoVariable, Object valor, Boolean tipoConstante, Boolean isFunction, String ambito
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), hoja.getHijos().get(1).getValor(),
-                            "", false, false, false, ambito + "." + id, offset);
+                            "", true, false, false, ambito + "." + id, offset);
                     offset += retornaOffset(hoja.getHijos().get(1).getValor());
                 }
                 recorrerDominio(hoja, id, ambito, rango);

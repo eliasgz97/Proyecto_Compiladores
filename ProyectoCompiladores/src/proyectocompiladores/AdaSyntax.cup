@@ -885,7 +885,7 @@ procedure.setValor(id.toString());
 tmp.addHijo((Nodo) procedure);
 procedure.addHijo((Nodo) pm);
 procedure.addHijo((Nodo) b);
-procedure.addHijo((Nodo) v);
+tmp.addHijo((Nodo) v);
 parser.padre = (Nodo) tmp;
 RESULT = tmp;
 :}

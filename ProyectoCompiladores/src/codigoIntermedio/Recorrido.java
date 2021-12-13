@@ -232,13 +232,16 @@ public class Recorrido {
                         if (hoja.getHijos().size() > 1) { // es porque hay 1 o más parámetros
                             if (hoja.getHijos().get(1).getNombre().equals(",")) { // si es coma hay más de 2 parámetros 
                                 recorrerLlamadoFuncion(hoja.getHijos().get(1));
+                                hoja.getHijos().get(1).setVisitado2(true);
                             } else { //si no, solo hay un parámetro
                                 cuadruplos.generarCuadruplo("PARAM", hoja.getParamDerecha().getValor(), "", ""); //solo generamos un parámetro
+                                hoja.getParamDerecha().setVisitado2(true);
                             }
                             cuadruplos.generarCuadruplo("CALL", hoja.getHijos().get(0).getValor(), "", ""); //se genera el llamado a la función
                         } else if (hoja.getHijos().size() == 1) { // es porque no tiene parámetros
                             cuadruplos.generarCuadruplo("CALL", hoja.getHijos().get(0).getValor(), "", ""); // solo se genera el call porque no hay parametros
                         }
+                        hoja.setVisitado2(true);
                     } else {
                         hoja.setVisitado2(false); //si el semaforo es 1, el visitado se vuelve false para generar el código intermedio después que termina de recorrer
                     }
