@@ -31,27 +31,27 @@ public class CodigoFinal {
     }
 
     public void generarData() {
-        lineas.add("            .data");
+        lineas.add("\t .data");
         for (Simbolo s : variables) {
             if (s.tipoVariable.toLowerCase().equals("integer")) {
-                lineas.add("_" + s.nombre + ":        .word 0");
+                lineas.add("_" + s.nombre + ":\t .word 0");
             }
             if (s.tipoVariable.toLowerCase().equals("boolean")) {
-                lineas.add("_" + s.nombre + ":        .byte 0");
+                lineas.add("_" + s.nombre + ":\t .byte 0");
             }
             if (s.tipoVariable.toLowerCase().equals("float")) {
-                lineas.add("_" + s.nombre + ":        .float 0.0");
+                lineas.add("_" + s.nombre + ":\t .float 0.0");
             }
         }
         int contador = 1;
         for (String mesgs : msjs) {
-            lineas.add("_mesg" + contador + ":     .asciiz " + mesgs);
+            lineas.add("_mesg" + contador + ":\t .asciiz " + mesgs);
             contador++;
 
         }
         lineas.add("");
-        lineas.add("            .text");
-        lineas.add("            .globl main");
+        lineas.add("\t .text");
+        lineas.add("\t .globl main");
         /*lineas.add("_true:        .asciiz \"true\\n\"");
         lineas.add("_false:        .asciiz \"false\\n\"");
         lineas.add("bool:   .space 8");
@@ -70,35 +70,47 @@ public class CodigoFinal {
         ArrayList<Cuadruplo> cuadruplosRecorrer = this.cuadruplos.getCuadruplos();
         lineas.add("main:");
         for (int i = 0; i < cuadruplosRecorrer.size(); i++) {
-             if (cuadruplosRecorrer.get(i).getOperator().equals("print")) {
-                 generarPrint(cuadruplosRecorrer.get(i));
-             }
-             /*if () {
+
+            if (cuadruplosRecorrer.get(i).getOperator().equals("print")) {
+                generarPrint(cuadruplosRecorrer.get(i));
+            }
+            if (cuadruplosRecorrer.get(i).getOperator().equals("=")) {
+                generarAsignacion(cuadruplosRecorrer.get(i));
+            }
+            /*if () {
                  
              }*/
-             if (cuadruplosRecorrer.get(i).getArgs1().contains("FUN_")) {
-                 lineas.add(cuadruplosRecorrer.get(i).getArgs1()+ ":");
-             }
+            if (cuadruplosRecorrer.get(i).getArgs1().contains("FUN_")) {
+                lineas.add(cuadruplosRecorrer.get(i).getArgs1() + ":");
+            }
         }
     }
 
-    public void generarPrint(Cuadruplo print) {
+    public void generarPrint(Cuadruplo print) { // Metodo para realizar prints en codigo ensamblador
         if (print.getArgs1().contains("\"")) {
             int msg = msjs.indexOf(print.getArgs1()) + 1;
-            lineas.add("            li $v0, 4");
-            lineas.add("            li $a0, _mesg" + msg);
-            lineas.add("            syscall");
+            lineas.add("\t li $v0, 4");
+            lineas.add("\t li $a0, _mesg" + msg);
+            lineas.add("\t syscall");
             lineas.add("");
         } else if (print.getArgs1().matches("[0-9]+")) {
-            lineas.add("        li $v0, 1");
-            lineas.add("        li $a0, " + print.getArgs1());
-            lineas.add("        syscall");
+            lineas.add("\t li $v0, 1");
+            lineas.add("\t li $a0, " + print.getArgs1());
+            lineas.add("\t syscall");
             lineas.add("");
         } else {
-            lineas.add("        li $v0, 1");
-            lineas.add("        lw $a0, " + "_" +print.getArgs1());
-            lineas.add("        syscall");
+            lineas.add("\t li $v0, 1");
+            lineas.add("\t lw $a0, " + "_" + print.getArgs1());
+            lineas.add("\t syscall");
             lineas.add("");
         }
+    }
+
+    public void generarAsignacion(Cuadruplo asignacion) {
+        if (asignacion.getArgs1().charAt(0)!='t' && asignacion.getArgs2().equals("")) {
+        lineas.add("\t li $t0," + asignacion.getArgs1());
+        lineas.add("\t sw $t0,_" + asignacion.getResult());
+        }
+        
     }
 }
