@@ -102,7 +102,7 @@ public class TablaSimbolos {
         }
     }
     
-    static public String get_ambit_hijos_func(String namefunc) {
+    static public String ambitoHijosFunc(String namefunc) {
         String ambitohijos = "";
         for (int j = 0; j < tablaSimbolos.size(); j++) {
             if (tablaSimbolos.get(j).getNombre().equals(namefunc)) {
@@ -113,11 +113,12 @@ public class TablaSimbolos {
         return ambitohijos;
     }
     
-    static public Simbolo get_offsert_var_locales(String namefunc, String var) {
+    static public Simbolo getOffsetVarLocales(String namefunc, String var) {
         Simbolo vartoken = null;
-        String ambitohijos = get_ambit_hijos_func(namefunc);
+        String ambitohijos = ambitoHijosFunc(namefunc);
+        ambitohijos += "." + namefunc;
         for (int j = 0; j < tablaSimbolos.size(); j++) {
-            if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && tablaSimbolos.get(j).getNombre().equals(var) && tablaSimbolos.get(j).getTipoConstante()) {
+            if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && tablaSimbolos.get(j).getNombre().equals(var) && !tablaSimbolos.get(j).getTipoConstante()) {
                 vartoken = tablaSimbolos.get(j);
                 break;
             }
@@ -125,10 +126,25 @@ public class TablaSimbolos {
         return vartoken;
     }
     
-    static public ArrayList<Simbolo> get_variables_locales(String namefunc) {
+     public ArrayList<Simbolo> getParametros(String namefunc) {
+        System.out.println("ACAAAAAAAA EMPIENZAN LOS PARAMETROS");
+        ArrayList<Simbolo> listavars = new ArrayList();
+        String ambitohijos = ambitoHijosFunc(namefunc);
+        ambitohijos += "." + namefunc;
+        for (int j = 0; j < tablaSimbolos.size(); j++) {
+            if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && tablaSimbolos.get(j).getTipoConstante()) {
+                listavars.add(tablaSimbolos.get(j));
+                System.out.println(tablaSimbolos.get(j));
+            }
+        }
+
+        return listavars;
+    }
+    
+    static public ArrayList<Simbolo> getVariablesLocales(String namefunc) {
 
         ArrayList<Simbolo> listavars = new ArrayList();
-        String ambitohijos = get_ambit_hijos_func(namefunc);
+        String ambitohijos = ambitoHijosFunc(namefunc);
         ambitohijos += "." + namefunc;
         for (int j = 0; j < tablaSimbolos.size(); j++) {
             if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && !tablaSimbolos.get(j).getTipoConstante()) {

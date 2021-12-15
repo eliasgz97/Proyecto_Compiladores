@@ -276,7 +276,6 @@ public class Recorrido {
                 recorrerAsignacion(valor.getParamIzquierda());
                 cuadruplos.generarCuadruplo("PARAM", cuadruplos.getLastTemp(), "", "");
             }
-            System.out.println(valor.getParamDerecha().getNombre() + ":::::");
             if (valor.getParamDerecha().getNombre().contains("num")
                     || valor.getParamDerecha().getNombre().contains("bool") || valor.getParamDerecha().getNombre().equals("id")) {
                 cuadruplos.generarCuadruplo("PARAM", valor.getParamDerecha().getValor(), "", "");
