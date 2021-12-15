@@ -24,6 +24,7 @@ public class Recorrido {
     }
 
     public void recorrerfunct() {
+        cuadruplos.generarCuadruplo("FIN_MAIN", "fin_main", "", "");
         for (Nodo hoja : etiqfunct.getHijos()) {
             hoja.setVisitado2(false);
             if (hoja.getNombre().equals("Procedure")) {
