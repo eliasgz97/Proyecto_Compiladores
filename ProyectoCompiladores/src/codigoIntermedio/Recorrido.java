@@ -29,6 +29,7 @@ public class Recorrido {
             if (hoja.getNombre().equals("Procedure")) {
                 cuadruplos.generarCuadruplo("ETIQ", "FUN_" + hoja.getValor(), "", "");
                 recorrer(hoja, 0);
+                cuadruplos.generarCuadruplo("FINP", "fin_proc", "void", "");
             }
             if (hoja.getNombre().equals("declaracion_funcion")) {
                 cuadruplos.generarCuadruplo("ETIQ", "FUN_" + hoja.getHijos().get(0).getValor(), "", "");
@@ -70,6 +71,7 @@ public class Recorrido {
                                     }
                                     break;
                                 case "id":
+                                    System.out.println("hoola entra papito");
                                     if (padre.getHijos().get(0).getNombre().equals(",")) { // si la declaración de variables tiene varios ids
                                         recorrerRepeticion(padre.getHijos().get(0), hoja.getHijos().get(0).getValor()); //llama a método que recorre repetición de id
                                     } else {

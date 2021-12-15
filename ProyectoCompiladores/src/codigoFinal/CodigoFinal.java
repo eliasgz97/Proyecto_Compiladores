@@ -141,6 +141,12 @@ public class CodigoFinal {
                 offsetLocales = 8;
                 ingresarVariablesLocales();
             }
+            if(cuadruplosRecorrer.get(i).getArgs1().equals("fin_proc")){
+                lineas.add("\t move $sp, $fp");
+                lineas.add("\t lw $fp, -4($sp)");
+                lineas.add("\t lw $ra, -8($sp)");
+                lineas.add("\t jr $ra");
+            }
         }
     }
 
