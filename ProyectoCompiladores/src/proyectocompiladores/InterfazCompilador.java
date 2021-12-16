@@ -880,10 +880,12 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 }
                 if (hoja.getNombre().equals("for")) {
                     String ambitofor = ambito + "." + contadorid;
+                    System.out.println(ambitofor + " abmito");
                     contadorid++;
                     SymbolTable.insertar2(hoja.getHijos().get(0).getValor(), "integer", "", false, false, false, ambitofor, offset);
                     comprobarValor(hoja.getHijos().get(1), ambito, "integer");
                     comprobarValor(hoja.getHijos().get(2), ambito, "integer");
+                    recorrerCuerpo(hoja, ambitofor, retorno, tipoRetorno);
                 }
                 if (hoja.getNombre().equals("while")) {
                     //System.out.println("Hay un while");

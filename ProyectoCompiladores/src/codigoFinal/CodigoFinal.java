@@ -436,7 +436,7 @@ public class CodigoFinal {
             } else if (estaEnParametros(cr.getArgs2()) != null) {
                 String s = buscarEnS(cr.getArgs2());
                 isreg = true;
-                lineas.add("        " + oprel + " $" + temp1 + ", $" + s + ", _" + etiq);
+                lineas.add("\t " + oprel + " $" + temp1 + ", $" + s + ", _" + etiq);
             } else {
                 String tem = BuscarTemporal(cr.getArgs2());
                 isreg = true;
@@ -692,6 +692,7 @@ public class CodigoFinal {
             registros_A[Integer.parseInt(a.substring(1))] = bool;
             //else if de parametros
         } else if (estaEnParametros(cr.getArgs1()) != null) {
+            System.out.println("entra es un parametro");
             String s = buscarEnS(cr.getArgs1());
             lineas.add("\t move $" + a + ", $" + s);
         } else if (estaEnVariablesLocales(cr.getArgs1()) != null) {
@@ -755,10 +756,11 @@ public class CodigoFinal {
                 String posicion = locateVarLocales(asignacion.getResult());
                 lineas.add("\t " + forma + " $v0, -" + posicion + "($fp)");
                 lineas.add("");
-//                }else if (estaEnParametros(asignacion.getArgs1()) != null) {
-//                String s = buscarEnS(asignacion.getArgs1());
-//                lineas.add("        " + forma + " $" + s + ", -" + (offsetLocales + vartoken.getOffset()) + "($fp)");
-//                lineas.add("");
+            } else if (estaEnParametros(asignacion.getArgs1()) != null) {
+                String s = buscarEnS(asignacion.getArgs1());
+                String posicion = locateVarLocales(asignacion.getResult());
+                lineas.add("\t " + forma + " $" + s + ", " + posicion + "($fp)");
+                lineas.add("");
             } else if (asignacion.getArgs1().matches("[0-9]+")) {
                 String temp = getTempDisponible();
                 lineas.add("\t li $" + temp + ", " + asignacion.getArgs1());
@@ -776,7 +778,12 @@ public class CodigoFinal {
                 lineas.add("\t li $" + temp + ", " + bool1);
                 lineas.add("\t sw $" + temp + ", -" + posicion + "($fp)");
                 //aqui iria else if de parametros
-            } else { //aqui iria parametros
+            } else if (estaEnParametros(asignacion.getArgs1()) != null) {
+                String s = buscarEnS(asignacion.getArgs1());
+                String posicion = locateVarLocales(asignacion.getResult());
+                lineas.add("        " + forma + " $" + s + ", -" + posicion + "($fp)");
+                lineas.add("");
+            } else {
                 String temp = getTempDisponible();
                 if (estaEnVariablesGlobales(asignacion.getArgs1()) != -1) {
                     int index = estaEnVariablesGlobales(asignacion.getArgs1());
@@ -792,6 +799,25 @@ public class CodigoFinal {
                 }
                 lineas.add("");
             }
+        } else if (estaEnParametros(asignacion.getResult()) != null) {
+            String s = buscarEnS(asignacion.getResult());
+            if (BuscarTemporal(asignacion.getArgs1()) != null) {
+                String temp = BuscarTemporal(asignacion.getArgs1());
+                lineas.add("\t move $" + s + ", $" + temp);
+                setTempDisponible(temp);
+                lineas.add("");
+            } else if (asignacion.getArgs1().matches("RET[0-9]+")) {
+                lineas.add("\t move $" + s + ", $v0");
+                lineas.add("");
+            } else if (estaEnParametros(asignacion.getArgs1()) != null) {
+                String s1 = buscarEnS(asignacion.getArgs1());
+                lineas.add("\t move $" + s1 + ", $" + s);
+                lineas.add("");
+            } else if (estaEnVariablesGlobales(asignacion.getArgs1()) != -1) {
+                lineas.add("\t move $" + s + ", _" + asignacion.getArgs1());
+                lineas.add("");
+            }
+
         }
     }
 

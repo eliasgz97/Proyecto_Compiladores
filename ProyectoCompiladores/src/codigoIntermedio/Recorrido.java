@@ -260,7 +260,24 @@ public class Recorrido {
                                 recorrerLlamadoFuncion(hoja.getHijos().get(1));
                                 hoja.getHijos().get(1).setVisitado2(true);
                             } else { //si no, solo hay un parámetro
-                                cuadruplos.generarCuadruplo("PARAM", hoja.getParamDerecha().getValor(), "", ""); //solo generamos un parámetro
+                                switch (hoja.getParamDerecha().getNombre()) {
+                                    case "num_int":
+                                        cuadruplos.generarCuadruplo("PARAM", hoja.getParamDerecha().getValor(), "", "");
+                                        break;
+                                    case "numfloat":
+                                        cuadruplos.generarCuadruplo("PARAM", hoja.getParamDerecha().getValor(), "", "");
+                                        break;
+                                    case "boolean":
+                                        cuadruplos.generarCuadruplo("PARAM", hoja.getParamDerecha().getValor(), "", "");
+                                        break;
+                                    case "id":
+                                        cuadruplos.generarCuadruplo("PARAM", hoja.getParamDerecha().getValor(), "", "");
+                                        break;
+                                    default:
+                                        recorrerAsignacion(hoja.getParamDerecha());
+                                        cuadruplos.generarCuadruplo("PARAM", cuadruplos.getLastTemp(), "", "");
+                                        break;
+                                }
                                 hoja.getHijos().get(1).setVisitado2(true);
                             }
                             cuadruplos.generarCuadruplo("CALL", hoja.getHijos().get(0).getValor(), "", ""); //se genera el llamado a la función

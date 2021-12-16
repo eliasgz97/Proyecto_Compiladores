@@ -1,7 +1,7 @@
 digraph G {node[shape=box, style=filled, color=blanchedalmond]; edge[color=chocolate3];rankdir=UD 
 
-"131_Inicio -> "->"132_Procedure -> Program3"
-"132_Procedure -> Program3"->"120_variables -> "
+"135_Inicio -> "->"136_Procedure -> Program3"
+"136_Procedure -> Program3"->"120_variables -> "
 "120_variables -> "->"0_id -> x"
 "120_variables -> "->"121_tipo -> integer"
 "120_variables -> "->"2_Asignacion -> "
@@ -115,14 +115,16 @@ digraph G {node[shape=box, style=filled, color=blanchedalmond]; edge[color=choco
 "108_nueva_linea -> "->"106_nueva_linea -> "
 "106_nueva_linea -> "->"107_put_string -> , "
 "114_Beg -> "->"116_end -> "
-"132_Procedure -> Program3"->"128_Beg -> "
-"128_Beg -> "->"129_begin -> "
-"128_Beg -> "->"126_nueva_linea -> "
-"126_nueva_linea -> "->"127_llamado_funcion -> "
-"127_llamado_funcion -> "->"125_id -> imprimirSerie"
-"127_llamado_funcion -> "->"123_Asignacion -> "
-"123_Asignacion -> "->"122_id -> x"
-"128_Beg -> "->"130_end -> "
+"136_Procedure -> Program3"->"132_Beg -> "
+"132_Beg -> "->"133_begin -> "
+"132_Beg -> "->"130_nueva_linea -> "
+"130_nueva_linea -> "->"131_llamado_funcion -> "
+"131_llamado_funcion -> "->"129_id -> imprimirSerie"
+"131_llamado_funcion -> "->"127_Asignacion -> "
+"127_Asignacion -> "->"126_+ -> "
+"126_+ -> "->"124_num_int -> 3"
+"126_+ -> "->"125_num_int -> 2"
+"132_Beg -> "->"134_end -> "
 
 
 }
