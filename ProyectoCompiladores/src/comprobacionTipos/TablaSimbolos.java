@@ -126,15 +126,26 @@ public class TablaSimbolos {
         return vartoken;
     }
     
-     public ArrayList<Simbolo> getParametros(String namefunc) {
-        System.out.println("ACAAAAAAAA EMPIENZAN LOS PARAMETROS");
+     static public Simbolo getSimbolParametros (String namefunc, String var) {
+        Simbolo vartoken = null;
+        String ambitohijos = ambitoHijosFunc(namefunc);
+        ambitohijos += "." + namefunc;
+        for (int j = 0; j < tablaSimbolos.size(); j++) {
+            if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && tablaSimbolos.get(j).getNombre().equals(var) && tablaSimbolos.get(j).getTipoConstante()) {
+                vartoken = tablaSimbolos.get(j);
+                break;
+            }
+        }
+        return vartoken;
+    }
+    
+     static public ArrayList<Simbolo> getParametros(String namefunc) {
         ArrayList<Simbolo> listavars = new ArrayList();
         String ambitohijos = ambitoHijosFunc(namefunc);
         ambitohijos += "." + namefunc;
         for (int j = 0; j < tablaSimbolos.size(); j++) {
             if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && tablaSimbolos.get(j).getTipoConstante()) {
                 listavars.add(tablaSimbolos.get(j));
-                System.out.println(tablaSimbolos.get(j));
             }
         }
 
@@ -149,7 +160,6 @@ public class TablaSimbolos {
         for (int j = 0; j < tablaSimbolos.size(); j++) {
             if (tablaSimbolos.get(j).getAmbito().equals(ambitohijos) && !tablaSimbolos.get(j).getTipoConstante()) {
                 listavars.add(tablaSimbolos.get(j));
-                System.out.println(tablaSimbolos.get(j).getNombre() + ":::");
             }
         }
         return listavars;

@@ -35,6 +35,7 @@ public class Recorrido {
             if (hoja.getNombre().equals("declaracion_funcion")) {
                 cuadruplos.generarCuadruplo("ETIQ", "FUN_" + hoja.getHijos().get(0).getValor(), "", "");
                 recorrer(hoja, 0);
+                cuadruplos.generarCuadruplo("FINF", "fin_func", "", "");
             }
         }
     }
@@ -72,7 +73,6 @@ public class Recorrido {
                                     }
                                     break;
                                 case "id":
-                                    System.out.println("hoola entra papito");
                                     if (padre.getHijos().get(0).getNombre().equals(",")) { // si la declaración de variables tiene varios ids
                                         recorrerRepeticion(padre.getHijos().get(0), hoja.getHijos().get(0).getValor()); //llama a método que recorre repetición de id
                                     } else {
@@ -83,10 +83,31 @@ public class Recorrido {
                                 case "llamado_funcion":
                                     if (hoja.getHijos().get(0).getHijos().size() > 1) { // si el size es mayor a l es porque la función tiene 1 o más parámetros
                                         if (hoja.getHijos().get(0).getHijos().get(1).getNombre().equals(",")) {
-                                            System.out.println(hoja.getParams().getNombre());
                                             recorrerLlamadoFuncion(hoja.getParams());
                                         } else {
-                                            cuadruplos.generarCuadruplo("PARAM", hoja.getValorParam().getValor(), "", "");
+                                            switch (hoja.getValorParam().getNombre()) {
+                                                //getHijos().get(0).getHijos().get(1).getHijos().get(0)
+                                                case "num_int":
+                                                    cuadruplos.generarCuadruplo("PARAM", hoja.getValorParam().getValor(), "", "");
+                                                    System.out.println("sale generar cuadruplos");
+                                                    break;
+                                                case "numfloat":
+                                                     cuadruplos.generarCuadruplo("PARAM", hoja.getValorParam().getValor(), "", "");
+                                                    break;
+                                                case "boolean":
+                                                     cuadruplos.generarCuadruplo("PARAM", hoja.getValorParam().getValor(), "", "");
+                                                    break;
+                                                case "id":
+                                                    cuadruplos.generarCuadruplo("PARAM", hoja.getValorParam().getValor(), "", "");
+                                                    break;
+                                                default:
+                                                    recorrerAsignacion(hoja.getHijos().get(0).getHijos().get(1).getHijos().get(0));
+                                                    System.out.println("sale recorrer asignacion");
+                                                    System.out.println(cuadruplos.getLastTemp() + " temporal");
+                                                     cuadruplos.generarCuadruplo("PARAM", cuadruplos.getLastTemp(), "", "");
+                                                    break;
+                                                    
+                                            }
                                         }
                                         cuadruplos.generarCuadruplo("CALL", hoja.getFunctionId().getValor(), "", "");
                                     } else if (hoja.getHijos().get(0).getHijos().size() == 1) { // si el size es 1 es porque no tiene parámetros
@@ -141,6 +162,7 @@ public class Recorrido {
                                     //System.out.println("entra num int " + hoja.getHijos().get(0).getNombre());
                                     cuadruplos.generarCuadruplo("RET", hoja.getHijos().get(0).getValor(),
                                             "", "");
+                                    
                                     break;
                                 case "numfloat":
                                     cuadruplos.generarCuadruplo("RET", hoja.getHijos().get(0).getValor(),
@@ -158,6 +180,7 @@ public class Recorrido {
                                     recorrerAsignacion(padre.getHijos().get(1).getHijos().get(0));
                                     cuadruplos.generarCuadruplo("RET", cuadruplos.getLastTemp(),
                                             "", "");
+                                    
                                     hoja.getHijos().get(0).setVisitado2(true);
                                     break;
                             }
@@ -260,7 +283,6 @@ public class Recorrido {
     public void recorrerLlamadoFuncion(Nodo valor) {
         //System.out.println("entra llamadoFuncion");
         if (valor.getHijos().get(1).getNombre().equals(",")) { // recorre recursivamente si encuentra una coma
-            System.out.println("entra coma");
             if (valor.getParamIzquierda().getNombre().contains("num")
                     || valor.getParamIzquierda().getNombre().contains("bool") || valor.getParamIzquierda().getNombre().equals("id")) {
                 cuadruplos.generarCuadruplo("PARAM", valor.getParamIzquierda().getValor(), "", "");

@@ -81,7 +81,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jLabel8 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jb_tablaSimbolos = new javax.swing.JButton();
         jLabel12 = new javax.swing.JLabel();
@@ -343,10 +342,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jLabel10.setForeground(new java.awt.Color(255, 255, 255));
         jLabel10.setText("ADA");
 
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel4.setText("Daniel Rodríguez");
-
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel9.setText("Elías Girón");
@@ -388,14 +383,13 @@ public class InterfazCompilador extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jb_tablaSimbolos)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(35, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
                             .addComponent(jLabel9)
                             .addComponent(jLabel12))
-                        .addContainerGap())))
+                        .addGap(15, 15, 15))))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(124, 124, 124)
@@ -435,8 +429,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                         .addComponent(jButton3)
                         .addComponent(jbt_analizar))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(21, 21, 21)
                         .addComponent(jLabel9)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel12)))
@@ -688,7 +681,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -947,6 +939,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
                                             tipoParam = tipoID;
                                         }
                                         break;
+                                    default:
+                                        tipoParam = convertirTipos(comprobarValorMejorado(hoja.getHijos().get(1).getHijos().get(0), ambito, ""));
+                                        break;
                                 }
                             }
                             //llama al método que retorna el tipo de los parámetros enviados concatenados
@@ -1051,6 +1046,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 && (padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
                 || padre.getHijos().get(1).getNombre().equals("id") || padre.getHijos().get(1).getNombre().equals("boolean"))) { //caso base, busca si ambos nodos son un número
             String tipo1, tipo2;
+            System.out.println("entra este caso " + padre.getHijos().get(0).getNombre());
             if (padre.getHijos().get(0).getNombre().equals("id")) { // busca en caso de id
                 tipo1 = SymbolTable.buscarTipo(padre.getHijos().get(0).getValor(), ambito);
             } else {
@@ -1230,6 +1226,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
                                                     if (!tipoID.contains("error")) {
                                                         tipoParam = tipoID;
                                                     }
+                                                    break;
+                                                default:
+                                                    tipoParam = convertirTipos(comprobarValorMejorado(hoja.getHijos().get(1).getHijos().get(0), ambito, ""));
                                                     break;
                                             }
                                         }
