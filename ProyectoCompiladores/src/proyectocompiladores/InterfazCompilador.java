@@ -59,6 +59,8 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         jtxtarea_salida_sintactico = new javax.swing.JTextArea();
         jp_codigogenerado = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jtxtarea_codigoFinal = new javax.swing.JTextArea();
         jLabel11 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
@@ -94,8 +96,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
         jTabbedPane2.setBackground(new java.awt.Color(51, 51, 51));
         jTabbedPane2.setForeground(new java.awt.Color(255, 255, 255));
 
-        jtxtarea_salida.setBackground(new java.awt.Color(0, 0, 0));
+        jtxtarea_salida.setBackground(new java.awt.Color(51, 51, 51));
         jtxtarea_salida.setColumns(20);
+        jtxtarea_salida.setForeground(new java.awt.Color(255, 255, 255));
         jtxtarea_salida.setRows(5);
         jScrollPane1.setViewportView(jtxtarea_salida);
 
@@ -123,7 +126,9 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
         jTabbedPane2.addTab("Análisis Léxico", jp_analizadorlexico);
 
+        jtxtarea_salida_sintactico.setBackground(new java.awt.Color(51, 51, 51));
         jtxtarea_salida_sintactico.setColumns(20);
+        jtxtarea_salida_sintactico.setForeground(new java.awt.Color(255, 255, 255));
         jtxtarea_salida_sintactico.setRows(5);
         jScrollPane3.setViewportView(jtxtarea_salida_sintactico);
 
@@ -140,15 +145,21 @@ public class InterfazCompilador extends javax.swing.JFrame {
 
         jTabbedPane2.addTab("Análisis Sintáctico y Semántico", jp_analizadorsintactico);
 
+        jtxtarea_codigoFinal.setBackground(new java.awt.Color(51, 51, 51));
+        jtxtarea_codigoFinal.setColumns(20);
+        jtxtarea_codigoFinal.setForeground(new java.awt.Color(255, 255, 255));
+        jtxtarea_codigoFinal.setRows(5);
+        jScrollPane4.setViewportView(jtxtarea_codigoFinal);
+
         javax.swing.GroupLayout jp_codigogeneradoLayout = new javax.swing.GroupLayout(jp_codigogenerado);
         jp_codigogenerado.setLayout(jp_codigogeneradoLayout);
         jp_codigogeneradoLayout.setHorizontalGroup(
             jp_codigogeneradoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 652, Short.MAX_VALUE)
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 652, Short.MAX_VALUE)
         );
         jp_codigogeneradoLayout.setVerticalGroup(
             jp_codigogeneradoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 376, Short.MAX_VALUE)
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
         );
 
         jTabbedPane2.addTab("Generación de Código", jp_codigogenerado);
@@ -491,10 +502,12 @@ public class InterfazCompilador extends javax.swing.JFrame {
         offset = 0;
         SymbolTable.getErroresSemanticos().removeAll(SymbolTable.getErroresSemanticos());
         SymbolTable.getTablaSimbolos().removeAll(SymbolTable.getTablaSimbolos());
+        resultadoCodigoFinal = "";
         String result = AnalizarSintaxis();
         try {
             jtxtarea_salida.setText(Analizar());
             jtxtarea_salida_sintactico.setText(result);
+            jtxtarea_codigoFinal.setText(resultadoCodigoFinal);
 
         } catch (IOException ex) {
             Logger.getLogger(InterfazCompilador.class.getName()).log(Level.SEVERE, null, ex);
@@ -692,6 +705,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTable jTable;
@@ -703,6 +717,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     private javax.swing.JPanel jp_analizadorlexico;
     private javax.swing.JPanel jp_analizadorsintactico;
     private javax.swing.JPanel jp_codigogenerado;
+    private javax.swing.JTextArea jtxtarea_codigoFinal;
     private javax.swing.JTextArea jtxtarea_entrada;
     private javax.swing.JTextArea jtxtarea_salida;
     private javax.swing.JTextArea jtxtarea_salida_sintactico;
@@ -713,6 +728,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
     boolean flagFuncionError;
     int handleReturn = 0;
     int offset = 0;
+    String resultadoCodigoFinal = "";
     Recorrido genCodigoIntermedio;
     CodigoFinal mips;
 
@@ -738,6 +754,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 mips.llamadoMetodos();
                 ArrayList<String> codigoMips = mips.getCodigoFinal();
                 for (int i = 0; i < codigoMips.size(); i++) {
+                    resultadoCodigoFinal += codigoMips.get(i) + "\n";
                     System.out.println(codigoMips.get(i));
                 }
             }
@@ -1048,7 +1065,6 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 && (padre.getHijos().get(1).getNombre().equals("num_int") || padre.getHijos().get(1).getNombre().equals("numfloat")
                 || padre.getHijos().get(1).getNombre().equals("id") || padre.getHijos().get(1).getNombre().equals("boolean"))) { //caso base, busca si ambos nodos son un número
             String tipo1, tipo2;
-            System.out.println("entra este caso " + padre.getHijos().get(0).getNombre());
             if (padre.getHijos().get(0).getNombre().equals("id")) { // busca en caso de id
                 tipo1 = SymbolTable.buscarTipo(padre.getHijos().get(0).getValor(), ambito);
             } else {
@@ -1355,22 +1371,7 @@ public class InterfazCompilador extends javax.swing.JFrame {
                 }
                 recorrerDominio(hoja, id, ambito, rango);
             }
-//            if (hoja.getNombre().equals("declaracion_variables")) {
-//                String idDeclaracion, tipoDeclaracion;
-//                if (hoja.getHijos().get(0).getValor().equals(",")) {
-//                    recorrerRepeticion(hoja.getHijos().get(0), "", hoja.getHijos().get(1).getValor(), ambito + "." + id);
-//                } else {
-//                    idDeclaracion = hoja.getHijos().get(0).getValor();
-//                    tipoDeclaracion = hoja.getHijos().get(1).getValor();
-//                    //hacemos comprobacion de tipos
-//                    SymbolTable.insertar2(idDeclaracion, tipoDeclaracion,
-//                            "", false, false, ambito + "." + id);
-//                }
-//
-//                recorrerDominio(hoja, id, ambito, rango);
-//            }
         }
-        //SymbolTable.insertar2(id, tipo.substring(0, tipo.length() - 1) + " -> " + rango, "", false, true, ambito);
     }
 
     public String agregarFuncion(Nodo padre, String tipo) {

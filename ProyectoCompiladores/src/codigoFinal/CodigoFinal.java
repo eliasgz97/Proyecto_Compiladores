@@ -16,6 +16,7 @@ public class CodigoFinal {
     ArrayList<String> msjs;
     ArrayList<Stack<String>> registros_s = new ArrayList();
     ArrayList<String> locales = new ArrayList();
+    ArrayList<String> variablesFor = new ArrayList();
     ArrayList<String> parametros = new ArrayList();
 
     public CodigoFinal(TablaSimbolos tabla_simbolos, TablaCuadruplos cuadruplos) {
@@ -73,11 +74,28 @@ public class CodigoFinal {
             if (cuadruplosRecorrer.get(i).getOperator().equals("print")) {
                 generarPrint(cuadruplosRecorrer.get(i));
             }
-//            if (cuadruplosRecorrer.get(i).getOperator().equals("get")) {
-//                //llamamos funcion que genera el read
-//            }
+            if (cuadruplosRecorrer.get(i).getOperator().equals("get")) {
+                generarGet(cuadruplosRecorrer.get(i));
+            }
             if (cuadruplosRecorrer.get(i).getOperator().equals("=")) {
-                generarAsignacion(cuadruplosRecorrer.get(i));
+                try {
+//                    if (cuadruplosRecorrer.get(i + 1).getArgs2().equals("for")) {
+//                        String temp = getTempDisponible();
+//                        lineas.add("\t li " + "$" + temp + ", " + cuadruplosRecorrer.get(i).getArgs1());
+//                        lineas.add("\t sw " + "$" + temp + ", -" + "4($sp)");
+//                        lineas.add("\t sub $sp, " + "$sp, " + "4");
+//                        actualSP += 4;
+//                        variablesFor.add(cuadruplosRecorrer.get(i).getResult());
+//                        variablesFor.add(actualSP + "");
+//                        setTempDisponible(temp);
+//                    } else {
+                    generarAsignacion(cuadruplosRecorrer.get(i));
+//                    }
+                } catch (Exception e) {
+                }
+            }
+            if (cuadruplosRecorrer.get(i).getArgs2().equals("fin_for")) {
+                variablesFor.clear();
             }
             if (cuadruplosRecorrer.get(i).getOperator().equals("+")) {
                 generarOperacion(cuadruplosRecorrer.get(i), "add");
@@ -128,6 +146,7 @@ public class CodigoFinal {
             if (cuadruplosRecorrer.get(i).getArgs1().contains("FUN_")) {
                 String nombreFuncion = cuadruplosRecorrer.get(i).getArgs1();
                 actualFuncion = nombreFuncion.substring(4, nombreFuncion.length());
+                System.out.println(actualFuncion);
                 lineas.add("\t sw $fp, -4($sp)");
                 lineas.add("\t sw $ra, -8($sp)");
                 ingresarParams();
@@ -250,9 +269,6 @@ public class CodigoFinal {
             if (operacion.getArgs2().matches("[0-9]+")) {
                 temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
                 lineas.add("\t li $" + temp2 + ", " + operacion.getArgs2());
-            } else if (estaEnVariablesGlobales(operacion.getArgs2()) != -1) {
-                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
-                lineas.add("\t lw $" + temp2 + ", _" + operacion.getArgs2());
             } else if (estaEnVariablesLocales(operacion.getArgs2()) != null) {
                 String posicion = locateVarLocales(operacion.getArgs2());
                 temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
@@ -263,42 +279,9 @@ public class CodigoFinal {
                 isreg = true;
                 lineas.add("\t " + op + " $" + temp + ", $" + temp1 + ", $" + s);
 
-            } else {
-                String tem = BuscarTemporal(operacion.getArgs2());
-                isreg = true;
-                lineas.add("\t " + op + " $" + temp + ", $" + temp1 + ", $" + tem);
-                setTempDisponible(tem);
-            }
-            if (!isreg) {
-                lineas.add("\t " + op + " $" + temp + ", $" + temp1 + ", $" + temp2);
-
-            }
-            setTempDisponible(temp1);
-            setTempDisponible(temp2);
-        } else if (estaEnVariablesGlobales(operacion.getArgs1()) != -1) {
-            boolean isreg = false;
-            int index = estaEnVariablesGlobales(operacion.getArgs1());
-            String temp1 = getTempDisponible();
-            lineas.add("\t lw $" + temp1 + ", _" + variables.get(index).getNombre());
-            temporales[Integer.parseInt(temp1.substring(1))] = operacion.getArgs1();
-            String temp2 = getTempDisponible();
-            if (operacion.getArgs2().matches("[0-9]+")) {
-                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
-                lineas.add("\t li $" + temp2 + ", " + operacion.getArgs2());
-            } else if (estaEnVariablesLocales(operacion.getArgs2()) != null) {
-                String posicion = locateVarLocales(operacion.getArgs2());
-                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
-                lineas.add("\t lw $" + temp2 + ", -" + posicion + "($fp)");
-
             } else if (estaEnVariablesGlobales(operacion.getArgs2()) != -1) {
                 temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
                 lineas.add("\t lw $" + temp2 + ", _" + operacion.getArgs2());
-                //else if de parametros
-            } else if (estaEnParametros(operacion.getArgs2()) != null) {
-                String s = buscarEnS(operacion.getArgs2());
-                isreg = true;
-                lineas.add("\t " + op + " $" + temp + ", $" + temp1 + ", $" + s);
-
             } else {
                 String tem = BuscarTemporal(operacion.getArgs2());
                 isreg = true;
@@ -307,6 +290,7 @@ public class CodigoFinal {
             }
             if (!isreg) {
                 lineas.add("\t " + op + " $" + temp + ", $" + temp1 + ", $" + temp2);
+
             }
             setTempDisponible(temp1);
             setTempDisponible(temp2);
@@ -321,9 +305,6 @@ public class CodigoFinal {
             if (operacion.getArgs2().matches("[0-9]+")) {
                 temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
                 lineas.add("\t li $" + temp2 + ", " + operacion.getArgs2());
-            } else if (estaEnVariablesGlobales(operacion.getArgs2()) != -1) {
-                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
-                lineas.add("\t lw $" + temp2 + ", _" + operacion.getArgs2());
             } else if (estaEnVariablesLocales(operacion.getArgs2()) != null) {
                 temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
                 String posicion = locateVarLocales(operacion.getArgs2());
@@ -331,8 +312,11 @@ public class CodigoFinal {
             } else if (estaEnParametros(operacion.getArgs2()) != null) {
                 String s = buscarEnS(operacion.getArgs2());
                 isreg = true;
-                lineas.add("        " + op + " $" + temp + ", $" + temp1 + ", $" + s);
+                lineas.add("\t " + op + " $" + temp + ", $" + temp1 + ", $" + s);
 
+            } else if (estaEnVariablesGlobales(operacion.getArgs2()) != -1) {
+                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", _" + operacion.getArgs2());
             } else {
                 String tem1 = BuscarTemporal(operacion.getArgs2());
                 isreg = true;
@@ -356,14 +340,14 @@ public class CodigoFinal {
                 temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
                 lineas.add("\t lw $" + temp2 + ", -" + posicion + "($fp)");
 
-            } else if (estaEnVariablesGlobales(operacion.getArgs2()) != -1) {
-                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
-                lineas.add("\t lw $" + temp2 + ", _" + operacion.getArgs2());
-
             } else if (estaEnParametros(operacion.getArgs2()) != null) {
                 String s1 = buscarEnS(operacion.getArgs2());
                 isreg = true;
                 lineas.add("\t " + op + " $" + temp + ", $" + s + ", $" + s1);
+
+            } else if (estaEnVariablesGlobales(operacion.getArgs2()) != -1) {
+                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", _" + operacion.getArgs2());
 
             } else {
                 String tem = BuscarTemporal(operacion.getArgs2());
@@ -374,6 +358,70 @@ public class CodigoFinal {
             if (!isreg) {
                 lineas.add("\t " + op + " $" + temp + ", $" + s + ", $" + temp2);
             }
+            setTempDisponible(temp2);
+        } else if (estaEnVariablesGlobales(operacion.getArgs1()) != -1) {
+            boolean isreg = false;
+            int index = estaEnVariablesGlobales(operacion.getArgs1());
+            String temp1 = getTempDisponible();
+            lineas.add("\t lw $" + temp1 + ", _" + variables.get(index).getNombre());
+            temporales[Integer.parseInt(temp1.substring(1))] = operacion.getArgs1();
+            String temp2 = getTempDisponible();
+            if (operacion.getArgs2().matches("[0-9]+")) {
+                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
+                lineas.add("\t li $" + temp2 + ", " + operacion.getArgs2());
+            } else if (estaEnVariablesLocales(operacion.getArgs2()) != null) {
+                String posicion = locateVarLocales(operacion.getArgs2());
+                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", -" + posicion + "($fp)");
+
+            } else if (estaEnParametros(operacion.getArgs2()) != null) {
+                String s = buscarEnS(operacion.getArgs2());
+                isreg = true;
+                lineas.add("\t " + op + " $" + temp + ", $" + temp1 + ", $" + s);
+
+            } else if (estaEnVariablesGlobales(operacion.getArgs2()) != -1) {
+                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", _" + operacion.getArgs2());
+                //else if de parametros
+            } else {
+                String tem = BuscarTemporal(operacion.getArgs2());
+                isreg = true;
+                lineas.add("\t " + op + " $" + temp + ", $" + temp1 + ", $" + tem);
+                setTempDisponible(tem);
+            }
+            if (!isreg) {
+                lineas.add("\t " + op + " $" + temp + ", $" + temp1 + ", $" + temp2);
+            }
+            setTempDisponible(temp1);
+            setTempDisponible(temp2);
+        } else if (!encuentraVariablesFor(operacion.getArgs1()).equals("")) {
+            boolean isreg = false;
+            String temp1 = getTempDisponible();
+            temporales[Integer.parseInt(temp1.substring(1))] = operacion.getArgs1();
+            String temp2 = getTempDisponible();
+            lineas.add("\t lw $" + temp + "," + "-" + encuentraVariablesFor(operacion.getArgs1()) + "($fp)");
+            if (operacion.getArgs2().matches("[0-9]+")) {
+                lineas.add("\t li $" + temp1 + ", " + operacion.getArgs2());
+            } else if (estaEnVariablesLocales(operacion.getArgs2()) != null) {
+                String posicion1 = locateVarLocales(operacion.getArgs2());
+                lineas.add("\t lw $" + temp1 + ", -" + posicion1 + "($fp)");
+            } else if (estaEnVariablesGlobales(operacion.getArgs2()) != -1) {
+                lineas.add("\t lw $" + temp1 + ", _" + operacion.getArgs2());
+            } else if (estaEnParametros(operacion.getArgs2()) != null) {
+                temporales[Integer.parseInt(temp2.substring(1))] = operacion.getArgs2();
+                String s = buscarEnS(operacion.getArgs2());
+                isreg = true;
+                lineas.add("\t " + op + " $" + temp + ", $" + s + ", $" + temp1);
+            } else {
+                String tem = BuscarTemporal(operacion.getArgs2());
+                isreg = true;
+                lineas.add("\t " + op + " $" + temp + ", $" + temp + ", $" + tem);
+                setTempDisponible(tem);
+            }
+            if (!isreg) {
+                lineas.add("\t " + op + " $" + temp + ", $" + temp + ", $" + temp1);
+            }
+            setTempDisponible(temp1);
             setTempDisponible(temp2);
         } else {
             String temp1 = BuscarTemporal(operacion.getArgs1());
@@ -419,6 +467,14 @@ public class CodigoFinal {
             if (cr.getArgs2().matches("[0-9]+")) {
                 temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
                 lineas.add("\t li $" + temp2 + ", " + cr.getArgs2());
+            } else if (estaEnVariablesLocales(cr.getArgs2()) != null) {
+                String posicion = locateVarLocales(cr.getArgs2());
+                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", -" + posicion + "($fp)");
+            } else if (estaEnParametros(cr.getArgs2()) != null) {
+                String s = buscarEnS(cr.getArgs2());
+                isreg = true;
+                lineas.add("\t " + oprel + " $" + temp1 + ", $" + s + ", _" + etiq);
             } else if (estaEnVariablesGlobales(cr.getArgs2()) != -1) {
                 int index = estaEnVariablesGlobales(cr.getArgs2());
                 temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
@@ -429,53 +485,6 @@ public class CodigoFinal {
                 } else {
                     lineas.add("\t lwcl $" + temp2 + ", _" + cr.getArgs2());
                 }
-            } else if (estaEnVariablesLocales(cr.getArgs2()) != null) {
-                String posicion = locateVarLocales(cr.getArgs2());
-                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
-                lineas.add("\t lw $" + temp2 + ", -" + posicion + "($fp)");
-            } else if (estaEnParametros(cr.getArgs2()) != null) {
-                String s = buscarEnS(cr.getArgs2());
-                isreg = true;
-                lineas.add("\t " + oprel + " $" + temp1 + ", $" + s + ", _" + etiq);
-            } else {
-                String tem = BuscarTemporal(cr.getArgs2());
-                isreg = true;
-                lineas.add("\t " + oprel + " $" + temp1 + ", $" + tem + ", _" + etiq);
-                setTempDisponible(tem);
-            }
-            if (!isreg) {
-                lineas.add("\t " + oprel + " $" + temp1 + ", $" + temp2 + ", _" + etiq);
-            }
-            setTempDisponible(temp1);
-            setTempDisponible(temp2);
-        } else if (estaEnVariablesGlobales(cr.getArgs1()) != -1) {
-            boolean isreg = false;
-            int index = estaEnVariablesGlobales(cr.getArgs1());
-            String temp1 = getTempDisponible();
-            lineas.add("\t lw $" + temp1 + ", _" + variables.get(index).getNombre());
-            temporales[Integer.parseInt(temp1.substring(1))] = cr.getArgs1();
-            String temp2 = getTempDisponible();
-            if (cr.getArgs2().matches("[0-9]+")) {
-                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
-                lineas.add("\t li $" + temp2 + ", " + cr.getArgs2());
-            } else if (estaEnVariablesGlobales(cr.getArgs2()) != -1) {
-                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
-                lineas.add("\t lw $" + temp2 + ", _" + cr.getArgs2());
-            } else if (estaEnVariablesLocales(cr.getArgs2()) != null) {
-                String posicion = locateVarLocales(cr.getArgs2());
-                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
-                lineas.add("\t lw $" + temp2 + ", -" + posicion);
-            } else if (estaEnParametros(cr.getArgs2()) != null) {
-                String s = buscarEnS(cr.getArgs2());
-                isreg = true;
-                lineas.add("\t " + oprel + " $" + temp1 + ", $" + s + ", _" + etiq);
-            } else if (cr.getArgs2().equals("true") || cr.getArgs2().equals("false")) {
-                String bool1 = "0";
-                if (cr.getArgs2().toLowerCase().equals("true")) {
-                    bool1 = "1";
-                }
-                temporales[Integer.parseInt(temp2.substring(1))] = bool1;
-                lineas.add("\t li $" + temp2 + ", " + bool1);
             } else {
                 String tem = BuscarTemporal(cr.getArgs2());
                 isreg = true;
@@ -501,9 +510,6 @@ public class CodigoFinal {
             } else if (cr.getArgs2().matches("[0-9]+")) {
                 temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
                 lineas.add("\t li $" + temp2 + ", " + cr.getArgs2());
-            } else if (estaEnVariablesGlobales(cr.getArgs2()) != -1) {
-                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
-                lineas.add("\t lw $" + temp2 + ", _" + cr.getArgs2());
             } else if (estaEnVariablesLocales(cr.getArgs2()) != null) {
                 String posicion = locateVarLocales(cr.getArgs2());
                 temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
@@ -513,6 +519,9 @@ public class CodigoFinal {
                 isreg = true;
                 lineas.add("\t " + oprel + " $" + s + ", $" + s1 + ", _" + etiq);
 
+            } else if (estaEnVariablesGlobales(cr.getArgs2()) != -1) {
+                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", _" + cr.getArgs2());
             } else {
                 String tem = BuscarTemporal(cr.getArgs2());
                 isreg = true;
@@ -544,13 +553,13 @@ public class CodigoFinal {
                 String posicion1 = locateVarLocales(cr.getArgs2());
                 temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
                 lineas.add("\t lw $" + temp2 + ", -" + posicion1 + "($fp)");
-            } else if (estaEnVariablesGlobales(cr.getArgs2()) != -1) {
-                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
-                lineas.add("\t lw $" + temp2 + ", _" + cr.getArgs2());
             } else if (estaEnParametros(cr.getArgs2()) != null) {
                 String s = buscarEnS(cr.getArgs2());
                 isreg = true;
                 lineas.add("\t " + oprel + " $" + temp1 + ", $" + s + ", _" + etiq);
+            } else if (estaEnVariablesGlobales(cr.getArgs2()) != -1) {
+                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", _" + cr.getArgs2());
             } else {
                 String tem = BuscarTemporal(cr.getArgs2());
                 isreg = true;
@@ -563,6 +572,78 @@ public class CodigoFinal {
             setTempDisponible(temp1);
             setTempDisponible(temp2);
             //else if de parametros
+        } else if (estaEnVariablesGlobales(cr.getArgs1()) != -1) {
+            boolean isreg = false;
+            int index = estaEnVariablesGlobales(cr.getArgs1());
+            String temp1 = getTempDisponible();
+            lineas.add("\t lw $" + temp1 + ", _" + variables.get(index).getNombre());
+            temporales[Integer.parseInt(temp1.substring(1))] = cr.getArgs1();
+            String temp2 = getTempDisponible();
+            if (cr.getArgs2().matches("[0-9]+")) {
+                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
+                lineas.add("\t li $" + temp2 + ", " + cr.getArgs2());
+            } else if (estaEnVariablesLocales(cr.getArgs2()) != null) {
+                String posicion = locateVarLocales(cr.getArgs2());
+                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", -" + posicion);
+            } else if (estaEnParametros(cr.getArgs2()) != null) {
+                String s = buscarEnS(cr.getArgs2());
+                isreg = true;
+                lineas.add("\t " + oprel + " $" + temp1 + ", $" + s + ", _" + etiq);
+            } else if (cr.getArgs2().equals("true") || cr.getArgs2().equals("false")) {
+                String bool1 = "0";
+                if (cr.getArgs2().toLowerCase().equals("true")) {
+                    bool1 = "1";
+                }
+                temporales[Integer.parseInt(temp2.substring(1))] = bool1;
+                lineas.add("\t li $" + temp2 + ", " + bool1);
+            } else if (estaEnVariablesGlobales(cr.getArgs2()) != -1) {
+                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", _" + cr.getArgs2());
+            } else {
+                String tem = BuscarTemporal(cr.getArgs2());
+                isreg = true;
+                lineas.add("\t " + oprel + " $" + temp1 + ", $" + tem + ", _" + etiq);
+                setTempDisponible(tem);
+            }
+            if (!isreg) {
+                lineas.add("\t " + oprel + " $" + temp1 + ", $" + temp2 + ", _" + etiq);
+            }
+            setTempDisponible(temp1);
+            setTempDisponible(temp2);
+        } else if (!encuentraVariablesFor(cr.getArgs1()).equals("")) {
+            boolean isreg = false;
+            String temp1 = getTempDisponible();
+            temporales[Integer.parseInt(temp1.substring(1))] = cr.getArgs1();
+            String temp2 = getTempDisponible();
+            lineas.add("\t lw $" + temp1 + "," + "-" + encuentraVariablesFor(cr.getArgs1()) + "($fp)");
+            if (cr.getArgs2().matches("[0-9]+")) {
+                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", " + cr.getArgs2());
+            } else if (estaEnVariablesLocales(cr.getArgs2()) != null) {
+                String posicion1 = locateVarLocales(cr.getArgs2());
+                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", -" + posicion1 + "($fp)");
+            } else if (estaEnVariablesGlobales(cr.getArgs2()) != -1) {
+                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", _" + cr.getArgs2());
+            } else if (estaEnParametros(cr.getArgs2()) != null) {
+                System.out.println("entra for parametros");
+                String s = buscarEnS(cr.getArgs2());
+                isreg = true;
+                lineas.add("\t " + oprel + " $" + temp1 + ", $" + s + ", _" + etiq);
+            } else {
+                String tem = BuscarTemporal(cr.getArgs2());
+                isreg = true;
+                lineas.add("\t " + oprel + " $" + temp1 + ", $" + tem + ", _" + etiq);
+                setTempDisponible(tem);
+            }
+            if (!isreg) {
+                System.out.println("entra is reg");
+                lineas.add("\t " + oprel + " $" + temp1 + ", $" + temp2 + ", _" + etiq);
+            }
+            setTempDisponible(temp1);
+            setTempDisponible(temp2);
         } else {
             String temp1 = BuscarTemporal(cr.getArgs1());
             boolean isreg = false;
@@ -570,17 +651,6 @@ public class CodigoFinal {
             if (cr.getArgs2().matches("[0-9]+")) {
                 temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
                 lineas.add("\t li $" + temp2 + ", " + cr.getArgs2());
-            } else if (estaEnVariablesGlobales(cr.getArgs2()) != -1) {
-                int index = estaEnVariablesGlobales(cr.getArgs2());
-                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
-                if (variables.get(index).getTipoVariable().toLowerCase().equals("integer")) {
-                    lineas.add("\t lw $" + temp2 + ", _" + cr.getArgs2());
-                } else if (variables.get(index).getTipoVariable().toLowerCase().equals("boolean")) {
-                    lineas.add("\t lb $" + temp2 + ", _" + cr.getArgs2());
-                } else {
-                    lineas.add("\t lwcl $" + temp2 + ", _" + cr.getArgs2());
-                }
-
             } else if (estaEnVariablesLocales(cr.getArgs2()) != null) {
                 String posicion = locateVarLocales(oprel);
                 temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
@@ -590,6 +660,9 @@ public class CodigoFinal {
                 isreg = true;
                 lineas.add("\t " + oprel + " $" + temp1 + ", $" + s1 + ", _" + etiq);
 
+            } else if (estaEnVariablesGlobales(cr.getArgs2()) != -1) {
+                temporales[Integer.parseInt(temp2.substring(1))] = cr.getArgs2();
+                lineas.add("\t lw $" + temp2 + ", _" + cr.getArgs2());
             } else {
                 String tem1 = BuscarTemporal(cr.getArgs2());
                 isreg = true;
@@ -602,6 +675,17 @@ public class CodigoFinal {
             setTempDisponible(temp1);
             setTempDisponible(temp2);
         }
+    }
+
+    public String encuentraVariablesFor(String var) {
+        String retorno = "";
+        for (int i = 0; i < variablesFor.size(); i++) {
+            if (variablesFor.get(i).equals(var)) {
+                retorno = variablesFor.get(i + 1);
+                break;
+            }
+        }
+        return retorno;
     }
 
     public void generarPrint(Cuadruplo print) { // Metodo para realizar prints en codigo ensamblador
@@ -636,31 +720,31 @@ public class CodigoFinal {
             setTempDisponible(temp);
         } else if (estaEnParametros(print.getArgs1()) != null) {
             String s = buscarEnS(print.getArgs1());
-            lineas.add("        li $v0, 1");
-            lineas.add("        move $a0, $" + s);
-            lineas.add("        syscall");
+            lineas.add("\t li $v0, 1");
+            lineas.add("\t move $a0, $" + s);
+            lineas.add("\t syscall");
             lineas.add("");
         }
     }
 
-    public void generarRead(Cuadruplo cr) {
+    public void generarGet(Cuadruplo cr) {
         if (estaEnVariablesLocales(cr.getArgs1()) != null) {
+            System.out.println("entra gen get var locales");
             String posicion = locateVarLocales(cr.getArgs1());
             lineas.add("\t li $v0, 5");
             lineas.add("\t syscall");
             lineas.add("\t sw $v0, -" + posicion + "($fp)");
-            lineas.add("");
-        } else if (estaEnVariablesGlobales(cr.getArgs1()) != -1) {
-            int index = estaEnVariablesGlobales(cr.getArgs1());
-            lineas.add("\t li $v0, 5");
-            lineas.add("\t syscall");
-            lineas.add("\t sw $v0, " + "_" + variables.get(index).getNombre());
             lineas.add("");
         } else if (estaEnParametros(cr.getArgs1()) != null) {
             String s = buscarEnS(cr.getArgs1());
             lineas.add("\t li $v0, 5");
             lineas.add("\t syscall");
             lineas.add("\t move $" + s + ", $v0");
+            lineas.add("");
+        } else if (estaEnVariablesGlobales(cr.getArgs1()) != -1) {
+            lineas.add("\t li $v0, 5");
+            lineas.add("\t syscall");
+            lineas.add("\t sw $v0, " + "_" + cr.getArgs1());
             lineas.add("");
         }
     }
@@ -670,8 +754,23 @@ public class CodigoFinal {
         if (cr.getArgs1().matches("[0-9]+|[0-9]+.[0-9]+")) {
             lineas.add("\t li $" + a + ", " + cr.getArgs1());
             registros_A[Integer.parseInt(a.substring(1))] = cr.getArgs1();
+        } else if (cr.getArgs1().equals("true") || cr.getArgs1().equals("false")) {
+            String bool = "0";
+            if (cr.getArgs1().equals("true")) {
+                bool = "1";
+            }
+            lineas.add("\t li $" + a + ", " + bool);
+            registros_A[Integer.parseInt(a.substring(1))] = bool;
+            //else if de parametros
+        } else if (estaEnParametros(cr.getArgs1()) != null) {
+            String s = buscarEnS(cr.getArgs1());
+            lineas.add("\t move $" + a + ", $" + s);
+            registros_A[Integer.parseInt(a.substring(1))] = s;
+        } else if (estaEnVariablesLocales(cr.getArgs1()) != null) {
+            String posicion = locateVarLocales(cr.getArgs1());
+            lineas.add("\t lw $" + a + ", -" + posicion + "($fp)");
+            registros_A[Integer.parseInt(a.substring(1))] = cr.getArgs1();
         } else if (estaEnVariablesGlobales(cr.getArgs1()) != -1) {
-            System.out.println("entra qui");
             int index = estaEnVariablesGlobales(cr.getArgs1());
             if (variables.get(index).getTipoVariable().toLowerCase().equals("integer")) {
                 lineas.add("\t lw $" + a + ", _" + cr.getArgs1());
@@ -682,27 +781,13 @@ public class CodigoFinal {
             }
             //setTempDisponible(a);
             registros_A[Integer.parseInt(a.substring(1))] = cr.getArgs1();
-            System.out.println(getADisponible() + " disponible");
-        } else if (cr.getArgs1().equals("true") || cr.getArgs1().equals("false")) {
-            String bool = "0";
-            if (cr.getArgs1().equals("true")) {
-                bool = "1";
-            }
-            lineas.add("\t li $" + a + ", " + bool);
-            registros_A[Integer.parseInt(a.substring(1))] = bool;
-            //else if de parametros
-        } else if (estaEnParametros(cr.getArgs1()) != null) {
-            System.out.println("entra es un parametro");
-            String s = buscarEnS(cr.getArgs1());
-            lineas.add("\t move $" + a + ", $" + s);
-        } else if (estaEnVariablesLocales(cr.getArgs1()) != null) {
-            String posicion = locateVarLocales(cr.getArgs1());
-            lineas.add("\t lw $" + a + ", -" + posicion + "($fp)");
-            registros_A[Integer.parseInt(a.substring(1))] = cr.getArgs1();
-        } else {
+        } else if (BuscarTemporal(cr.getArgs1()) != null) {
             String temp = BuscarTemporal(cr.getArgs1());
             lineas.add("\t move $" + a + ", $" + temp);
             setTempDisponible(temp);
+            registros_A[Integer.parseInt(a.substring(1))] = cr.getArgs1();
+        } else {
+            //volver aqui
         }
     }
 
@@ -735,6 +820,11 @@ public class CodigoFinal {
                 }
                 lineas.add("\t li $" + temp + ", " + bool1);
                 lineas.add("\t sw $" + temp + ", _" + variables.get(index).getNombre());
+            } else if (estaEnVariablesGlobales(asignacion.getArgs1()) != -1) {
+                String temp = getTempDisponible();
+                lineas.add("\t lw $" + temp + ", _" + asignacion.getArgs1());
+                lineas.add("\t sw $" + temp + ", " + "_" + asignacion.getResult());
+                setTempDisponible(temp);
             } else {
                 String temp = getTempDisponible();
                 lineas.add("\t li $" + temp + ", " + asignacion.getArgs1());
@@ -781,8 +871,15 @@ public class CodigoFinal {
             } else if (estaEnParametros(asignacion.getArgs1()) != null) {
                 String s = buscarEnS(asignacion.getArgs1());
                 String posicion = locateVarLocales(asignacion.getResult());
-                lineas.add("        " + forma + " $" + s + ", -" + posicion + "($fp)");
+                lineas.add("\t " + forma + " $" + s + ", -" + posicion + "($fp)");
                 lineas.add("");
+            } else if (estaEnVariablesLocales(asignacion.getArgs1()) != null) {
+                String temp = getTempDisponible();
+                String posicion = locateVarLocales(asignacion.getArgs1());
+                String posasignacion = locateVarLocales(asignacion.getResult());
+                lineas.add("\t lw $" + temp + ", " + "-" + posicion + "($fp)");
+                lineas.add("\t sw $" + temp + ", " + "-" + posasignacion + "($fp)");
+                setTempDisponible(temp);
             } else {
                 String temp = getTempDisponible();
                 if (estaEnVariablesGlobales(asignacion.getArgs1()) != -1) {
@@ -817,7 +914,28 @@ public class CodigoFinal {
                 lineas.add("\t move $" + s + ", _" + asignacion.getArgs1());
                 lineas.add("");
             }
-
+        } else if (!encuentraVariablesFor(asignacion.getResult()).equals("")) {
+            String temp1 = getTempDisponible();
+            String posicion_i = encuentraVariablesFor(asignacion.getResult());
+            temporales[Integer.parseInt(temp1.substring(1))] = posicion_i;
+            if (asignacion.getArgs1().matches("[0-9]+")) {
+                String temp2 = getTempDisponible();
+                lineas.add("\t li $" + temp1 + ", " + asignacion.getArgs1());
+                lineas.add("\t sw $" + temp1 + ", " + temp1);
+            } else if (estaEnVariablesLocales(asignacion.getArgs1()) != null) {
+                String posicion1 = locateVarLocales(asignacion.getArgs1());
+                lineas.add("\t sw -" + posicion1 + "($fp)" + temp1);
+            } else if (estaEnVariablesGlobales(asignacion.getArgs1()) != -1) {
+                lineas.add("\t sw, _" + asignacion.getArgs2() + temp1);
+            } else if (estaEnParametros(asignacion.getArgs1()) != null) {
+                String s = buscarEnS(asignacion.getArgs1());
+                lineas.add("\t sw $" + s + ", $" + temp1);
+            } else {
+                String tem = BuscarTemporal(asignacion.getArgs2());
+                lineas.add("\t sw $" + temp1 + ", -" + posicion_i + "($fp)");
+                setTempDisponible(tem);
+            }
+            setTempDisponible(temp1);
         }
     }
 

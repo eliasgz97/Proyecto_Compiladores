@@ -44,7 +44,7 @@ public class Recorrido {
         for (Nodo hoja : padre.getHijos()) {
             if ((!hoja.isVisitado2())) {
                 hoja.setVisitado2(true); //visitamos el nodo para que no lo recorra otra vez
-                if (hoja.getNombre().equals("Asignacion")) { 
+                if (hoja.getNombre().equals("Asignacion")) {
                     if (semaforo != 1) { //este semaforo ayuda a generar el codigo intermedio de procedure y funciones después del main 
                         if (!padre.getNombre().equals("put") && !padre.getNombre().equals("get") && !(padre.getNombre().equals("nueva_linea") && padre.getHijos().get(0).getNombre().equals("return"))) {
                             switch (hoja.getHijos().get(0).getNombre()) {
@@ -92,21 +92,20 @@ public class Recorrido {
                                                     System.out.println("sale generar cuadruplos");
                                                     break;
                                                 case "numfloat":
-                                                     cuadruplos.generarCuadruplo("PARAM", hoja.getValorParam().getValor(), "", "");
+                                                    cuadruplos.generarCuadruplo("PARAM", hoja.getValorParam().getValor(), "", "");
                                                     break;
                                                 case "boolean":
-                                                     cuadruplos.generarCuadruplo("PARAM", hoja.getValorParam().getValor(), "", "");
+                                                    cuadruplos.generarCuadruplo("PARAM", hoja.getValorParam().getValor(), "", "");
                                                     break;
                                                 case "id":
                                                     cuadruplos.generarCuadruplo("PARAM", hoja.getValorParam().getValor(), "", "");
                                                     break;
                                                 default:
                                                     recorrerAsignacion(hoja.getHijos().get(0).getHijos().get(1).getHijos().get(0));
-                                                    System.out.println("sale recorrer asignacion");
                                                     System.out.println(cuadruplos.getLastTemp() + " temporal");
-                                                     cuadruplos.generarCuadruplo("PARAM", cuadruplos.getLastTemp(), "", "");
+                                                    cuadruplos.generarCuadruplo("PARAM", cuadruplos.getLastTemp(), "", "");
                                                     break;
-                                                    
+
                                             }
                                         }
                                         cuadruplos.generarCuadruplo("CALL", hoja.getFunctionId().getValor(), "", "");
@@ -152,17 +151,13 @@ public class Recorrido {
                                     hoja.getHijos().get(0).setVisitado2(true);
                                     break;
                             }
-                        } else if (padre.getNombre().equals("get")) {
-                            cuadruplos.generarCuadruplo("get", hoja.getHijos().get(0).getValor(),
-                                    "", "");
-                            hoja.getHijos().get(0).setVisitado2(true);
                         } else if (padre.getNombre().equals("nueva_linea") && padre.getHijos().get(0).getNombre().equals("return")) {
                             switch (hoja.getHijos().get(0).getNombre()) {
                                 case "num_int":
                                     //System.out.println("entra num int " + hoja.getHijos().get(0).getNombre());
                                     cuadruplos.generarCuadruplo("RET", hoja.getHijos().get(0).getValor(),
                                             "", "");
-                                    
+
                                     break;
                                 case "numfloat":
                                     cuadruplos.generarCuadruplo("RET", hoja.getHijos().get(0).getValor(),
@@ -180,7 +175,7 @@ public class Recorrido {
                                     recorrerAsignacion(padre.getHijos().get(1).getHijos().get(0));
                                     cuadruplos.generarCuadruplo("RET", cuadruplos.getLastTemp(),
                                             "", "");
-                                    
+
                                     hoja.getHijos().get(0).setVisitado2(true);
                                     break;
                             }
@@ -197,6 +192,13 @@ public class Recorrido {
                         hoja.setVisitado2(false);
                     }
                     recorrer(hoja, semaforo);
+                } else if (hoja.getNombre().equals("get")) {
+                    if (semaforo != 1) {
+                        cuadruplos.generarCuadruplo("get", hoja.getValor(),
+                                "", "");
+                    } else {
+                        hoja.setVisitado2(false);
+                    }
                 } else if (hoja.getNombre().equals("if-then")) {
                     if (semaforo != 1) { //este semaforo ayuda a generar el codigo intermedio de procedure y funciones después del main
                         hoja.siguiente = cuadruplos.etiquetaNueva();
@@ -240,7 +242,7 @@ public class Recorrido {
                     if (semaforo != 1) { //este semaforo ayuda a generar el codigo intermedio de procedure y funciones después del main
                         hoja.siguiente = cuadruplos.etiquetaNueva();
                         genCuadruploFor(hoja);
-                        cuadruplos.generarCuadruplo("ETIQ", hoja.siguiente, "", "");
+                        cuadruplos.generarCuadruplo("ETIQ", hoja.siguiente, "fin_for", "");
                         hoja.getHijos().get(1).setVisitado2(true);
                         hoja.getHijos().get(2).setVisitado2(true);
                     } else {
@@ -320,6 +322,7 @@ public class Recorrido {
                     || valor.getParamDerecha().getNombre().contains("bool") || valor.getParamDerecha().getNombre().equals("id")) {
                 cuadruplos.generarCuadruplo("PARAM", valor.getParamDerecha().getValor(), "", "");
             } else {
+                System.out.println("entra aritmetica");
                 recorrerAsignacion(valor.getParamDerecha());
                 cuadruplos.generarCuadruplo("PARAM", cuadruplos.getLastTemp(), "", "");
             }
@@ -364,7 +367,7 @@ public class Recorrido {
         }
         n.comienzo = cuadruplos.etiquetaNueva();
         n.verdadera = cuadruplos.etiquetaNueva();
-        cuadruplos.generarCuadruplo("ETIQ", n.comienzo, "", "");
+        cuadruplos.generarCuadruplo("ETIQ", n.comienzo, "for", "");
         cuadruplos.generarCuadruplo("IF<=", n.getHijos().get(0).getValor(), n.getHijos().get(2).getHijos().get(0).getValor(), "GOTO " + n.verdadera);
         cuadruplos.generarCuadruplo("GOTO", n.siguiente, "", "");
         cuadruplos.generarCuadruplo("ETIQ", n.verdadera, "", "");
